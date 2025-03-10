@@ -84,7 +84,7 @@ internal static class Bytes
     /// <returns>A Single with reversed bytes.</returns>
     public static float Reverse(float value)
     {
-        var bytes = BitConverter.GetBytes(value);
+        byte[] bytes = BitConverter.GetBytes(value);
         Array.Reverse(bytes);
         return BitConverter.ToSingle(bytes, 0);
     }
@@ -96,7 +96,7 @@ internal static class Bytes
     /// <returns>A Double with reversed bytes.</returns>
     public static double Reverse(double value)
     {
-        var bytes = BitConverter.GetBytes(value);
+        byte[] bytes = BitConverter.GetBytes(value);
         Array.Reverse(bytes);
         return BitConverter.ToDouble(bytes, 0);
     }

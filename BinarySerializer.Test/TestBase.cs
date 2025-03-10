@@ -37,7 +37,7 @@ namespace BinarySerialization.Test
         {
             PrintSerialize(typeof(T));
 
-            var stream = new MemoryStream();
+            MemoryStream stream = new();
             Serialize(stream, o, context);
 
             stream.Position = 0;
@@ -49,11 +49,11 @@ namespace BinarySerialization.Test
         protected static T Roundtrip<T>(T o, long expectedLength)
         {
             PrintSerialize(typeof(T));
-            var stream = new MemoryStream();
+            MemoryStream stream = new();
             Serialize(stream, o);
 
             stream.Position = 0;
-            var data = stream.ToArray();
+            byte[] data = stream.ToArray();
 
             Assert.AreEqual(expectedLength, data.Length);
 
@@ -65,11 +65,11 @@ namespace BinarySerialization.Test
         protected static T Roundtrip<T>(T o, byte[] expectedValue)
         {
             PrintSerialize(typeof(T));
-            var stream = new MemoryStream();
+            MemoryStream stream = new();
             Serialize(stream, o);
 
             stream.Position = 0;
-            var data = stream.ToArray();
+            byte[] data = stream.ToArray();
 
             AssertEqual(expectedValue, data);
 
@@ -80,11 +80,11 @@ namespace BinarySerialization.Test
         protected static T RoundtripBigEndian<T>(T o, long expectedLength)
         {
             PrintSerialize(typeof(T));
-            var stream = new MemoryStream();
+            MemoryStream stream = new();
             SerializeBe(stream, o);
 
             stream.Position = 0;
-            var data = stream.ToArray();
+            byte[] data = stream.ToArray();
 
             Assert.AreEqual(expectedLength, data.Length);
 
@@ -95,11 +95,11 @@ namespace BinarySerialization.Test
         protected static T RoundtripBigEndian<T>(T o, byte[] expectedValue)
         {
             PrintSerialize(typeof(T));
-            var stream = new MemoryStream();
+            MemoryStream stream = new();
             SerializeBe(stream, o);
 
             stream.Position = 0;
-            var data = stream.ToArray();
+            byte[] data = stream.ToArray();
 
             AssertEqual(expectedValue, data);
 
@@ -109,12 +109,12 @@ namespace BinarySerialization.Test
 
         private static void AssertEqual(byte[] expected, byte[] actual)
         {
-            var length = Math.Min(expected.Length, actual.Length);
+            int length = Math.Min(expected.Length, actual.Length);
 
-            for (var i = 0; i < length; i++)
+            for (int i = 0; i < length; i++)
             {
-                var e = expected[i];
-                var a = actual[i];
+                byte e = expected[i];
+                byte a = actual[i];
 
                 Assert.AreEqual(a, e, $"Value at position {i} does not match expected value.  Expected 0x{e:X2}, got 0x{a:X2}");
             }
@@ -124,14 +124,14 @@ namespace BinarySerialization.Test
 
         protected static T RoundtripReverse<T>(byte[] data)
         {
-            var o = Deserialize<T>(data);
+            T o = Deserialize<T>(data);
 
             return Roundtrip(o, data);
         }
 
         protected static T Deserialize<T>(string filename)
         {
-            using var stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
+            using FileStream stream = new(filename, FileMode.Open, FileAccess.Read);
             PrintDeserialize(typeof(T));
             return Deserialize<T>(stream);
         }
@@ -145,7 +145,7 @@ namespace BinarySerialization.Test
         protected static T Deserialize<T>(Stream stream, object context = null)
         {
 #if TESTASYNC
-            var task = Serializer.DeserializeAsync<T>(stream, context);
+            System.Threading.Tasks.Task<T> task = Serializer.DeserializeAsync<T>(stream, context);
             task.ConfigureAwait(false);
             task.Wait();
             return task.Result;
@@ -156,7 +156,7 @@ namespace BinarySerialization.Test
 
         protected static byte[] Serialize(object o)
         {
-            var stream = new MemoryStream();
+            MemoryStream stream = new();
             Serialize(stream, o);
             return stream.ToArray();
         }
@@ -164,7 +164,7 @@ namespace BinarySerialization.Test
         protected static void Serialize(Stream stream, object o, object context = null)
         {
 #if TESTASYNC
-            var task = Serializer.SerializeAsync(stream, o, context);
+            System.Threading.Tasks.Task task = Serializer.SerializeAsync(stream, o, context);
             task.ConfigureAwait(false);
             task.Wait();
 #else
@@ -175,7 +175,7 @@ namespace BinarySerialization.Test
         protected static void SerializeBe(Stream stream, object o)
         {
 #if TESTASYNC
-            var task = SerializerBe.SerializeAsync(stream, o);
+            System.Threading.Tasks.Task task = SerializerBe.SerializeAsync(stream, o);
             task.ConfigureAwait(false);
             task.Wait();
 #else
@@ -186,7 +186,7 @@ namespace BinarySerialization.Test
         protected static T DeserializeBe<T>(Stream stream)
         {
 #if TESTASYNC
-            var task = SerializerBe.DeserializeAsync<T>(stream);
+            System.Threading.Tasks.Task<T> task = SerializerBe.DeserializeAsync<T>(stream);
             task.ConfigureAwait(false);
             task.Wait();
             return task.Result;
@@ -197,7 +197,7 @@ namespace BinarySerialization.Test
 
         private static void PrintIndent(int depth)
         {
-            var indent = new string([.. Enumerable.Repeat(' ', depth * 4)]);
+            string indent = new([.. Enumerable.Repeat(' ', depth * 4)]);
             Debug.Write(indent);
         }
 
@@ -220,7 +220,7 @@ namespace BinarySerialization.Test
         private static void OnMemberSerialized(object sender, MemberSerializedEventArgs e)
         {
             PrintIndent(e.Context.Depth);
-            var value = e.Value ?? "null";
+            object value = e.Value ?? "null";
             Debug.WriteLine("S-End: {0} ({1}) @ {2}", e.MemberName, value, e.Offset);
         }
 
@@ -233,7 +233,7 @@ namespace BinarySerialization.Test
         private static void OnMemberDeserialized(object sender, MemberSerializedEventArgs e)
         {
             PrintIndent(e.Context.Depth);
-            var value = e.Value ?? "null";
+            object value = e.Value ?? "null";
 
             if (value is byte[] byteArray)
             {

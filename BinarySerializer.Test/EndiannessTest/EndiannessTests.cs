@@ -12,13 +12,13 @@ namespace BinarySerialization.Test.EndiannessTest
         [TestMethod()]
         public void SerializerEndiannessTest()
         {
-            var serializer = new BinarySerializer { Endianness = Endianness.Big };
-            var expected = new EndiannessClass { Short = 1 };
+            BinarySerializer serializer = new() { Endianness = Endianness.Big };
+            EndiannessClass expected = new() { Short = 1 };
 
-            var stream = new MemoryStream();
+            MemoryStream stream = new();
             serializer.Serialize(stream, expected);
 
-            var data = stream.ToArray();
+            byte[] data = stream.ToArray();
 
             Assert.AreEqual(0x1, data[1]);
         }
@@ -26,17 +26,17 @@ namespace BinarySerialization.Test.EndiannessTest
         [TestMethod()]
         public void FieldEndiannessBeTest()
         {
-            var stream = new MemoryStream();
-            var writer = new BinaryWriter(stream);
+            MemoryStream stream = new();
+            BinaryWriter writer = new(stream);
 
             writer.Write(EndiannessConverter.BigEndiannessMagic);
 
             writer.Write((byte)0x0);
             writer.Write((byte)0x1);
 
-            var data = stream.ToArray();
+            byte[] data = stream.ToArray();
 
-            var actual = RoundtripReverse<FieldEndiannessClass>(data);
+            FieldEndiannessClass actual = RoundtripReverse<FieldEndiannessClass>(data);
 
             Assert.AreEqual(1, actual.Value);
         }
@@ -44,17 +44,17 @@ namespace BinarySerialization.Test.EndiannessTest
         [TestMethod()]
         public void FieldEndiannessLeTest()
         {
-            var stream = new MemoryStream();
-            var writer = new BinaryWriter(stream);
+            MemoryStream stream = new();
+            BinaryWriter writer = new(stream);
 
             writer.Write(EndiannessConverter.LittleEndiannessMagic);
 
             writer.Write((byte)0x1);
             writer.Write((byte)0x0);
 
-            var data = stream.ToArray();
+            byte[] data = stream.ToArray();
 
-            var actual = RoundtripReverse<FieldEndiannessClass>(data);
+            FieldEndiannessClass actual = RoundtripReverse<FieldEndiannessClass>(data);
 
             Assert.AreEqual(1, actual.Value);
         }
@@ -62,25 +62,25 @@ namespace BinarySerialization.Test.EndiannessTest
         [TestMethod()]
         public void FieldEndiannessConstTest()
         {
-            var expected = new FieldEndiannessConstClass { Value = 1 };
-            var actual = Roundtrip(expected, [0x0, 0x0, 0x0, 0x1]);
+            FieldEndiannessConstClass expected = new() { Value = 1 };
+            FieldEndiannessConstClass actual = Roundtrip(expected, [0x0, 0x0, 0x0, 0x1]);
             Assert.AreEqual(expected.Value, actual.Value);
         }
 
         [TestMethod()]
         public void DeferredFieldEndiannessBeTest()
         {
-            var stream = new MemoryStream();
-            var writer = new BinaryWriter(stream);
+            MemoryStream stream = new();
+            BinaryWriter writer = new(stream);
 
             writer.Write((byte)0x0);
             writer.Write((byte)0x1);
 
             writer.Write(EndiannessConverter.BigEndiannessMagic);
 
-            var data = stream.ToArray();
+            byte[] data = stream.ToArray();
 
-            var actual = RoundtripReverse<DeferredEndiannessEvaluationClass>(data);
+            DeferredEndiannessEvaluationClass actual = RoundtripReverse<DeferredEndiannessEvaluationClass>(data);
 
             Assert.AreEqual(1, actual.Value);
         }

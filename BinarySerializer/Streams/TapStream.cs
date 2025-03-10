@@ -46,14 +46,14 @@ internal class TapStream(Stream source, Stream tap, string name) : BoundedStream
 
     protected override int ReadByteAligned(byte[] buffer, int length)
     {
-        var read = base.ReadByteAligned(buffer, length);
+        int read = base.ReadByteAligned(buffer, length);
         _tap.Write(buffer, 0, read);
         return read;
     }
 
     protected override async Task<int> ReadByteAlignedAsync(byte[] buffer, int length, CancellationToken cancellationToken)
     {
-        var read = await base.ReadByteAlignedAsync(buffer, length, cancellationToken).ConfigureAwait(false);
+        int read = await base.ReadByteAlignedAsync(buffer, length, cancellationToken).ConfigureAwait(false);
         await _tap.WriteAsync(buffer, 0, read, cancellationToken).ConfigureAwait(false);
         return read;
     }

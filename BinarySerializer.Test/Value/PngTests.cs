@@ -12,11 +12,11 @@ namespace BinarySerialization.Test.Value
         {
             byte[] data;
 
-            var path = Path.Combine("Value", "image.png");
-            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
+            string path = Path.Combine("Value", "image.png");
+            using (FileStream stream = new(path, FileMode.Open, FileAccess.Read))
             {
                 data = new byte[stream.Length];
-                var read = stream.Read(data, 0, data.Length);
+                int read = stream.Read(data, 0, data.Length);
 
                 Assert.AreEqual(read, stream.Length);
             }

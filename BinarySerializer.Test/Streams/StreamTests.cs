@@ -13,9 +13,9 @@ namespace BinarySerialization.Test.Streams
         [TestMethod()]
         public void StreamTest()
         {
-            var stream = new MemoryStream(System.Text.Encoding.ASCII.GetBytes("StreamValue"));
-            var expected = new StreamClass { Field = stream };
-            var actual = Roundtrip(expected);
+            MemoryStream stream = new(System.Text.Encoding.ASCII.GetBytes("StreamValue"));
+            StreamClass expected = new() { Field = stream };
+            StreamClass actual = Roundtrip(expected);
             Assert.AreEqual(stream.Length, actual.Field.Length);
         }
 
@@ -29,7 +29,7 @@ namespace BinarySerialization.Test.Streams
         public void BoundedStreamToStringIsName()
         {
             const string name = "Name";
-            var stream = new BoundedStream(new MemoryStream(), name);
+            BoundedStream stream = new(new MemoryStream(), name);
             Assert.AreEqual(name, stream.ToString());
         }
     }

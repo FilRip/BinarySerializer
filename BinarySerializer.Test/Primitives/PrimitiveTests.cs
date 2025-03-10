@@ -7,10 +7,10 @@ namespace BinarySerialization.Test.Primitives
     {
         private static void RoundtripPrimitive<T>(T value, long expectedLength) where T : new()
         {
-            var actual = Roundtrip(value, expectedLength);
+            T actual = Roundtrip(value, expectedLength);
             Assert.AreEqual(value, actual);
 
-            var actualBe = RoundtripBigEndian(value, expectedLength);
+            T actualBe = RoundtripBigEndian(value, expectedLength);
             Assert.AreEqual(value, actualBe);
         }
 
@@ -192,19 +192,19 @@ namespace BinarySerialization.Test.Primitives
         [TestMethod()]
         public void NullTerminatedStringTest()
         {
-            var container = new ContainedStringClass { Value = "hello" };
+            ContainedStringClass container = new() { Value = "hello" };
             Roundtrip(container, container.Value.Length + 5);
         }
 
         [TestMethod()]
         public void PrimitiveBindingTest()
         {
-            var expected = new PrimitiveBindingsClass
+            PrimitiveBindingsClass expected = new()
             {
                 Value = "hello"
             };
 
-            var actual = Roundtrip(expected);
+            PrimitiveBindingsClass actual = Roundtrip(expected);
 
             Assert.AreEqual(expected.Value.Length, actual.ByteLength);
             Assert.AreEqual(expected.Value.Length, actual.SByteLength);

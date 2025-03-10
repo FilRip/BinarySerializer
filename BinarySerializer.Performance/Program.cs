@@ -14,7 +14,7 @@ namespace BinarySerializer.Performance
         internal static void Main(string[] args)
 #pragma warning restore IDE0060 // Supprimer le paramètre inutilisé
         {
-            var beer = new Beer
+            Beer beer = new()
             {
                 Alcohol = 6,
 
@@ -32,7 +32,7 @@ namespace BinarySerializer.Performance
             };
 
             DoBS(beer, 100000);
-            var task = DoBSAsync(beer, 100000);
+            Task task = DoBSAsync(beer, 100000);
             task.Wait();
             DoBSParallel(beer, 100000);
             //DoBF(beer, 100000);
@@ -41,11 +41,11 @@ namespace BinarySerializer.Performance
 
         private static void DoBS<T>(T obj, int iterations)
         {
-            var stopwatch = new Stopwatch();
+            Stopwatch stopwatch = new();
 
-            var ser = new BinarySerialization.BinarySerializer();
+            BinarySerialization.BinarySerializer ser = new();
 
-            using (var ms = new MemoryStream())
+            using (MemoryStream ms = new())
             {
                 stopwatch.Start();
                 for (int i = 0; i < iterations; i++)
@@ -57,11 +57,11 @@ namespace BinarySerializer.Performance
                 stopwatch.Reset();
             }
 
-            var dataStream = new MemoryStream();
+            MemoryStream dataStream = new();
             ser.Serialize(dataStream, obj);
             byte[] data = dataStream.ToArray();
 
-            using (var ms = new MemoryStream(data))
+            using (MemoryStream ms = new(data))
             {
                 stopwatch.Start();
                 for (int i = 0; i < iterations; i++)
@@ -77,11 +77,11 @@ namespace BinarySerializer.Performance
 
         private static async Task DoBSAsync<T>(T obj, int iterations)
         {
-            var stopwatch = new Stopwatch();
+            Stopwatch stopwatch = new();
 
-            var ser = new BinarySerialization.BinarySerializer();
+            BinarySerialization.BinarySerializer ser = new();
 
-            using (var ms = new MemoryStream())
+            using (MemoryStream ms = new())
             {
                 stopwatch.Start();
                 for (int i = 0; i < iterations; i++)
@@ -93,11 +93,11 @@ namespace BinarySerializer.Performance
                 stopwatch.Reset();
             }
 
-            var dataStream = new MemoryStream();
+            MemoryStream dataStream = new();
             await ser.SerializeAsync(dataStream, obj);
             byte[] data = dataStream.ToArray();
 
-            using (var ms = new MemoryStream(data))
+            using (MemoryStream ms = new(data))
             {
                 stopwatch.Start();
                 for (int i = 0; i < iterations; i++)
@@ -114,14 +114,14 @@ namespace BinarySerializer.Performance
 
         private static void DoBSParallel<T>(T obj, int iterations)
         {
-            var stopwatch = new Stopwatch();
+            Stopwatch stopwatch = new();
 
-            var ser = new BinarySerialization.BinarySerializer();
+            BinarySerialization.BinarySerializer ser = new();
 
             stopwatch.Start();
-            var data = Enumerable.Range(0, iterations).AsParallel().Select(i =>
+            byte[][] data = Enumerable.Range(0, iterations).AsParallel().Select(i =>
             {
-                using var ms = new MemoryStream();
+                using MemoryStream ms = new();
                 ser.Serialize(ms, obj);
                 return ms.ToArray();
             }).ToArray();

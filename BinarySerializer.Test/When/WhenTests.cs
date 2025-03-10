@@ -8,7 +8,7 @@ namespace BinarySerialization.Test.When
         [TestMethod()]
         public void WhenStringTest()
         {
-            var expected = new WhenStringTestClass
+            WhenStringTestClass expected = new()
             {
                 WhatToDo = "PickOne",
                 SerializeThis = 1,
@@ -16,7 +16,7 @@ namespace BinarySerialization.Test.When
                 SerializeThisNoMatterWhat = 3
             };
 
-            var actual = Roundtrip(expected);
+            WhenStringTestClass actual = Roundtrip(expected);
 
             Assert.AreEqual(expected.SerializeThis, actual.SerializeThis);
             Assert.AreNotEqual(expected.DontSerializeThis, actual.DontSerializeThis);
@@ -26,7 +26,7 @@ namespace BinarySerialization.Test.When
         [TestMethod()]
         public void WhenIntTest()
         {
-            var expected = new WhenIntTestClass
+            WhenIntTestClass expected = new()
             {
                 WhatToDo = 2,
                 SerializeThis = 100,
@@ -36,7 +36,7 @@ namespace BinarySerialization.Test.When
                 DontSerializeThis2 = 500
             };
 
-            var actual = Roundtrip(expected);
+            WhenIntTestClass actual = Roundtrip(expected);
 
             Assert.AreEqual(expected.SerializeThis, actual.SerializeThis);
             Assert.AreNotEqual(expected.DontSerializeThis, actual.DontSerializeThis);
@@ -48,7 +48,7 @@ namespace BinarySerialization.Test.When
         [TestMethod()]
         public void WhenEnumTest()
         {
-            var expected = new WhenEnumTestClass
+            WhenEnumTestClass expected = new()
             {
                 WhatToDo = 1,
                 SerializeThis = 1000,
@@ -56,7 +56,7 @@ namespace BinarySerialization.Test.When
                 SerializeThisNoMatterWhat = 3000
             };
 
-            var actual = Roundtrip(expected);
+            WhenEnumTestClass actual = Roundtrip(expected);
 
             Assert.AreEqual(expected.SerializeThis, actual.SerializeThis);
             Assert.AreNotEqual(expected.DontSerializeThis, actual.DontSerializeThis);
@@ -66,7 +66,7 @@ namespace BinarySerialization.Test.When
         [TestMethod()]
         public void WhenConverterTest()
         {
-            var expected = new WhenConverterTestClass
+            WhenConverterTestClass expected = new()
             {
                 WhatToDo = 1,
                 SerializeThis = 1000,
@@ -74,7 +74,7 @@ namespace BinarySerialization.Test.When
                 SerializeThisNoMatterWhat = 3000
             };
 
-            var actual = Roundtrip(expected);
+            WhenConverterTestClass actual = Roundtrip(expected);
 
             Assert.AreEqual(expected.SerializeThis, actual.SerializeThis);
             Assert.AreNotEqual(expected.DontSerializeThis, actual.DontSerializeThis);

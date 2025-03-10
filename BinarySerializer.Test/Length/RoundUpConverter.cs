@@ -12,8 +12,8 @@ namespace BinarySerialization.Test.Length
 
             ArgumentNullException.ThrowIfNull(parameter);
 
-            var v = System.Convert.ToUInt64(value);
-            var m = System.Convert.ToUInt64(parameter);
+            ulong v = System.Convert.ToUInt64(value);
+            ulong m = System.Convert.ToUInt64(parameter);
             return v + (m - v % m) % m;
         }
 

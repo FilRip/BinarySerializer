@@ -16,18 +16,18 @@ internal abstract class CollectionValueNode(ValueNode parent, string name, TypeN
 {
     internal override void SerializeOverride(BoundedStream stream, EventShuttle eventShuttle)
     {
-        var serializableChildren = GetSerializableChildren().ToList();
+        List<ValueNode> serializableChildren = [.. GetSerializableChildren()];
 
         SetTerminationValue(serializableChildren);
 
-        foreach (var child in serializableChildren)
+        foreach (ValueNode child in serializableChildren)
         {
             if (stream.IsAtLimit)
             {
                 break;
             }
 
-            var childStream = new BoundedStream(stream, Name, GetConstFieldItemLength);
+            BoundedStream childStream = new(stream, Name, GetConstFieldItemLength);
 
             child.Serialize(childStream, eventShuttle);
         }
@@ -37,18 +37,18 @@ internal abstract class CollectionValueNode(ValueNode parent, string name, TypeN
 
     internal override async Task SerializeOverrideAsync(BoundedStream stream, EventShuttle eventShuttle, CancellationToken cancellationToken)
     {
-        var serializableChildren = GetSerializableChildren().ToList();
+        List<ValueNode> serializableChildren = [.. GetSerializableChildren()];
 
         SetTerminationValue(serializableChildren);
 
-        foreach (var child in serializableChildren)
+        foreach (ValueNode child in serializableChildren)
         {
             if (stream.IsAtLimit)
             {
                 break;
             }
 
-            var childStream = new BoundedStream(stream, Name, GetConstFieldItemLength);
+            BoundedStream childStream = new(stream, Name, GetConstFieldItemLength);
 
             await child.SerializeAsync(childStream, eventShuttle, true, cancellationToken)
                 .ConfigureAwait(false);
@@ -60,13 +60,13 @@ internal abstract class CollectionValueNode(ValueNode parent, string name, TypeN
 
     internal override void DeserializeOverride(BoundedStream stream, SerializationOptions options, EventShuttle eventShuttle)
     {
-        var terminationValue = GetTerminationValue();
-        var terminationChild = GetTerminationChild();
-        var itemTerminationValue = GetItemTerminationValue();
-        var itemLengths = GetItemLengths();
+        object terminationValue = GetTerminationValue();
+        ValueNode terminationChild = GetTerminationChild();
+        object itemTerminationValue = GetItemTerminationValue();
+        IEnumerable<long> itemLengths = GetItemLengths();
 
-        using var itemLengthEnumerator = itemLengths?.GetEnumerator();
-        var count = GetFieldCount() ?? long.MaxValue;
+        using IEnumerator<long> itemLengthEnumerator = itemLengths?.GetEnumerator();
+        long count = GetFieldCount() ?? long.MaxValue;
 
         for (long i = 0; i < count && !EndOfStream(stream); i++)
         {
@@ -79,14 +79,14 @@ internal abstract class CollectionValueNode(ValueNode parent, string name, TypeN
 
             // TODO this doesn't allow for deferred eval of endianness in the case of jagged arrays
             // probably extremely rare but still...
-            var itemLength = itemLengthEnumerator?.Current;
-            var childStream = itemLength == null
+            long? itemLength = itemLengthEnumerator?.Current;
+            BoundedStream childStream = itemLength == null
                 ? new BoundedStream(stream, Name)
                 : new BoundedStream(stream, Name, () => itemLength);
 
-            var child = CreateChildSerializer();
+            ValueNode child = CreateChildSerializer();
 
-            using (var streamResetter = new StreamResetter(childStream))
+            using (StreamResetter streamResetter = new(childStream))
             {
                 child.Deserialize(childStream, options, eventShuttle);
 
@@ -111,13 +111,13 @@ internal abstract class CollectionValueNode(ValueNode parent, string name, TypeN
     internal override async Task DeserializeOverrideAsync(BoundedStream stream, SerializationOptions options, EventShuttle eventShuttle,
         CancellationToken cancellationToken)
     {
-        var terminationValue = GetTerminationValue();
-        var terminationChild = GetTerminationChild();
-        var itemTerminationValue = GetItemTerminationValue();
-        var itemLengths = GetItemLengths();
+        object terminationValue = GetTerminationValue();
+        ValueNode terminationChild = GetTerminationChild();
+        object itemTerminationValue = GetItemTerminationValue();
+        IEnumerable<long> itemLengths = GetItemLengths();
 
-        using var itemLengthEnumerator = itemLengths?.GetEnumerator();
-        var count = GetFieldCount() ?? long.MaxValue;
+        using IEnumerator<long> itemLengthEnumerator = itemLengths?.GetEnumerator();
+        long count = GetFieldCount() ?? long.MaxValue;
 
         for (long i = 0; i < count && !EndOfStream(stream); i++)
         {
@@ -130,14 +130,14 @@ internal abstract class CollectionValueNode(ValueNode parent, string name, TypeN
 
             // TODO this doesn't allow for deferred eval of endianness in the case of jagged arrays
             // probably extremely rare but still...
-            var itemLength = itemLengthEnumerator?.Current;
-            var childStream = itemLength == null
+            long? itemLength = itemLengthEnumerator?.Current;
+            BoundedStream childStream = itemLength == null
                 ? new BoundedStream(stream, Name)
                 : new BoundedStream(stream, Name, () => itemLength);
 
-            var child = CreateChildSerializer();
+            ValueNode child = CreateChildSerializer();
 
-            using (var streamResetter = new StreamResetter(childStream))
+            using (StreamResetter streamResetter = new(childStream))
             {
                 await child.DeserializeAsync(childStream, options, eventShuttle, cancellationToken)
                     .ConfigureAwait(false);
@@ -167,10 +167,10 @@ internal abstract class CollectionValueNode(ValueNode parent, string name, TypeN
 
     protected override IEnumerable<FieldLength> MeasureItemsOverride()
     {
-        var nullStream = new NullStream();
-        var boundedStream = new BoundedStream(nullStream, Name);
+        NullStream nullStream = new();
+        BoundedStream boundedStream = new(nullStream, Name);
 
-        var serializableChildren = GetSerializableChildren();
+        IEnumerable<ValueNode> serializableChildren = GetSerializableChildren();
 
         return serializableChildren.Select(child =>
         {
@@ -182,8 +182,8 @@ internal abstract class CollectionValueNode(ValueNode parent, string name, TypeN
 
     protected override object GetLastItemValueOverride()
     {
-        var lastItem = Children.LastOrDefault() ?? throw new InvalidOperationException("Unable to determine last item value because collection is empty.");
-        var terminationItemChild =
+        ValueNode lastItem = Children.LastOrDefault() ?? throw new InvalidOperationException("Unable to determine last item value because collection is empty.");
+        ValueValueNode terminationItemChild =
             (ValueValueNode)lastItem.GetChild(TypeNode.ItemSerializeUntilAttribute.ItemValuePath);
 
         return terminationItemChild.BoundValue;
@@ -191,7 +191,7 @@ internal abstract class CollectionValueNode(ValueNode parent, string name, TypeN
 
     private void SetTerminationValue(List<ValueNode> serializableChildren)
     {
-        var localTypeNode = (CollectionTypeNode)TypeNode;
+        CollectionTypeNode localTypeNode = (CollectionTypeNode)TypeNode;
 
         if (localTypeNode.ItemSerializeUntilAttribute == null ||
             localTypeNode.ItemSerializeUntilAttribute.LastItemMode != LastItemMode.Include)
@@ -199,17 +199,17 @@ internal abstract class CollectionValueNode(ValueNode parent, string name, TypeN
             return;
         }
 
-        var lastChild = serializableChildren.LastOrDefault();
+        ValueNode lastChild = serializableChildren.LastOrDefault();
 
         if (lastChild == null)
         {
             return;
         }
 
-        var itemTerminationValue = TypeNode.ItemSerializeUntilBinding.GetBoundValue(this);
-        var itemTerminationChild = lastChild.GetChild(localTypeNode.ItemSerializeUntilAttribute.ItemValuePath);
+        object itemTerminationValue = TypeNode.ItemSerializeUntilBinding.GetBoundValue(this);
+        ValueNode itemTerminationChild = lastChild.GetChild(localTypeNode.ItemSerializeUntilAttribute.ItemValuePath);
 
-        var convertedItemTerminationValue =
+        object convertedItemTerminationValue =
             itemTerminationValue.ConvertTo(itemTerminationChild.TypeNode.Type);
 
         itemTerminationChild.Value = convertedItemTerminationValue;
@@ -248,9 +248,9 @@ internal abstract class CollectionValueNode(ValueNode parent, string name, TypeN
         IEnumerable<long> itemLengths = null;
         if (TypeNode.ItemLengthBindings != null)
         {
-            var itemLengthValue = TypeNode.ItemLengthBindings.GetValue(this);
+            object itemLengthValue = TypeNode.ItemLengthBindings.GetValue(this);
 
-            var enumerableItemLengthValue = itemLengthValue as IEnumerable;
+            IEnumerable enumerableItemLengthValue = itemLengthValue as IEnumerable;
 
             itemLengths = enumerableItemLengthValue?.Cast<object>().Select(Convert.ToInt64) ??
                           GetInfiniteSequence(Convert.ToInt64(itemLengthValue));
@@ -266,9 +266,9 @@ internal abstract class CollectionValueNode(ValueNode parent, string name, TypeN
             return false;
         }
 
-        var itemTerminationChild = child.GetChild(TypeNode.ItemSerializeUntilAttribute.ItemValuePath);
+        ValueNode itemTerminationChild = child.GetChild(TypeNode.ItemSerializeUntilAttribute.ItemValuePath);
 
-        var convertedItemTerminationValue =
+        object convertedItemTerminationValue =
             itemTerminationValue.ConvertTo(itemTerminationChild.TypeNode.Type);
 
         return itemTerminationChild.Value == null ||

@@ -15,19 +15,19 @@ namespace BinarySerialization.Test
 
         private static void AssertRead(int offset, int length)
         {
-            var source = new MemoryStream(SourceData);
-            var streamlet = new Streamlet(source, offset, length);
+            MemoryStream source = new(SourceData);
+            Streamlet streamlet = new(source, offset, length);
 
-            var block = new byte[SourceData.Length];
-            var read = streamlet.Read(block, 0, block.Length);
+            byte[] block = new byte[SourceData.Length];
+            int read = streamlet.Read(block, 0, block.Length);
 
-            var sourceBalance = source.Length - offset;
-            var expectedRead = Math.Min(sourceBalance, length);
+            long sourceBalance = source.Length - offset;
+            long expectedRead = Math.Min(sourceBalance, length);
 
             Assert.AreEqual(expectedRead, read);
 
-            var expectedSequence = SourceData.Skip(offset).Take(read);
-            var sequence = block.Take(read);
+            System.Collections.Generic.IEnumerable<byte> expectedSequence = SourceData.Skip(offset).Take(read);
+            System.Collections.Generic.IEnumerable<byte> sequence = block.Take(read);
             Assert.IsTrue(expectedSequence.SequenceEqual(sequence));
 
             Assert.AreEqual(offset + read, source.Position);

@@ -10,13 +10,13 @@ internal abstract class CollectionValueNodeBase(ValueNode parent, string name, T
 {
     protected ValueNode CreateChildSerializer()
     {
-        var localTypeNode = (CollectionTypeNode)TypeNode;
+        CollectionTypeNode localTypeNode = (CollectionTypeNode)TypeNode;
         return localTypeNode.Child.CreateSerializer(this);
     }
 
     protected object GetTerminationValue()
     {
-        var localTypeNode = (CollectionTypeNode)TypeNode;
+        CollectionTypeNode localTypeNode = (CollectionTypeNode)TypeNode;
         return localTypeNode.TerminationValue;
     }
 
@@ -25,7 +25,7 @@ internal abstract class CollectionValueNodeBase(ValueNode parent, string name, T
     {
         if (terminationChild != null)
         {
-            using var streamResetter = new StreamResetter(stream);
+            using StreamResetter streamResetter = new(stream);
             terminationChild.Deserialize(stream, options, eventShuttle);
 
             if (terminationChild.Value.Equals(terminationValue))
@@ -39,11 +39,11 @@ internal abstract class CollectionValueNodeBase(ValueNode parent, string name, T
 
     protected void SerializeTermination(BoundedStream stream, EventShuttle eventShuttle)
     {
-        var localTypeNode = (CollectionTypeNode)TypeNode;
+        CollectionTypeNode localTypeNode = (CollectionTypeNode)TypeNode;
 
         if (localTypeNode.TerminationChild != null)
         {
-            var terminationChild = localTypeNode.TerminationChild.CreateSerializer(this);
+            ValueNode terminationChild = localTypeNode.TerminationChild.CreateSerializer(this);
             terminationChild.Value = localTypeNode.TerminationValue;
             terminationChild.Serialize(stream, eventShuttle);
         }
@@ -51,11 +51,11 @@ internal abstract class CollectionValueNodeBase(ValueNode parent, string name, T
 
     protected async Task SerializeTerminationAsync(BoundedStream stream, EventShuttle eventShuttle, CancellationToken cancellationToken)
     {
-        var localTypeNode = (CollectionTypeNode)TypeNode;
+        CollectionTypeNode localTypeNode = (CollectionTypeNode)TypeNode;
 
         if (localTypeNode.TerminationChild != null)
         {
-            var terminationChild = localTypeNode.TerminationChild.CreateSerializer(this);
+            ValueNode terminationChild = localTypeNode.TerminationChild.CreateSerializer(this);
             terminationChild.Value = localTypeNode.TerminationValue;
             await terminationChild.SerializeAsync(stream, eventShuttle, true, cancellationToken)
                 .ConfigureAwait(false);
@@ -64,8 +64,8 @@ internal abstract class CollectionValueNodeBase(ValueNode parent, string name, T
 
     protected ValueNode GetTerminationChild()
     {
-        var localTypeNode = (CollectionTypeNode)TypeNode;
-        var terminationChild = localTypeNode.TerminationChild?.CreateSerializer(this);
+        CollectionTypeNode localTypeNode = (CollectionTypeNode)TypeNode;
+        ValueNode terminationChild = localTypeNode.TerminationChild?.CreateSerializer(this);
         return terminationChild;
     }
 }

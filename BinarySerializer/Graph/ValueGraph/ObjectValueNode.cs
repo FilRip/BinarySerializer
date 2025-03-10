@@ -41,9 +41,9 @@ internal class ObjectValueNode(ValueNode parent, string name, TypeNode typeNode)
                 return;
             }
 
-            var localTypeNode = (ObjectTypeNode)TypeNode;
+            ObjectTypeNode localTypeNode = (ObjectTypeNode)TypeNode;
 
-            var valueType = value.GetType();
+            Type valueType = value.GetType();
 
             // always check for user-defined subtypes, whether they exist or not. 
             // In the trivial case we get the value type node back.
@@ -53,7 +53,7 @@ internal class ObjectValueNode(ValueNode parent, string name, TypeNode typeNode)
             Children = [.. _subTypeNode.Children.Select(child => child.CreateSerializer(this))];
 
             // initialize all children from the corresponding set value fields
-            foreach (var child in Children)
+            foreach (ValueNode child in Children)
             {
                 try
                 {
@@ -144,7 +144,7 @@ internal class ObjectValueNode(ValueNode parent, string name, TypeNode typeNode)
         // treating all object members as object nodes.  In the case of sub-types we could later discover we
         // are actually a custom node because the specified subtype implements IBinarySerializable.
 
-        if (IsCustomNode(out var customValueNode))
+        if (IsCustomNode(out ValueNode customValueNode))
         {
             // this is a little bit of a cheat, but another side-effect of this weird corner case
             customValueNode.Value = _cachedValue;
@@ -154,11 +154,11 @@ internal class ObjectValueNode(ValueNode parent, string name, TypeNode typeNode)
             return;
         }
 
-        var serializableChildren = GetSerializableChildren();
+        IEnumerable<ValueNode> serializableChildren = GetSerializableChildren();
 
-        var lazyContext = CreateLazySerializationContext();
+        LazyBinarySerializationContext lazyContext = CreateLazySerializationContext();
 
-        foreach (var child in serializableChildren)
+        foreach (ValueNode child in serializableChildren)
         {
             if (!child.ShouldSerialize)
             {
@@ -188,11 +188,11 @@ internal class ObjectValueNode(ValueNode parent, string name, TypeNode typeNode)
             return;
         }
 
-        var serializableChildren = GetSerializableChildren();
+        IEnumerable<ValueNode> serializableChildren = GetSerializableChildren();
 
-        var lazyContext = CreateLazySerializationContext();
+        LazyBinarySerializationContext lazyContext = CreateLazySerializationContext();
 
-        foreach (var child in serializableChildren)
+        foreach (ValueNode child in serializableChildren)
         {
             if (!child.ShouldSerialize)
             {
@@ -210,7 +210,7 @@ internal class ObjectValueNode(ValueNode parent, string name, TypeNode typeNode)
         // check to see if we are actually supposed to be a custom deserialization.  This is a side-effect of
         // treating all object members as object nodes.  In the case of sub-types we could later discover we
         // are actually a custom node because the specified subtype implements IBinarySerializable.
-        if (IsCustomNode(out var customValueNode))
+        if (IsCustomNode(out ValueNode customValueNode))
         {
             customValueNode.DeserializeOverride(stream, options, eventShuttle);
 
@@ -220,9 +220,9 @@ internal class ObjectValueNode(ValueNode parent, string name, TypeNode typeNode)
             return;
         }
 
-        var lazyContext = CreateLazySerializationContext();
+        LazyBinarySerializationContext lazyContext = CreateLazySerializationContext();
 
-        foreach (var child in GetSerializableChildren())
+        foreach (ValueNode child in GetSerializableChildren())
         {
             if (!child.ShouldDeserialize)
             {
@@ -241,7 +241,7 @@ internal class ObjectValueNode(ValueNode parent, string name, TypeNode typeNode)
         // check to see if we are actually supposed to be a custom deserialization.  This is a side-effect of
         // treating all object members as object nodes.  In the case of sub-types we could later discover we
         // are actually a custom node because the specified subtype implements IBinarySerializable.
-        if (IsCustomNode(out var customValueNode))
+        if (IsCustomNode(out ValueNode customValueNode))
         {
             await customValueNode.DeserializeOverrideAsync(stream, options, eventShuttle, cancellationToken)
                 .ConfigureAwait(false);
@@ -252,9 +252,9 @@ internal class ObjectValueNode(ValueNode parent, string name, TypeNode typeNode)
             return;
         }
 
-        var lazyContext = CreateLazySerializationContext();
+        LazyBinarySerializationContext lazyContext = CreateLazySerializationContext();
 
-        foreach (var child in GetSerializableChildren())
+        foreach (ValueNode child in GetSerializableChildren())
         {
             if (!child.ShouldDeserialize)
             {
@@ -290,7 +290,7 @@ internal class ObjectValueNode(ValueNode parent, string name, TypeNode typeNode)
             return null;
         }
 
-        var objectTypeNode = (ObjectTypeNode)TypeNode;
+        ObjectTypeNode objectTypeNode = (ObjectTypeNode)TypeNode;
 
         // if ignored, the best we can do is return set value
         if (objectTypeNode.IsIgnored)
@@ -299,7 +299,7 @@ internal class ObjectValueNode(ValueNode parent, string name, TypeNode typeNode)
         }
 
         // make sure we're operating on the correct (possibly sub-) type.
-        var node = objectTypeNode.GetSubTypeNode(_valueType);
+        ObjectTypeNode node = objectTypeNode.GetSubTypeNode(_valueType);
 
         // see if it's possible to construct at all
         if (node.Constructor == null)
@@ -321,17 +321,16 @@ internal class ObjectValueNode(ValueNode parent, string name, TypeNode typeNode)
         else
         {
             // find best match for constructor
-            var serializableChildren = GetSerializableChildren();
+            IEnumerable<ValueNode> serializableChildren = GetSerializableChildren();
 
             // find children that can be initialized or partially initialized with construction based on matching name
-            var parametricChildren = node.ConstructorParameterNames.Join(serializableChildren,
+            List<ValueNode> parametricChildren = [.. node.ConstructorParameterNames.Join(serializableChildren,
                     parameter => parameter.ToLower(),
                     serializableChild => serializableChild.Name.ToLower(),
-                    (parameter, serializableChild) => serializableChild)
-                .ToList();
+                    (parameter, serializableChild) => serializableChild)];
 
             // get constructor arguments based on child selector
-            var parameterValues = parametricChildren.Select(childValueSelector).ToArray();
+            object[] parameterValues = [.. parametricChildren.Select(childValueSelector)];
 
             // construct our value
             value = node.Constructor.Invoke(parameterValues);
@@ -341,9 +340,9 @@ internal class ObjectValueNode(ValueNode parent, string name, TypeNode typeNode)
         }
 
         // set any children not used during construction
-        foreach (var child in nonparametricChildren)
+        foreach (ValueNode child in nonparametricChildren)
         {
-            var setter = child.TypeNode.ValueSetter;
+            Action<object, object> setter = child.TypeNode.ValueSetter;
 
             if (setter == null && !child.TypeNode.IsIgnored)
             {
@@ -358,15 +357,15 @@ internal class ObjectValueNode(ValueNode parent, string name, TypeNode typeNode)
 
     private bool IsCustomNode(out ValueNode customValueNode)
     {
-        var localParent = TypeNode.Parent;
+        TypeNode localParent = TypeNode.Parent;
 
         if (_valueType != null &&
             (TypeNode.SubtypeBindings != null || localParent.ItemSubtypeBindings != null ||
              TypeNode.SubtypeFactoryBinding != null || localParent.ItemSubtypeFactoryBinding != null
              || TypeNode.SubtypeDefaultAttribute != null))
         {
-            var localTypeNode = (ObjectTypeNode)TypeNode;
-            var subType = localTypeNode.GetSubTypeNode(_valueType);
+            ObjectTypeNode localTypeNode = (ObjectTypeNode)TypeNode;
+            ObjectTypeNode subType = localTypeNode.GetSubTypeNode(_valueType);
 
             if (subType is CustomTypeNode)
             {
@@ -404,7 +403,7 @@ internal class ObjectValueNode(ValueNode parent, string name, TypeNode typeNode)
 
     private void GenerateChildren()
     {
-        var localTypeNode = (ObjectTypeNode)TypeNode;
+        ObjectTypeNode localTypeNode = (ObjectTypeNode)TypeNode;
 
         // generate correct children for this subtype
         _subTypeNode = localTypeNode.GetSubTypeNode(_valueType);
@@ -413,24 +412,24 @@ internal class ObjectValueNode(ValueNode parent, string name, TypeNode typeNode)
 
     private void SkipPadding(BoundedStream stream)
     {
-        var length = GetFieldLength();
+        FieldLength length = GetFieldLength();
 
         if (length != null && length > stream.RelativePosition)
         {
-            var padLength = length - stream.RelativePosition;
-            var pad = new byte[(int)padLength.TotalByteCount];
+            FieldLength padLength = length - stream.RelativePosition;
+            byte[] pad = new byte[(int)padLength.TotalByteCount];
             stream.Read(pad, padLength);
         }
     }
 
     private Task SkipPaddingAsync(BoundedStream stream, CancellationToken cancellationToken)
     {
-        var length = GetFieldLength();
+        FieldLength length = GetFieldLength();
 
         if (length != null && length > stream.RelativePosition)
         {
-            var padLength = length - stream.RelativePosition;
-            var pad = new byte[(int)padLength.TotalByteCount];
+            FieldLength padLength = length - stream.RelativePosition;
+            byte[] pad = new byte[(int)padLength.TotalByteCount];
             return stream.ReadAsync(pad, padLength, cancellationToken);
         }
 
@@ -439,7 +438,7 @@ internal class ObjectValueNode(ValueNode parent, string name, TypeNode typeNode)
 
     private void ResolveValueType()
     {
-        var localParent = TypeNode.Parent;
+        TypeNode localParent = TypeNode.Parent;
 
         // first check for any immediate subtype information
         if (TypeNode.SubtypeBindings != null || TypeNode.SubtypeFactoryBinding != null ||
@@ -477,12 +476,12 @@ internal class ObjectValueNode(ValueNode parent, string name, TypeNode typeNode)
         if (bindings != null)
         {
             // try to resolve value type using subtype mapping
-            var subTypeValue = bindings.GetValue(bindingTarget);
+            object subTypeValue = bindings.GetValue(bindingTarget);
 
-            var toTargetAttributes = attributes.Where(attribute => attribute.BindingMode != BindingMode.OneWayToSource);
+            IEnumerable<SubtypeBaseAttribute> toTargetAttributes = attributes.Where(attribute => attribute.BindingMode != BindingMode.OneWayToSource);
 
             // find matching subtype, if available
-            var matchingAttribute = toTargetAttributes.SingleOrDefault(
+            SubtypeBaseAttribute matchingAttribute = toTargetAttributes.SingleOrDefault(
                 attribute => subTypeValue.Equals(
                     Convert.ChangeType(attribute.Value, subTypeValue.GetType(), null)));
 
@@ -491,9 +490,9 @@ internal class ObjectValueNode(ValueNode parent, string name, TypeNode typeNode)
 
         if (_valueType == null && subtypeFactoryBinding != null)
         {
-            var subTypeFactoryValue = subtypeFactoryBinding.GetValue(bindingTarget);
+            object subTypeFactoryValue = subtypeFactoryBinding.GetValue(bindingTarget);
 
-            if (subtypeFactory.TryGetType(subTypeFactoryValue, out var valueType))
+            if (subtypeFactory.TryGetType(subTypeFactoryValue, out Type valueType))
             {
                 _valueType = valueType;
             }
@@ -530,8 +529,8 @@ internal class ObjectValueNode(ValueNode parent, string name, TypeNode typeNode)
 
     private void ThrowIfUnordered()
     {
-        var objectTypeNode = (ObjectTypeNode)(_subTypeNode ?? TypeNode);
-        var unorderedChild = objectTypeNode.UnorderedChildren?.FirstOrDefault();
+        ObjectTypeNode objectTypeNode = (ObjectTypeNode)(_subTypeNode ?? TypeNode);
+        TypeNode unorderedChild = objectTypeNode.UnorderedChildren?.FirstOrDefault();
         if (unorderedChild != null)
         {
             throw new InvalidOperationException(

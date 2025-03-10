@@ -35,7 +35,7 @@ internal abstract class PrimitiveCollectionValueNode(ValueNode parent, string na
 
                 if (Bindings.Count != 1)
                 {
-                    var bindingValues = Bindings.Select(binding => binding() as IEnumerable).ToList();
+                    List<IEnumerable> bindingValues = [.. Bindings.Select(binding => binding() as IEnumerable)];
 
                     if (bindingValues.Contains(null))
                     {
@@ -65,22 +65,22 @@ internal abstract class PrimitiveCollectionValueNode(ValueNode parent, string na
 
     internal override void SerializeOverride(BoundedStream stream, EventShuttle eventShuttle)
     {
-        var childSerializer = (ValueValueNode)CreateChildSerializer();
-        var childSerializedType = childSerializer.TypeNode.GetSerializedType();
+        ValueValueNode childSerializer = (ValueValueNode)CreateChildSerializer();
+        SerializedType childSerializedType = childSerializer.TypeNode.GetSerializedType();
 
-        var itemLength = GetConstFieldItemLength();
+        FieldLength itemLength = GetConstFieldItemLength();
 
-        var boundValue = BoundValue;
+        object boundValue = BoundValue;
 
-        var count = GetConstFieldCount();
+        long? count = GetConstFieldCount();
 
         // handle null value case
         if (boundValue == null)
         {
             if (count != null)
             {
-                var defaultValue = TypeNode.GetDefaultValue(childSerializedType);
-                for (var i = 0; i < count.Value; i++)
+                object defaultValue = TypeNode.GetDefaultValue(childSerializedType);
+                for (int i = 0; i < count.Value; i++)
                 {
                     childSerializer.Serialize(stream, defaultValue, childSerializedType, itemLength);
                 }
@@ -97,22 +97,22 @@ internal abstract class PrimitiveCollectionValueNode(ValueNode parent, string na
 
     internal override async Task SerializeOverrideAsync(BoundedStream stream, EventShuttle eventShuttle, CancellationToken cancellationToken)
     {
-        var childSerializer = (ValueValueNode)CreateChildSerializer();
-        var childSerializedType = childSerializer.TypeNode.GetSerializedType();
+        ValueValueNode childSerializer = (ValueValueNode)CreateChildSerializer();
+        SerializedType childSerializedType = childSerializer.TypeNode.GetSerializedType();
 
-        var itemLength = GetConstFieldItemLength();
+        FieldLength itemLength = GetConstFieldItemLength();
 
-        var boundValue = BoundValue;
+        object boundValue = BoundValue;
 
-        var count = GetConstFieldCount();
+        long? count = GetConstFieldCount();
 
         // handle null value case
         if (boundValue == null)
         {
             if (count != null)
             {
-                var defaultValue = TypeNode.GetDefaultValue(childSerializedType);
-                for (var i = 0; i < count.Value; i++)
+                object defaultValue = TypeNode.GetDefaultValue(childSerializedType);
+                for (int i = 0; i < count.Value; i++)
                 {
                     await childSerializer
                         .SerializeAsync(stream, defaultValue, childSerializedType, itemLength, cancellationToken)
@@ -131,14 +131,14 @@ internal abstract class PrimitiveCollectionValueNode(ValueNode parent, string na
 
     internal override void DeserializeOverride(BoundedStream stream, SerializationOptions options, EventShuttle eventShuttle)
     {
-        var items = DeserializeCollection(stream, options, eventShuttle).ToList();
+        List<object> items = [.. DeserializeCollection(stream, options, eventShuttle)];
         CreateFinalCollection(items);
     }
 
     internal override async Task DeserializeOverrideAsync(BoundedStream stream, SerializationOptions options, EventShuttle eventShuttle,
         CancellationToken cancellationToken)
     {
-        var items = await DeserializeCollectionAsync(stream, options, eventShuttle, cancellationToken).ConfigureAwait(false);
+        List<object> items = await DeserializeCollectionAsync(stream, options, eventShuttle, cancellationToken).ConfigureAwait(false);
         CreateFinalCollection(items);
     }
 
@@ -161,12 +161,12 @@ internal abstract class PrimitiveCollectionValueNode(ValueNode parent, string na
 
     private void CreateFinalCollection(List<object> items)
     {
-        var itemCount = items.Count;
+        int itemCount = items.Count;
 
         Value = CreateCollection(itemCount);
 
         /* Copy temp list into final collection */
-        for (var i = 0; i < itemCount; i++)
+        for (int i = 0; i < itemCount; i++)
         {
             SetCollectionValue(items[i], i);
         }
@@ -175,15 +175,15 @@ internal abstract class PrimitiveCollectionValueNode(ValueNode parent, string na
     private IEnumerable<object> DeserializeCollection(BoundedStream stream, SerializationOptions options, EventShuttle eventShuttle)
     {
         /* Create single serializer to do all the work */
-        var childSerializer = (ValueValueNode)CreateChildSerializer();
-        var childSerializedType = childSerializer.TypeNode.GetSerializedType();
+        ValueValueNode childSerializer = (ValueValueNode)CreateChildSerializer();
+        SerializedType childSerializedType = childSerializer.TypeNode.GetSerializedType();
 
-        var terminationValue = GetTerminationValue();
-        var terminationChild = GetTerminationChild();
-        var itemLength = GetFieldItemLength();
+        object terminationValue = GetTerminationValue();
+        ValueNode terminationChild = GetTerminationChild();
+        long? itemLength = GetFieldItemLength();
 
-        var reader = new BinaryReader(stream);
-        var count = GetFieldCount() ?? long.MaxValue;
+        BinaryReader reader = new(stream);
+        long count = GetFieldCount() ?? long.MaxValue;
 
         for (long i = 0; i < count && !EndOfStream(stream); i++)
         {
@@ -200,18 +200,18 @@ internal abstract class PrimitiveCollectionValueNode(ValueNode parent, string na
     private async Task<List<object>> DeserializeCollectionAsync(BoundedStream stream, SerializationOptions options, EventShuttle eventShuttle,
         CancellationToken cancellationToken)
     {
-        var list = new List<object>();
+        List<object> list = [];
 
         /* Create single serializer to do all the work */
-        var childSerializer = (ValueValueNode)CreateChildSerializer();
-        var childSerializedType = childSerializer.TypeNode.GetSerializedType();
+        ValueValueNode childSerializer = (ValueValueNode)CreateChildSerializer();
+        SerializedType childSerializedType = childSerializer.TypeNode.GetSerializedType();
 
-        var terminationValue = GetTerminationValue();
-        var terminationChild = GetTerminationChild();
-        var itemLength = GetFieldItemLength();
+        object terminationValue = GetTerminationValue();
+        ValueNode terminationChild = GetTerminationChild();
+        long? itemLength = GetFieldItemLength();
 
-        var reader = new AsyncBinaryReader(stream, GetFieldEncoding());
-        var count = GetFieldCount() ?? long.MaxValue;
+        AsyncBinaryReader reader = new(stream, GetFieldEncoding());
+        long count = GetFieldCount() ?? long.MaxValue;
 
         for (long i = 0; i < count && !EndOfStream(stream); i++)
         {
@@ -222,7 +222,7 @@ internal abstract class PrimitiveCollectionValueNode(ValueNode parent, string na
 
             await childSerializer.DeserializeAsync(reader, childSerializedType, itemLength, cancellationToken)
                 .ConfigureAwait(false);
-            var value = childSerializer.GetValue(childSerializedType);
+            object value = childSerializer.GetValue(childSerializedType);
             list.Add(value);
         }
 

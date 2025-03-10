@@ -10,8 +10,8 @@ namespace BinarySerialization.Test.UntilItem
         [TestMethod()]
         public void UntilItemConstTest()
         {
-            var items = new List<UntilItemClass>
-            {
+            List<UntilItemClass> items =
+            [
                 new() {
                     Name = "Alice",
                     LastItem = "Nope",
@@ -28,11 +28,11 @@ namespace BinarySerialization.Test.UntilItem
                     Description = "What??  That's a great idea!",
                     Type = EUntilItem.End
                 }
-            };
+            ];
 
-            var expected = new UntilItemContainer { Items = items, ItemsLastItemExcluded = items, BoundItems = items, EnumTerminationItems = items };
+            UntilItemContainer expected = new() { Items = items, ItemsLastItemExcluded = items, BoundItems = items, EnumTerminationItems = items };
 
-            var actual = Roundtrip(expected);
+            UntilItemContainer actual = Roundtrip(expected);
 
             Assert.AreEqual(expected.Items.Count, actual.Items.Count);
             Assert.AreEqual(expected.ItemsLastItemExcluded.Count - 1, actual.ItemsLastItemExcluded.Count);
@@ -41,8 +41,8 @@ namespace BinarySerialization.Test.UntilItem
         [TestMethod()]
         public void UntilItemBoundTest()
         {
-            var items = new List<UntilItemClass>
-            {
+            List<UntilItemClass> items =
+            [
                 new() {
                     Name = "Alice",
                     LastItem = "Nope",
@@ -59,11 +59,11 @@ namespace BinarySerialization.Test.UntilItem
                     Description = "What??  That's a great idea!",
                     Type = EUntilItem.End
                 }
-            };
+            ];
 
-            var expected = new UntilItemContainer { Items = items, ItemsLastItemExcluded = items, BoundItems = items, EnumTerminationItems = items };
+            UntilItemContainer expected = new() { Items = items, ItemsLastItemExcluded = items, BoundItems = items, EnumTerminationItems = items };
 
-            var actual = Roundtrip(expected);
+            UntilItemContainer actual = Roundtrip(expected);
 
             Assert.AreEqual(expected.BoundItems.Count, actual.BoundItems.Count);
             Assert.AreEqual(expected.BoundItems[2].LastItem, actual.SerializeUntilField);
@@ -72,8 +72,8 @@ namespace BinarySerialization.Test.UntilItem
         [TestMethod()]
         public void UntilItemEnumTest()
         {
-            var items = new List<UntilItemClass>
-            {
+            List<UntilItemClass> items =
+            [
                 new() {
                     Name = "Alice",
                     LastItem = "Nope",
@@ -90,11 +90,11 @@ namespace BinarySerialization.Test.UntilItem
                     Description = "What??  That's a great idea!",
                     Type = EUntilItem.End
                 }
-            };
+            ];
 
-            var expected = new UntilItemContainer { Items = items, ItemsLastItemExcluded = items, BoundItems = items, EnumTerminationItems = items };
+            UntilItemContainer expected = new() { Items = items, ItemsLastItemExcluded = items, BoundItems = items, EnumTerminationItems = items };
 
-            var actual = Roundtrip(expected);
+            UntilItemContainer actual = Roundtrip(expected);
 
             Assert.AreEqual(expected.EnumTerminationItems.Count, actual.EnumTerminationItems.Count);
         }
@@ -102,7 +102,7 @@ namespace BinarySerialization.Test.UntilItem
         [TestMethod()]
         public void UntilItemDeferredTest()
         {
-            var expected = new UntilItemContainerDeferred
+            UntilItemContainerDeferred expected = new()
             {
                 Sections =
                 [
@@ -125,7 +125,7 @@ namespace BinarySerialization.Test.UntilItem
                 ]
             };
 
-            var actual = Roundtrip(expected,
+            UntilItemContainerDeferred actual = Roundtrip(expected,
             [
                 2,0,0,0,0,0,
                 2,0,0,0,0,0

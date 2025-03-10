@@ -21,7 +21,7 @@ namespace BinarySerialization.Test.Misc
         [TestMethod()]
         public void TestStruct()
         {
-            var expected = new Sample();
+            Sample expected = new();
 
 #if TESTASYNC
             Assert.ThrowsExactly<AggregateException>(() => _ = Roundtrip(expected));

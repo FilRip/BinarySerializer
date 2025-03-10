@@ -28,7 +28,7 @@ internal class Binding : IBinding
 
             if (ValueConverter == null)
             {
-                var message = $"{attribute.ConverterType} does not implement IValueConverter.";
+                string message = $"{attribute.ConverterType} does not implement IValueConverter.";
                 throw new InvalidOperationException(message);
             }
 
@@ -77,7 +77,7 @@ internal class Binding : IBinding
             return null;
         }
 
-        var source = GetSource(target);
+        ValueNode source = GetSource(target);
 
         CheckSource(source);
 
@@ -93,7 +93,7 @@ internal class Binding : IBinding
             return _constValue;
         }
 
-        var source = GetSource(target);
+        ValueNode source = GetSource(target);
 
         CheckSource(source);
 
@@ -109,9 +109,9 @@ internal class Binding : IBinding
             return;
         }
 
-        var source = GetSource(target);
+        ValueNode source = GetSource(target);
 
-        var finalCallback = ValueConverter == null
+        Func<object> finalCallback = ValueConverter == null
             ? callback
             : () => ConvertBack(callback(), target.CreateLazySerializationContext());
 
@@ -125,7 +125,7 @@ internal class Binding : IBinding
             throw new InvalidOperationException("Binding is constant.");
         }
 
-        var relativeSource = GetRelativeSource(target);
+        TNode relativeSource = GetRelativeSource(target);
         return relativeSource.GetChild(Path);
     }
 
@@ -149,8 +149,8 @@ internal class Binding : IBinding
 
     private TNode FindAncestor<TNode>(TNode target) where TNode : Node<TNode>
     {
-        var level = 1;
-        var parent = target.Parent;
+        int level = 1;
+        TNode parent = target.Parent;
         while (parent != null)
         {
             if (level == Level)

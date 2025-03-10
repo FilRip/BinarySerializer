@@ -8,7 +8,7 @@ namespace BinarySerialization.Test.Misc
         [TestMethod()]
         public void RoundtripEmptyClassTest()
         {
-            var actual = Roundtrip(new EmptyClass());
+            EmptyClass actual = Roundtrip(new EmptyClass());
             Assert.IsInstanceOfType<EmptyClass>(actual);
         }
     }

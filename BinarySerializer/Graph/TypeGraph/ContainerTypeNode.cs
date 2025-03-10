@@ -27,33 +27,33 @@ internal abstract class ContainerTypeNode : TypeNode
         {
             ThrowOnBadType(type);
 
-            var nodeType = GetNodeType(type);
+            Type nodeType = GetNodeType(type);
 
-            var child = (TypeNode)Activator.CreateInstance(nodeType, this, type);
+            TypeNode child = (TypeNode)Activator.CreateInstance(nodeType, this, type);
             return child;
         }
         catch (Exception exception)
         {
-            var message = $"There was an error reflecting type '{type}'";
+            string message = $"There was an error reflecting type '{type}'";
             throw new InvalidOperationException(message, exception);
         }
     }
 
     protected TypeNode GenerateChild(Type parentType, MemberInfo memberInfo)
     {
-        var memberType = GetMemberType(memberInfo);
+        Type memberType = GetMemberType(memberInfo);
 
         try
         {
             ThrowOnBadType(memberType);
 
-            var nodeType = GetNodeType(memberType);
+            Type nodeType = GetNodeType(memberType);
 
             return (TypeNode)Activator.CreateInstance(nodeType, this, parentType, memberInfo);
         }
         catch (Exception exception)
         {
-            var message = $"There was an error reflecting member '{memberInfo.Name}'";
+            string message = $"There was an error reflecting member '{memberInfo.Name}'";
             throw new InvalidOperationException(message, exception);
         }
     }
@@ -80,9 +80,9 @@ internal abstract class ContainerTypeNode : TypeNode
 
     private static Type GetNodeType(Type type)
     {
-        var nullableType = Nullable.GetUnderlyingType(type);
+        Type nullableType = Nullable.GetUnderlyingType(type);
 
-        var effectiveType = nullableType ?? type;
+        Type effectiveType = nullableType ?? type;
 
         if (effectiveType.GetTypeInfo().IsEnum)
         {

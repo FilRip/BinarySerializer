@@ -34,28 +34,28 @@ internal class EventShuttle
     public void OnMemberSerialized(ValueNode sender, string name, object value, BinarySerializationContext context,
         FieldLength offset, FieldLength localOffset)
     {
-        var handle = MemberSerialized;
+        EventHandler<MemberSerializedEventArgs> handle = MemberSerialized;
         handle?.Invoke(sender, new MemberSerializedEventArgs(name, value, context, offset, localOffset));
     }
 
     public void OnMemberDeserialized(ValueNode sender, string name, object value,
         BinarySerializationContext context, FieldLength offset, FieldLength localOffset)
     {
-        var handle = MemberDeserialized;
+        EventHandler<MemberSerializedEventArgs> handle = MemberDeserialized;
         handle?.Invoke(sender, new MemberSerializedEventArgs(name, value, context, offset, localOffset));
     }
 
     public void OnMemberSerializing(ValueNode sender, string name, BinarySerializationContext context,
         FieldLength offset, FieldLength localOffset)
     {
-        var handle = MemberSerializing;
+        EventHandler<MemberSerializingEventArgs> handle = MemberSerializing;
         handle?.Invoke(sender, new MemberSerializingEventArgs(name, context, offset, localOffset));
     }
 
     public void OnMemberDeserializing(ValueNode sender, string name, BinarySerializationContext context,
         FieldLength offset, FieldLength localOffset)
     {
-        var handle = MemberDeserializing;
+        EventHandler<MemberSerializingEventArgs> handle = MemberDeserializing;
         handle?.Invoke(sender, new MemberSerializingEventArgs(name, context, offset, localOffset));
     }
 }

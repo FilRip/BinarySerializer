@@ -8,7 +8,7 @@ namespace BinarySerialization.Test.Misc
         [TestMethod()]
         public void NullTrailingMemberTest()
         {
-            var container = new NullTrailingMemberClassContainer();
+            NullTrailingMemberClassContainer container = new();
 
             Roundtrip(container, 12);
 

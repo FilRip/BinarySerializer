@@ -11,19 +11,19 @@ namespace BinarySerialization.Test.ItemLength
         [TestMethod()]
         public void ItemConstLengthTest()
         {
-            var expected = new ItemConstLengthClass { List = [.. new[] { "abc", "def", "ghi" }] };
-            var actual = Roundtrip(expected, expected.List.Count * 3);
+            ItemConstLengthClass expected = new() { List = [.. new[] { "abc", "def", "ghi" }] };
+            ItemConstLengthClass actual = Roundtrip(expected, expected.List.Count * 3);
             Assert.IsTrue(expected.List.SequenceEqual(actual.List));
         }
 
         [TestMethod()]
         public void ItemBoundLengthTest()
         {
-            var expected = new ItemBoundLengthClass { Items = [.. new[] { "abc", "def", "ghi" }] };
+            ItemBoundLengthClass expected = new() { Items = [.. new[] { "abc", "def", "ghi" }] };
 
-            var itemLength = expected.Items[0].Length;
-            var expectedLength = sizeof(int) + itemLength * expected.Items.Count;
-            var actual = Roundtrip(expected, expectedLength);
+            int itemLength = expected.Items[0].Length;
+            int expectedLength = sizeof(int) + itemLength * expected.Items.Count;
+            ItemBoundLengthClass actual = Roundtrip(expected, expectedLength);
 
             Assert.AreEqual(itemLength, actual.ItemLength);
             Assert.IsTrue(expected.Items.SequenceEqual(actual.Items));
@@ -32,9 +32,9 @@ namespace BinarySerialization.Test.ItemLength
         [TestMethod()]
         public void ArrayItemBoundLengthTest()
         {
-            var expected = new ArrayItemBoundLengthClass { Items = ["abc", "def", "ghi"] };
+            ArrayItemBoundLengthClass expected = new() { Items = ["abc", "def", "ghi"] };
 
-            var actual = Roundtrip(expected);
+            ArrayItemBoundLengthClass actual = Roundtrip(expected);
 
             Assert.AreEqual(expected.Items.Length, actual.ItemLength);
             Assert.AreEqual(expected.Items.Length, actual.Items.Length);
@@ -43,7 +43,7 @@ namespace BinarySerialization.Test.ItemLength
         [TestMethod()]
         public void ItemBoundMismatchLengthTest_ShouldThrowInvalidOperation()
         {
-            var expected = new ItemBoundLengthClass { Items = [.. new[] { "abc", "defghi" }] };
+            ItemBoundLengthClass expected = new() { Items = [.. new[] { "abc", "defghi" }] };
 #if TESTASYNC
             Assert.ThrowsExactly<AggregateException>(() => _ = Roundtrip(expected));
 #else
@@ -54,12 +54,12 @@ namespace BinarySerialization.Test.ItemLength
         [TestMethod()]
         public void ItemLengthListOfByteArraysTest()
         {
-            var expected = new ItemLengthListOfByteArrayClass
+            ItemLengthListOfByteArrayClass expected = new()
             {
                 Arrays = [new byte[3], new byte[3], new byte[3]]
             };
 
-            var actual = Roundtrip(expected);
+            ItemLengthListOfByteArrayClass actual = Roundtrip(expected);
 
             Assert.AreEqual(expected.Arrays.Count, actual.Arrays.Count);
         }
@@ -67,7 +67,7 @@ namespace BinarySerialization.Test.ItemLength
         [TestMethod()]
         public void LimitedItemLengthTest()
         {
-            var expected = new LimitedItemLengthClassClass
+            LimitedItemLengthClassClass expected = new()
             {
                 InnerClasses =
                 [
@@ -76,8 +76,8 @@ namespace BinarySerialization.Test.ItemLength
                 ]
             };
 
-            var expectedData = System.Text.Encoding.ASCII.GetBytes("he\0wo\0");
-            var actual = Roundtrip(expected, expectedData);
+            byte[] expectedData = System.Text.Encoding.ASCII.GetBytes("he\0wo\0");
+            LimitedItemLengthClassClass actual = Roundtrip(expected, expectedData);
 
             Assert.AreEqual(expected.InnerClasses[0].Value[..2], actual.InnerClasses[0].Value);
         }
@@ -85,11 +85,11 @@ namespace BinarySerialization.Test.ItemLength
         [TestMethod()]
         public void JaggedArrayTest()
         {
-            var expected = new JaggedArrayClass { NameArray = ["Alice", "Bob", "Charlie"] };
+            JaggedArrayClass expected = new() { NameArray = ["Alice", "Bob", "Charlie"] };
 
-            var actual = Roundtrip(expected);
+            JaggedArrayClass actual = Roundtrip(expected);
 
-            var nameLengths = expected.NameArray.Select(name => name.Length);
+            System.Collections.Generic.IEnumerable<int> nameLengths = expected.NameArray.Select(name => name.Length);
             Assert.IsTrue(nameLengths.SequenceEqual(actual.NameLengths));
             Assert.IsTrue(expected.NameArray.SequenceEqual(actual.NameArray));
         }
@@ -97,10 +97,10 @@ namespace BinarySerialization.Test.ItemLength
         [TestMethod()]
         public void JaggedListTest()
         {
-            var expected = new JaggedListClass { NameList = ["Alice", "Bob", "Charlie"] };
-            var actual = Roundtrip(expected);
+            JaggedListClass expected = new() { NameList = ["Alice", "Bob", "Charlie"] };
+            JaggedListClass actual = Roundtrip(expected);
 
-            var nameLengths = expected.NameList.Select(name => name.Length);
+            System.Collections.Generic.IEnumerable<int> nameLengths = expected.NameList.Select(name => name.Length);
             Assert.IsTrue(nameLengths.SequenceEqual(actual.NameLengths));
             Assert.IsTrue(expected.NameList.SequenceEqual(actual.NameList));
         }
@@ -108,12 +108,12 @@ namespace BinarySerialization.Test.ItemLength
         [TestMethod()]
         public void JaggedDoubleBoundTest()
         {
-            var expected = new JaggedDoubleBoundClass { NameArray = ["Alice", "Bob", "Charlie"] };
+            JaggedDoubleBoundClass expected = new() { NameArray = ["Alice", "Bob", "Charlie"] };
             expected.NameList = [.. expected.NameArray];
 
-            var actual = Roundtrip(expected);
+            JaggedDoubleBoundClass actual = Roundtrip(expected);
 
-            var nameLengths = expected.NameArray.Select(name => name.Length);
+            System.Collections.Generic.IEnumerable<int> nameLengths = expected.NameArray.Select(name => name.Length);
             Assert.IsTrue(nameLengths.SequenceEqual(actual.NameLengths));
             Assert.IsTrue(expected.NameArray.SequenceEqual(actual.NameArray));
             Assert.IsTrue(expected.NameList.SequenceEqual(actual.NameList));
@@ -122,27 +122,27 @@ namespace BinarySerialization.Test.ItemLength
         [TestMethod()]
         public void JaggedByteArrayTest()
         {
-            var names = new[] { "Alice", "Bob", "Charlie" };
-            var expected = new JaggedByteArrayClass
+            string[] names = ["Alice", "Bob", "Charlie"];
+            JaggedByteArrayClass expected = new()
             {
                 NameData = [.. names.Select(name => System.Text.Encoding.ASCII.GetBytes(name))]
             };
 
-            var actual = Roundtrip(expected);
+            JaggedByteArrayClass actual = Roundtrip(expected);
 
-            var actualNames = actual.NameData.Select(nameData => System.Text.Encoding.ASCII.GetString(nameData));
+            System.Collections.Generic.IEnumerable<string> actualNames = actual.NameData.Select(nameData => System.Text.Encoding.ASCII.GetString(nameData));
             Assert.IsTrue(names.SequenceEqual(actualNames));
         }
 
         [TestMethod()]
         public void JaggedIntArrayTest()
         {
-            var expected = new JaggedIntArrayClass
+            JaggedIntArrayClass expected = new()
             {
                 Arrays = [[1], [2, 2], [3, 3, 3]]
             };
 
-            var actual = Roundtrip(expected);
+            JaggedIntArrayClass actual = Roundtrip(expected);
 
             Assert.IsTrue(expected.Arrays[0].SequenceEqual(actual.Arrays[0]));
             Assert.IsTrue(expected.Arrays[1].SequenceEqual(actual.Arrays[1]));

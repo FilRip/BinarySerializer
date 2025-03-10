@@ -9,7 +9,7 @@ namespace BinarySerialization.Test.Misc
         [TestMethod()]
         public void AbstractClassTest()
         {
-            var container = new AbstractClassContainer { Content = new DerivedClass() };
+            AbstractClassContainer container = new() { Content = new DerivedClass() };
             Roundtrip(container, 4);
         }
     }

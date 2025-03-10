@@ -132,7 +132,7 @@ public class BinarySerializer : IBinarySerializer
             return;
         }
 
-        var serializer = CreateSerializer(value.GetType(), context);
+        RootValueNode serializer = CreateSerializer(value.GetType(), context);
         serializer.Value = value;
         serializer.Bind();
 
@@ -158,7 +158,7 @@ public class BinarySerializer : IBinarySerializer
             return;
         }
 
-        var serializer = CreateSerializer(value.GetType(), context);
+        RootValueNode serializer = CreateSerializer(value.GetType(), context);
         serializer.Value = value;
         serializer.Bind();
 
@@ -184,7 +184,7 @@ public class BinarySerializer : IBinarySerializer
             return;
         }
 
-        var serializer = CreateSerializer(value.GetType(), null);
+        RootValueNode serializer = CreateSerializer(value.GetType(), null);
         serializer.Value = value;
         serializer.Bind();
 
@@ -200,7 +200,7 @@ public class BinarySerializer : IBinarySerializer
     /// <returns>The length of the specified object graph when serialized.</returns>
     public long SizeOf(object value, object context = null)
     {
-        var nullStream = new NullStream();
+        NullStream nullStream = new();
         Serialize(nullStream, value, context);
         return nullStream.Length;
     }
@@ -214,7 +214,7 @@ public class BinarySerializer : IBinarySerializer
     /// <returns>The length of the specified object graph when serialized.</returns>
     public async Task<long> SizeOfAsync(object value, object context = null, CancellationToken cancellationToken = default)
     {
-        var nullStream = new NullStream();
+        NullStream nullStream = new();
         await SerializeAsync(nullStream, value, context, cancellationToken).ConfigureAwait(false);
         return nullStream.Length;
     }
@@ -228,7 +228,7 @@ public class BinarySerializer : IBinarySerializer
     /// <returns>The deserialized object graph.</returns>
     public object Deserialize(Stream stream, Type type, object context = null)
     {
-        var serializer = CreateSerializer(type, context);
+        RootValueNode serializer = CreateSerializer(type, context);
         serializer.Deserialize(new BoundedStream(stream, "root"), Options, _eventShuttle);
 
         return serializer.Value;
@@ -345,7 +345,7 @@ public class BinarySerializer : IBinarySerializer
     public async Task<object> DeserializeAsync(Stream stream, Type type, object context,
         CancellationToken cancellationToken)
     {
-        var serializer = CreateSerializer(type, context);
+        RootValueNode serializer = CreateSerializer(type, context);
         await serializer.DeserializeAsync(new BoundedStream(stream, "root"), Options, _eventShuttle, cancellationToken)
             .ConfigureAwait(false);
 
@@ -379,9 +379,9 @@ public class BinarySerializer : IBinarySerializer
 
     private RootValueNode CreateSerializer(Type type, object context)
     {
-        var graph = GraphGenerator.GenerateGraph(type);
+        Graph.TypeGraph.RootTypeNode graph = GraphGenerator.GenerateGraph(type);
 
-        var serializer = (RootValueNode)graph.CreateSerializer(null);
+        RootValueNode serializer = (RootValueNode)graph.CreateSerializer(null);
         serializer.EndiannessCallback = () => Endianness;
         serializer.EncodingCallback = () => Encoding;
         serializer.SetContext(context);

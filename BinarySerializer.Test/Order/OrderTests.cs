@@ -10,7 +10,7 @@ namespace BinarySerialization.Test.Order
         [TestMethod()]
         public void OrderTest()
         {
-            var order = new OrderClass { First = 1, Second = 2, Name = "Alice" };
+            OrderClass order = new() { First = 1, Second = 2, Name = "Alice" };
             Roundtrip(order, [0x1, 0x2, 0x5, 0x41, 0x6c, 0x69, 0x63, 0x65]);
         }
 
@@ -19,14 +19,14 @@ namespace BinarySerialization.Test.Order
         public void SingleMemberOrderShouldntThrowTest()
 #pragma warning restore S2699 // Tests should include assertions
         {
-            var order = new SingleMemberOrderClass();
+            SingleMemberOrderClass order = new();
             Roundtrip(order);
         }
 
         [TestMethod()]
         public void MultipleMembersNoOrderAttributeShouldThrowTest()
         {
-            var order = new MutlipleMembersNoOrderClass();
+            MutlipleMembersNoOrderClass order = new();
 
 #if TESTASYNC
             Assert.ThrowsExactly<AggregateException>(() => _ = Roundtrip(order));
@@ -38,7 +38,7 @@ namespace BinarySerialization.Test.Order
         [TestMethod()]
         public void MultipleMembersDuplicateOrderAttributeShouldThrowTest()
         {
-            var order = new MutlipleMembersDuplicateOrderClass();
+            MutlipleMembersDuplicateOrderClass order = new();
 
 #if TESTASYNC
             Assert.ThrowsExactly<AggregateException>(() => _ = Roundtrip(order));
@@ -50,7 +50,7 @@ namespace BinarySerialization.Test.Order
         [TestMethod()]
         public void BaseClassComesBeforeDerivedClassTest()
         {
-            var order = new OrderDerivedClass { First = 1, Second = 2 };
+            OrderDerivedClass order = new() { First = 1, Second = 2 };
             Roundtrip(order, [0x1, 0x2]);
         }
     }

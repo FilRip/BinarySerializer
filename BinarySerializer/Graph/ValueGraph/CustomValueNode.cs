@@ -12,9 +12,9 @@ internal class CustomValueNode(ValueNode parent, string name, TypeNode typeNode)
 {
     protected override void ObjectSerializeOverride(BoundedStream stream, EventShuttle eventShuttle)
     {
-        var serializationContext = CreateLazySerializationContext();
+        LazyBinarySerializationContext serializationContext = CreateLazySerializationContext();
 
-        var value = BoundValue;
+        object value = BoundValue;
 
         if (value == null)
         {
@@ -31,8 +31,8 @@ internal class CustomValueNode(ValueNode parent, string name, TypeNode typeNode)
 
     protected override void ObjectDeserializeOverride(BoundedStream stream, SerializationOptions options, EventShuttle eventShuttle)
     {
-        var serializationContext = CreateLazySerializationContext();
-        var binarySerializable = CreateBinarySerializable();
+        LazyBinarySerializationContext serializationContext = CreateLazySerializationContext();
+        IBinarySerializable binarySerializable = CreateBinarySerializable();
         binarySerializable.Deserialize(stream, GetFieldEndianness(), serializationContext);
         Value = binarySerializable;
     }
@@ -52,7 +52,7 @@ internal class CustomValueNode(ValueNode parent, string name, TypeNode typeNode)
 
     private IBinarySerializable CreateBinarySerializable()
     {
-        var binarySerializable = (IBinarySerializable)Activator.CreateInstance(TypeNode.Type);
+        IBinarySerializable binarySerializable = (IBinarySerializable)Activator.CreateInstance(TypeNode.Type);
         return binarySerializable;
     }
 }

@@ -8,7 +8,7 @@ namespace BinarySerialization.Test.Alignment
         [TestMethod()]
         public void AlignmentTest()
         {
-            var actual = RoundtripReverse<AlignmentClass>(
+            AlignmentClass actual = RoundtripReverse<AlignmentClass>(
             [
                 0x2, 0x0, 0x0, 0x0,
                 (byte) 'h', (byte) 'i', 0, 0
@@ -21,7 +21,7 @@ namespace BinarySerialization.Test.Alignment
         [TestMethod()]
         public void BoundAlignmentTest()
         {
-            var actual = RoundtripReverse<BoundAlignmentClass>(
+            BoundAlignmentClass actual = RoundtripReverse<BoundAlignmentClass>(
             [
                 0x2, 0x4, 0x0, 0x0,
                 (byte) 'h', (byte) 'i', 0, 0
@@ -35,7 +35,7 @@ namespace BinarySerialization.Test.Alignment
         [TestMethod()]
         public void LeftAlignmentTest()
         {
-            var actual = RoundtripReverse<LeftAlignmentClass>(
+            LeftAlignmentClass actual = RoundtripReverse<LeftAlignmentClass>(
             [
                 0x1, 0x0, 0x0, 0x0,
                 0x2,
@@ -50,7 +50,7 @@ namespace BinarySerialization.Test.Alignment
         [TestMethod()]
         public void RightAlignmentTest()
         {
-            var actual = RoundtripReverse<RightAlignmentClass>(
+            RightAlignmentClass actual = RoundtripReverse<RightAlignmentClass>(
             [
                 0x1,
                 0x2, 0x0, 0x0,
@@ -65,7 +65,7 @@ namespace BinarySerialization.Test.Alignment
         [TestMethod()]
         public void MixedAlignmentTest()
         {
-            var actual = RoundtripReverse<MixedAlignmentClass>(
+            MixedAlignmentClass actual = RoundtripReverse<MixedAlignmentClass>(
             [
                 0x1, 0x0, 0x0, 0x0,
                 0x2, 0x0,

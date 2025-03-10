@@ -8,8 +8,8 @@ namespace BinarySerialization.Test.Enums
         [TestMethod()]
         public void BasicEnumTest()
         {
-            var expected = new BaseTypeEnumClass { Field = BaseTypeEnumValues.B };
-            var actual = Roundtrip(expected, sizeof(BaseTypeEnumValues));
+            BaseTypeEnumClass expected = new() { Field = BaseTypeEnumValues.B };
+            BaseTypeEnumClass actual = Roundtrip(expected, sizeof(BaseTypeEnumValues));
 
             Assert.AreEqual(expected.Field, actual.Field);
         }
@@ -17,8 +17,8 @@ namespace BinarySerialization.Test.Enums
         [TestMethod()]
         public void BasicSignedEnumTest()
         {
-            var expected = new BaseTypeSignedEnumClass { Field = BaseTypeSignedEnumValues.NegativeValue };
-            var actual = Roundtrip(expected, sizeof(BaseTypeSignedEnumValues));
+            BaseTypeSignedEnumClass expected = new() { Field = BaseTypeSignedEnumValues.NegativeValue };
+            BaseTypeSignedEnumClass actual = Roundtrip(expected, sizeof(BaseTypeSignedEnumValues));
 
             Assert.AreEqual(expected.Field, actual.Field);
         }
@@ -26,8 +26,8 @@ namespace BinarySerialization.Test.Enums
         [TestMethod()]
         public void EnumAsStringTest()
         {
-            var expected = new BaseTypeEnumAsStringClass { Field = BaseTypeEnumValues.B };
-            var actual = Roundtrip(expected, [(byte)'B', 0x0]);
+            BaseTypeEnumAsStringClass expected = new() { Field = BaseTypeEnumValues.B };
+            BaseTypeEnumAsStringClass actual = Roundtrip(expected, [(byte)'B', 0x0]);
 
             Assert.AreEqual(expected.Field, actual.Field);
         }
@@ -35,8 +35,8 @@ namespace BinarySerialization.Test.Enums
         [TestMethod()]
         public void EnumAsStringTest2()
         {
-            var expected = new BaseTypeEnumAsStringClass2 { Field = BaseTypeEnumValues.B };
-            var actual = Roundtrip(expected, [(byte)'B', 0x1]);
+            BaseTypeEnumAsStringClass2 expected = new() { Field = BaseTypeEnumValues.B };
+            BaseTypeEnumAsStringClass2 actual = Roundtrip(expected, [(byte)'B', 0x1]);
 
             Assert.AreEqual(expected.Field, actual.Field);
         }
@@ -44,8 +44,8 @@ namespace BinarySerialization.Test.Enums
         [TestMethod()]
         public void NamedEnumTest()
         {
-            var expected = new NamedEnumClass { Field = NamedEnumValues.B };
-            var actual = Roundtrip(expected, System.Text.Encoding.UTF8.GetBytes("Bravo" + char.MinValue));
+            NamedEnumClass expected = new() { Field = NamedEnumValues.B };
+            NamedEnumClass actual = Roundtrip(expected, System.Text.Encoding.UTF8.GetBytes("Bravo" + char.MinValue));
 
             Assert.AreEqual(expected.Field, actual.Field);
         }
@@ -53,8 +53,8 @@ namespace BinarySerialization.Test.Enums
         [TestMethod()]
         public void NamedEnumTest2()
         {
-            var expected = new NamedEnumClass { Field = NamedEnumValues.C };
-            var actual = Roundtrip(expected, System.Text.Encoding.UTF8.GetBytes("C\0"));
+            NamedEnumClass expected = new() { Field = NamedEnumValues.C };
+            NamedEnumClass actual = Roundtrip(expected, System.Text.Encoding.UTF8.GetBytes("C\0"));
 
             Assert.AreEqual(expected.Field, actual.Field);
         }
@@ -62,8 +62,8 @@ namespace BinarySerialization.Test.Enums
         [TestMethod()]
         public void NullableEnumTest()
         {
-            var expected = new NullableEnumClass { Field = BaseTypeEnumValues.B };
-            var actual = Roundtrip(expected);
+            NullableEnumClass expected = new() { Field = BaseTypeEnumValues.B };
+            NullableEnumClass actual = Roundtrip(expected);
 
             Assert.AreEqual(expected.Field, actual.Field);
         }
@@ -71,8 +71,8 @@ namespace BinarySerialization.Test.Enums
         [TestMethod()]
         public void NegativeEnumTest()
         {
-            var expected = new NegativeEnumClass { Value = ENegative.A };
-            var actual = Roundtrip(expected, [(byte)0xff, (byte)0xff]);
+            NegativeEnumClass expected = new() { Value = ENegative.A };
+            NegativeEnumClass actual = Roundtrip(expected, [(byte)0xff, (byte)0xff]);
 
             Assert.AreEqual(expected.Value, actual.Value);
         }

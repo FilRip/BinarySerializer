@@ -53,11 +53,11 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
 
                 if (Bindings.Count != 1)
                 {
-                    var targetValues = Bindings.Select(binding =>
+                    object[] targetValues = [.. Bindings.Select(binding =>
                         {
-                            var bindingValue = binding();
+                            object bindingValue = binding();
                             return bindingValue == UnsetValue ? Value : bindingValue;
-                        }).ToArray();
+                        })];
 
                     if (targetValues.Any(targetValue => !Equals(value, targetValue)))
                     {
@@ -74,7 +74,7 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
                     // handle special cases
                     if (TypeNode.Type == typeof(byte[]) || TypeNode.Type == typeof(string))
                     {
-                        var data = enumerableValue.Cast<object>().Select(Convert.ToByte).ToArray();
+                        byte[] data = [.. enumerableValue.Cast<object>().Select(Convert.ToByte)];
 
                         if (TypeNode.Type == typeof(byte[]))
                         {
@@ -103,7 +103,7 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
             return _cachedValue;
         }
 
-        var scaledValue = GetValue(_value, serializedType);
+        object scaledValue = GetValue(_value, serializedType);
         return UnscaleValue(scaledValue);
     }
 
@@ -111,13 +111,13 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
     public void Serialize(BoundedStream stream, object value, SerializedType serializedType,
         FieldLength length = null)
     {
-        var writer = new AsyncBinaryWriter(stream, GetFieldEncoding(), GetFieldPaddingValue());
+        AsyncBinaryWriter writer = new(stream, GetFieldEncoding(), GetFieldPaddingValue());
         Serialize(writer, value, serializedType, length);
     }
 
     public void Serialize(AsyncBinaryWriter writer, object value, SerializedType serializedType, FieldLength length = null)
     {
-        var constLength = GetConstLength(length);
+        FieldLength constLength = GetConstLength(length);
 
         if (value == null)
         {
@@ -141,11 +141,11 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
                     return;
                 }
 
-                var data = new byte[constLength.TotalByteCount];
+                byte[] data = new byte[constLength.TotalByteCount];
 
                 if (serializedType == SerializedType.TerminatedString && data.Length > 0)
                 {
-                    var terminatorData = GetNullTermination();
+                    byte[] terminatorData = GetNullTermination();
                     Array.Copy(terminatorData, data, terminatorData.Length);
                 }
 
@@ -155,11 +155,11 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
             }
         }
 
-        var outputStream = writer.OutputStream;
-        var maxLength = GetMaxLength(outputStream, serializedType);
+        BoundedStream outputStream = writer.OutputStream;
+        FieldLength maxLength = GetMaxLength(outputStream, serializedType);
 
-        var scaledValue = ScaleValue(value);
-        var convertedValue = GetValue(scaledValue, serializedType);
+        object scaledValue = ScaleValue(value);
+        object convertedValue = GetValue(scaledValue, serializedType);
 
         switch (serializedType)
         {
@@ -215,31 +215,31 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
                 }
             case SerializedType.ByteArray:
                 {
-                    var data = (byte[])value;
+                    byte[] data = (byte[])value;
 
-                    var dataLength = GetArrayLength(data, constLength, maxLength);
+                    FieldLength dataLength = GetArrayLength(data, constLength, maxLength);
 
                     writer.Write(data, dataLength);
                     break;
                 }
             case SerializedType.TerminatedString:
                 {
-                    var encoding = GetFieldEncoding();
-                    var data = encoding.GetBytes(value.ToString());
+                    System.Text.Encoding encoding = GetFieldEncoding();
+                    byte[] data = encoding.GetBytes(value.ToString());
 
-                    var dataLength = GetNullTerminatedArrayLength(data, constLength, maxLength);
+                    FieldLength dataLength = GetNullTerminatedArrayLength(data, constLength, maxLength);
 
                     writer.Write(data, dataLength);
 
-                    var stringTerminatorData = encoding.GetBytes([TypeNode.StringTerminator]);
+                    byte[] stringTerminatorData = encoding.GetBytes([TypeNode.StringTerminator]);
                     writer.Write(stringTerminatorData, stringTerminatorData.Length);
                     break;
                 }
             case SerializedType.SizedString:
                 {
-                    var data = GetFieldEncoding().GetBytes(value.ToString());
+                    byte[] data = GetFieldEncoding().GetBytes(value.ToString());
 
-                    var dataLength = GetArrayLength(data, constLength, maxLength);
+                    FieldLength dataLength = GetArrayLength(data, constLength, maxLength);
 
                     writer.Write(data, dataLength);
                     break;
@@ -263,14 +263,14 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
     public Task SerializeAsync(BoundedStream stream, object value, SerializedType serializedType,
         FieldLength length = null, CancellationToken cancellationToken = default)
     {
-        var writer = new AsyncBinaryWriter(stream, GetFieldEncoding(), GetFieldPaddingValue());
+        AsyncBinaryWriter writer = new(stream, GetFieldEncoding(), GetFieldPaddingValue());
         return SerializeAsync(writer, value, serializedType, length, cancellationToken);
     }
 
     public async Task SerializeAsync(AsyncBinaryWriter writer, object value, SerializedType serializedType,
         FieldLength length = null, CancellationToken cancellationToken = default)
     {
-        var constLength = GetConstLength(length);
+        FieldLength constLength = GetConstLength(length);
 
         if (value == null)
         {
@@ -294,11 +294,11 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
                     return;
                 }
 
-                var data = new byte[constLength.TotalByteCount];
+                byte[] data = new byte[constLength.TotalByteCount];
 
                 if (serializedType == SerializedType.TerminatedString && data.Length > 0)
                 {
-                    var terminatorData = GetNullTermination();
+                    byte[] terminatorData = GetNullTermination();
                     Array.Copy(terminatorData, data, terminatorData.Length);
                 }
 
@@ -308,11 +308,11 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
             }
         }
 
-        var outputStream = writer.OutputStream;
-        var maxLength = GetMaxLength(outputStream, serializedType);
+        BoundedStream outputStream = writer.OutputStream;
+        FieldLength maxLength = GetMaxLength(outputStream, serializedType);
 
-        var scaledValue = ScaleValue(value);
-        var convertedValue = GetValue(scaledValue, serializedType);
+        object scaledValue = ScaleValue(value);
+        object convertedValue = GetValue(scaledValue, serializedType);
 
         switch (serializedType)
         {
@@ -368,22 +368,22 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
                 }
             case SerializedType.ByteArray:
                 {
-                    var data = (byte[])value;
+                    byte[] data = (byte[])value;
 
-                    var dataLength = GetArrayLength(data, constLength, maxLength);
+                    FieldLength dataLength = GetArrayLength(data, constLength, maxLength);
 
                     await writer.WriteAsync(data, dataLength, cancellationToken).ConfigureAwait(false);
                     break;
                 }
             case SerializedType.TerminatedString:
                 {
-                    var data = GetFieldEncoding().GetBytes(value.ToString());
+                    byte[] data = GetFieldEncoding().GetBytes(value.ToString());
 
-                    var dataLength = GetNullTerminatedArrayLength(data, constLength, maxLength);
+                    FieldLength dataLength = GetNullTerminatedArrayLength(data, constLength, maxLength);
 
                     await writer.WriteAsync(data, dataLength, cancellationToken).ConfigureAwait(false);
 
-                    var stringTerminatorData = GetNullTermination();
+                    byte[] stringTerminatorData = GetNullTermination();
                     await writer.WriteAsync(TypeNode.StringTerminator, stringTerminatorData.Length, cancellationToken)
                         .ConfigureAwait(false);
 
@@ -391,8 +391,8 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
                 }
             case SerializedType.SizedString:
                 {
-                    var data = GetFieldEncoding().GetBytes(value.ToString());
-                    var dataLength = GetArrayLength(data, constLength, maxLength);
+                    byte[] data = GetFieldEncoding().GetBytes(value.ToString());
+                    FieldLength dataLength = GetArrayLength(data, constLength, maxLength);
 
                     await writer.WriteAsync(data, dataLength, cancellationToken).ConfigureAwait(false);
                     break;
@@ -416,13 +416,13 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
 
     public void Deserialize(BoundedStream stream, SerializedType serializedType, FieldLength length = null)
     {
-        var reader = new AsyncBinaryReader(stream, GetFieldEncoding());
+        AsyncBinaryReader reader = new(stream, GetFieldEncoding());
         Deserialize(reader, serializedType, length);
     }
 
     public void Deserialize(BinaryReader reader, SerializedType serializedType, FieldLength length = null)
     {
-        var effectiveLengthValue = GetEffectiveLengthValue(reader, serializedType, length);
+        FieldLength effectiveLengthValue = GetEffectiveLengthValue(reader, serializedType, length);
 
         object value;
         switch (serializedType)
@@ -464,13 +464,13 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
                 }
             case SerializedType.TerminatedString:
                 {
-                    var data = ReadTerminated(reader, effectiveLengthValue, TypeNode.StringTerminator);
+                    byte[] data = ReadTerminated(reader, effectiveLengthValue, TypeNode.StringTerminator);
                     value = GetFieldEncoding().GetString(data, 0, data.Length);
                     break;
                 }
             case SerializedType.SizedString:
                 {
-                    var data = reader.ReadBytes((int)effectiveLengthValue.ByteCount);
+                    byte[] data = reader.ReadBytes((int)effectiveLengthValue.ByteCount);
                     value = GetString(data);
 
                     break;
@@ -494,14 +494,14 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
     public Task DeserializeAsync(BoundedStream stream, SerializedType serializedType, FieldLength length,
         CancellationToken cancellationToken)
     {
-        var reader = new AsyncBinaryReader(stream, GetFieldEncoding());
+        AsyncBinaryReader reader = new(stream, GetFieldEncoding());
         return DeserializeAsync(reader, serializedType, length, cancellationToken);
     }
 
     public async Task DeserializeAsync(AsyncBinaryReader reader, SerializedType serializedType, FieldLength length,
         CancellationToken cancellationToken)
     {
-        var effectiveLengthValue = GetEffectiveLengthValue(reader, serializedType, length);
+        FieldLength effectiveLengthValue = GetEffectiveLengthValue(reader, serializedType, length);
 
         object value;
         switch (serializedType)
@@ -544,7 +544,7 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
                 }
             case SerializedType.TerminatedString:
                 {
-                    var data = await ReadTerminatedAsync(reader, (int)effectiveLengthValue.ByteCount, TypeNode.StringTerminator,
+                    byte[] data = await ReadTerminatedAsync(reader, (int)effectiveLengthValue.ByteCount, TypeNode.StringTerminator,
                             cancellationToken)
                         .ConfigureAwait(false);
                     value = GetFieldEncoding().GetString(data, 0, data.Length);
@@ -552,7 +552,7 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
                 }
             case SerializedType.SizedString:
                 {
-                    var data = await reader.ReadBytesAsync((int)effectiveLengthValue.ByteCount, cancellationToken)
+                    byte[] data = await reader.ReadBytesAsync((int)effectiveLengthValue.ByteCount, cancellationToken)
                         .ConfigureAwait(false);
                     value = GetString(data);
 
@@ -629,14 +629,14 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
     protected override long CountOverride()
     {
         // handle special case of byte[]
-        var boundValue = BoundValue as byte[];
+        byte[] boundValue = BoundValue as byte[];
         return boundValue?.Length ?? base.CountOverride();
     }
 
     protected override FieldLength MeasureOverride()
     {
         // handle special case of byte[]
-        var boundValue = BoundValue as byte[];
+        byte[] boundValue = BoundValue as byte[];
         return boundValue?.Length ?? base.MeasureOverride();
     }
 
@@ -647,9 +647,9 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
             return value;
         }
 
-        var scale = TypeNode.FieldScaleBindings.GetValue(this);
+        object scale = TypeNode.FieldScaleBindings.GetValue(this);
 
-        var scaledValue = Convert.ToDouble(value) * Convert.ToDouble(scale);
+        double scaledValue = Convert.ToDouble(value) * Convert.ToDouble(scale);
 
         return ConvertToFieldType(scaledValue);
     }
@@ -661,9 +661,9 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
             return value;
         }
 
-        var scale = TypeNode.FieldScaleBindings.GetValue(this);
+        object scale = TypeNode.FieldScaleBindings.GetValue(this);
 
-        var unscaledValue = Convert.ToDouble(value) / Convert.ToDouble(scale);
+        double unscaledValue = Convert.ToDouble(value) / Convert.ToDouble(scale);
 
         return ConvertToFieldType(unscaledValue);
     }
@@ -671,7 +671,7 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
     private FieldLength GetConstLength(FieldLength length)
     {
         // prioritization of field length specifiers
-        var constLength = length ?? // explicit length passed from parent
+        FieldLength constLength = length ?? // explicit length passed from parent
                           GetConstFieldLength() ?? // calculated length from this field
                           GetConstFieldCount(); // explicit field count (used for byte arrays and strings)
 
@@ -717,8 +717,8 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
     private FieldLength GetNullTerminatedArrayLength(byte[] data, FieldLength constLength, FieldLength maxLength)
     {
         FieldLength length = data.Length;
-        var nullTermination = GetNullTermination();
-        var nullTerminationLength = new FieldLength(nullTermination.Length);
+        byte[] nullTermination = GetNullTermination();
+        FieldLength nullTerminationLength = new(nullTermination.Length);
 
         if (constLength != null)
         {
@@ -735,14 +735,14 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
 
     private object GetScalar(IEnumerable enumerable)
     {
-        var childLengths = enumerable.Cast<object>().Select(ConvertToFieldType).ToList();
+        System.Collections.Generic.List<object> childLengths = [.. enumerable.Cast<object>().Select(ConvertToFieldType)];
 
         if (childLengths.Count == 0)
         {
             return 0;
         }
 
-        var childLengthGroups = childLengths.GroupBy(childLength => childLength).ToList();
+        System.Collections.Generic.List<IGrouping<object, object>> childLengthGroups = [.. childLengths.GroupBy(childLength => childLength)];
 
         if (childLengthGroups.Count > 1)
         {
@@ -750,7 +750,7 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
                 "Unable to update scalar binding source because not all enumerable items have equal lengths.");
         }
 
-        var childLengthGroup = childLengthGroups.Single();
+        IGrouping<object, object> childLengthGroup = childLengthGroups.Single();
 
         return childLengthGroup.Key;
     }
@@ -758,10 +758,10 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
     private object GetString(byte[] data)
     {
         object value;
-        var untrimmed = GetFieldEncoding().GetString(data, 0, data.Length);
+        string untrimmed = GetFieldEncoding().GetString(data, 0, data.Length);
         if (TypeNode.AreStringsTerminated)
         {
-            var terminatorIndex = untrimmed.IndexOf(TypeNode.StringTerminator);
+            int terminatorIndex = untrimmed.IndexOf(TypeNode.StringTerminator);
             value = terminatorIndex != -1 ? untrimmed.Substring(0, terminatorIndex) : untrimmed;
         }
         else
@@ -773,19 +773,19 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
 
     private FieldLength GetEffectiveLengthValue(BinaryReader reader, SerializedType serializedType, FieldLength length)
     {
-        var effectiveLength = length ?? GetFieldLength() ?? GetFieldCount();
+        FieldLength effectiveLength = length ?? GetFieldLength() ?? GetFieldCount();
 
         if (effectiveLength == null && (serializedType == SerializedType.ByteArray ||
                 serializedType == SerializedType.SizedString ||
                 serializedType == SerializedType.TerminatedString))
         {
             // try to get bounded length
-            var baseStream = (BoundedStream)reader.BaseStream;
+            BoundedStream baseStream = (BoundedStream)reader.BaseStream;
 
             effectiveLength = baseStream.AvailableForReading;
         }
 
-        var effectiveLengthValue = effectiveLength ?? FieldLength.Zero;
+        FieldLength effectiveLengthValue = effectiveLength ?? FieldLength.Zero;
         return effectiveLengthValue;
     }
 
@@ -812,7 +812,7 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
                 case SerializedType.Int2:
                     return Bytes.Reverse(Convert.ToInt16(value));
                 case SerializedType.UInt2:
-                    var value2 = Bytes.Reverse(Convert.ToUInt16(value));
+                    ushort value2 = Bytes.Reverse(Convert.ToUInt16(value));
 
                     // handle special case of char
                     return ConvertToFieldType(value2);
@@ -845,8 +845,8 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
         string expected = null;
         string actual = null;
 
-        var value = Value;
-        var boundValue = BoundValue;
+        object value = Value;
+        object boundValue = BoundValue;
 
         if (boundValue != null && Bindings.Count > 0)
         {
@@ -876,10 +876,10 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
 
     private byte[] ReadTerminated(BinaryReader reader, FieldLength maxLength, char terminator)
     {
-        var buffer = new MemoryStream();
-        using (var writer = new StreamWriter(buffer, GetFieldEncoding()))
+        MemoryStream buffer = new();
+        using (StreamWriter writer = new(buffer, GetFieldEncoding()))
         {
-            var byteLength = maxLength.ByteCount;
+            long byteLength = maxLength.ByteCount;
 
             char c;
             while (byteLength-- > 0 && (c = reader.ReadChar()) != terminator)
@@ -894,8 +894,8 @@ internal class ValueValueNode(ValueNode parent, string name, TypeNode typeNode) 
     private async Task<byte[]> ReadTerminatedAsync(AsyncBinaryReader reader, int maxLength, char terminator,
         CancellationToken cancellationToken)
     {
-        var buffer = new MemoryStream();
-        using (var writer = new StreamWriter(buffer, GetFieldEncoding()))
+        MemoryStream buffer = new();
+        using (StreamWriter writer = new(buffer, GetFieldEncoding()))
         {
             char b;
             while (maxLength-- > 0 &&

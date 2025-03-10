@@ -10,9 +10,9 @@ namespace BinarySerialization.Test.Custom
     {
         public void Serialize(Stream stream, Endianness endianness, BinarySerializationContext serializationContext)
         {
-            foreach (var item in this)
+            foreach (string item in this)
             {
-                var data = System.Text.Encoding.UTF8.GetBytes(item);
+                byte[] data = System.Text.Encoding.UTF8.GetBytes(item);
                 stream.WriteByte((byte)data.Length);
                 stream.Write(data, 0, data.Length);
             }
@@ -22,10 +22,10 @@ namespace BinarySerialization.Test.Custom
         {
             while (stream.Position < stream.Length)
             {
-                var length = stream.ReadByte();
-                var data = new byte[length];
+                int length = stream.ReadByte();
+                byte[] data = new byte[length];
                 stream.Read(data, 0, data.Length);
-                var item = System.Text.Encoding.UTF8.GetString(data);
+                string item = System.Text.Encoding.UTF8.GetString(data);
                 Add(item);
             }
         }

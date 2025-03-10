@@ -13,8 +13,8 @@ namespace BinarySerialization.Test.Value
         [TestMethod()]
         public void FieldValueTest()
         {
-            var expected = new FieldValueClass { Value = 33 };
-            var actual = Roundtrip(expected);
+            FieldValueClass expected = new() { Value = 33 };
+            FieldValueClass actual = Roundtrip(expected);
 
             Assert.AreEqual(expected.Value, actual.Value);
             Assert.AreEqual(actual.Value, actual.ValueCopy);
@@ -23,7 +23,7 @@ namespace BinarySerialization.Test.Value
         [TestMethod()]
         public void Crc16Test()
         {
-            var expected = new FieldCrc16Class
+            FieldCrc16Class expected = new()
             {
                 Internal = new FieldCrcInternalClass
                 {
@@ -34,24 +34,24 @@ namespace BinarySerialization.Test.Value
                 }
             };
 
-            var expectedData = new byte[]
-            {
+            byte[] expectedData =
+            [
                 0x10, 0x0, 0x0, 0x0,
                 0x01, 0x00,
                 0x02,
                 0x03, 0x04,
                 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64,
                 0x79, 0xcd
-            };
+            ];
 
-            var actual = Roundtrip(expected, expectedData);
+            FieldCrc16Class actual = Roundtrip(expected, expectedData);
             Assert.AreEqual(0xcd79, actual.Crc);
         }
 
         [TestMethod()]
         public void CrcTestOneWay()
         {
-            var expected = new FieldCrc16OneWayClass
+            FieldCrc16OneWayClass expected = new()
             {
                 Internal = new FieldCrcInternalClass
                 {
@@ -62,15 +62,15 @@ namespace BinarySerialization.Test.Value
                 }
             };
 
-            var expectedData = new byte[]
-            {
+            byte[] expectedData =
+            [
                 0x10, 0x0, 0x0, 0x0,
                 0x01, 0x00,
                 0x02,
                 0x03, 0x04,
                 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64,
                 0x00, 0x00
-            };
+            ];
 
 #if TESTASYNC
             Assert.ThrowsExactly<AggregateException>(() => _ = Roundtrip(expected, expectedData));
@@ -82,7 +82,7 @@ namespace BinarySerialization.Test.Value
         [TestMethod()]
         public void CrcTestOneWayToSource()
         {
-            var expected = new FieldCrc16OneWayToSourceClass
+            FieldCrc16OneWayToSourceClass expected = new()
             {
                 Internal = new FieldCrcInternalClass
                 {
@@ -93,17 +93,17 @@ namespace BinarySerialization.Test.Value
                 }
             };
 
-            var data = new byte[]
-            {
+            byte[] data =
+            [
                 0x10, 0x0, 0x0, 0x0,
                 0x01, 0x00,
                 0x02,
                 0x03, 0x04,
                 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64,
                 0x00, 0x00
-            };
+            ];
 
-            var actual = Deserialize<FieldCrc16OneWayToSourceClass>(data);
+            FieldCrc16OneWayToSourceClass actual = Deserialize<FieldCrc16OneWayToSourceClass>(data);
 
             Assert.AreEqual(expected.Internal.Value, actual.Internal.Value);
         }
@@ -111,7 +111,7 @@ namespace BinarySerialization.Test.Value
         [TestMethod()]
         public void Crc32Test()
         {
-            var expected = new FieldCrc32Class
+            FieldCrc32Class expected = new()
             {
                 Internal = new FieldCrcInternalClass
                 {
@@ -122,43 +122,43 @@ namespace BinarySerialization.Test.Value
                 }
             };
 
-            var expectedData = new byte[]
-            {
+            byte[] expectedData =
+            [
                 0x10, 0x0, 0x0, 0x0,
                 0x01, 0x00,
                 0x02,
                 0x03, 0x04,
                 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64,
                 0xdf, 0x4d, 0x34, 0xf8
-            };
+            ];
 
-            var actual = Roundtrip(expected, expectedData);
+            FieldCrc32Class actual = Roundtrip(expected, expectedData);
             Assert.AreEqual(0xF8344DDF, actual.Crc);
         }
 
         [TestMethod()]
         public void Crc16StreamTest()
         {
-            var expected = new StreamValueClass
+            StreamValueClass expected = new()
             {
                 Data = new MemoryStream([.. Enumerable.Repeat((byte)'A', 100000)])
             };
 
-            var actual = Roundtrip(expected);
+            StreamValueClass actual = Roundtrip(expected);
             Assert.AreEqual(0xdb9, actual.Crc);
         }
 
         [TestMethod()]
         public void FieldValueExtensionTest()
         {
-            var expected = new FieldSha256Class
+            FieldSha256Class expected = new()
             {
                 Value = "hello world"
             };
 
-            var actual = Roundtrip(expected);
+            FieldSha256Class actual = Roundtrip(expected);
 
-            var expectedHash =
+            byte[] expectedHash =
                 SHA256.Create().ComputeHash(new MemoryStream(System.Text.Encoding.ASCII.GetBytes(expected.Value)));
 
             Assert.IsTrue(expectedHash.SequenceEqual(actual.Hash));
@@ -177,12 +177,12 @@ namespace BinarySerialization.Test.Value
         [TestMethod()]
         public void ChecksumTest()
         {
-            var expected = new FieldChecksumClass
+            FieldChecksumClass expected = new()
             {
                 Value = "hello"
             };
 
-            var actual = Roundtrip(expected);
+            FieldChecksumClass actual = Roundtrip(expected);
 
             Assert.AreEqual(0xEC, actual.Checksum);
             Assert.AreEqual(0x14, actual.ModuloChecksum);
@@ -192,8 +192,8 @@ namespace BinarySerialization.Test.Value
         [TestMethod()]
         public void MultiValueFieldTest()
         {
-            var expected = new FieldCrc16MultiFieldClass { Value1 = 0x1, Value2 = 0x0201, Value3 = 0x2 };
-            var actual = Roundtrip(expected);
+            FieldCrc16MultiFieldClass expected = new() { Value1 = 0x1, Value2 = 0x0201, Value3 = 0x2 };
+            FieldCrc16MultiFieldClass actual = Roundtrip(expected);
 
             Assert.AreEqual(actual.Crc2, actual.Crc);
         }
@@ -201,16 +201,16 @@ namespace BinarySerialization.Test.Value
         [TestMethod()]
         public void NestedCrcTest()
         {
-            var expected = new NestedCrcClass { Value = "hello" };
-            var actual = Roundtrip(expected);
+            NestedCrcClass expected = new() { Value = "hello" };
+            NestedCrcClass actual = Roundtrip(expected);
             Assert.AreEqual(0xd26e, actual.Crc);
         }
 
         [TestMethod()]
         public void OuterCrcTest()
         {
-            var value = new OuterCrcClass { NestedCrc = new NestedCrcClass { Value = "hello" } };
-            var actual = Roundtrip(value);
+            OuterCrcClass value = new() { NestedCrc = new NestedCrcClass { Value = "hello" } };
+            OuterCrcClass actual = Roundtrip(value);
             Assert.AreEqual(0xd26e, actual.NestedCrc.Crc);
             Assert.AreEqual(0x91f8, actual.Crc);
         }

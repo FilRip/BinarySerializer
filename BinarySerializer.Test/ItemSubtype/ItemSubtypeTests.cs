@@ -10,7 +10,7 @@ namespace BinarySerialization.Test.ItemSubtype
         [TestMethod()]
         public void ItemSubtypeTest()
         {
-            var expected = new ItemSubtypeClass
+            ItemSubtypeClass expected = new()
             {
                 Items =
                 [
@@ -20,7 +20,7 @@ namespace BinarySerialization.Test.ItemSubtype
                 ]
             };
 
-            var actual = Roundtrip(expected, [2, 1, 2, 3]);
+            ItemSubtypeClass actual = Roundtrip(expected, [2, 1, 2, 3]);
 
             Assert.AreEqual(2, actual.Indicator);
             Assert.AreEqual(3, actual.Items.Count);
@@ -32,7 +32,7 @@ namespace BinarySerialization.Test.ItemSubtype
         [TestMethod()]
         public void CustomItemSubtypeTest()
         {
-            var expected = new ItemSubtypeClass
+            ItemSubtypeClass expected = new()
             {
                 Items =
                 [
@@ -41,8 +41,8 @@ namespace BinarySerialization.Test.ItemSubtype
                 ]
             };
 
-            var data = new byte[] { 3 }.Concat(CustomItem.Data).Concat(CustomItem.Data).ToArray();
-            var actual = Roundtrip(expected, data);
+            byte[] data = [3, .. CustomItem.Data, .. CustomItem.Data];
+            ItemSubtypeClass actual = Roundtrip(expected, data);
 
             Assert.AreEqual(3, actual.Indicator);
             Assert.AreEqual(2, actual.Items.Count);
@@ -54,8 +54,8 @@ namespace BinarySerialization.Test.ItemSubtype
         [TestMethod()]
         public void DefaultItemSubtypeTest()
         {
-            var data = new byte[] { 4, 0, 1, 2, 3 };
-            var actual = Deserialize<ItemSubtypeClass>(data);
+            byte[] data = [4, 0, 1, 2, 3];
+            ItemSubtypeClass actual = Deserialize<ItemSubtypeClass>(data);
 
             Assert.AreEqual(4, actual.Indicator);
             Assert.AreEqual(1, actual.Items.Count);
@@ -65,7 +65,7 @@ namespace BinarySerialization.Test.ItemSubtype
         [TestMethod()]
         public void ItemSubtypeFactoryTest()
         {
-            var expected = new ItemSubtypeFactoryClass
+            ItemSubtypeFactoryClass expected = new()
             {
                 Value =
                 [
@@ -74,7 +74,7 @@ namespace BinarySerialization.Test.ItemSubtype
                 ]
             };
 
-            var actual = Roundtrip(expected);
+            ItemSubtypeFactoryClass actual = Roundtrip(expected);
 
             Assert.AreEqual(3, actual.Key);
         }
@@ -82,7 +82,7 @@ namespace BinarySerialization.Test.ItemSubtype
         [TestMethod()]
         public void ItemSubtypeMixedTest()
         {
-            var expected = new ItemSubtypeMixedClass
+            ItemSubtypeMixedClass expected = new()
             {
                 Value =
                 [
@@ -91,7 +91,7 @@ namespace BinarySerialization.Test.ItemSubtype
                 ]
             };
 
-            var actual = Roundtrip(expected);
+            ItemSubtypeMixedClass actual = Roundtrip(expected);
 
             Assert.AreEqual(2, actual.Key);
         }
@@ -99,8 +99,8 @@ namespace BinarySerialization.Test.ItemSubtype
         [TestMethod()]
         public void ItemSubtypeFactoryWithDefaultTest()
         {
-            var data = new byte[] { 4, 0, 1, 2, 3 };
-            var actual = Deserialize<ItemSubtypeFactoryWithDefaultClass>(data);
+            byte[] data = [4, 0, 1, 2, 3];
+            ItemSubtypeFactoryWithDefaultClass actual = Deserialize<ItemSubtypeFactoryWithDefaultClass>(data);
 
             Assert.AreEqual(4, actual.Key);
             Assert.AreEqual(1, actual.Items.Count);

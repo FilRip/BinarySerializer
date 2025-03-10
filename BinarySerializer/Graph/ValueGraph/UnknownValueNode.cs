@@ -37,8 +37,8 @@ internal class UnknownValueNode(ValueNode parent, string name, TypeNode typeNode
             }
 
             /* Create graph as if parent were creating it */
-            var unknownTypeGraph = new RootTypeNode(TypeNode.Parent, _valueType);
-            var unknownSerializer = (RootValueNode)unknownTypeGraph.CreateSerializer(Parent);
+            RootTypeNode unknownTypeGraph = new(TypeNode.Parent, _valueType);
+            RootValueNode unknownSerializer = (RootValueNode)unknownTypeGraph.CreateSerializer(Parent);
             unknownSerializer.EndiannessCallback = GetFieldEndianness;
             unknownSerializer.EncodingCallback = GetFieldEncoding;
             unknownSerializer.Value = value;

@@ -19,9 +19,9 @@ internal class ArrayValueNode(ValueNode parent, string name, TypeNode typeNode) 
                 return _cachedValue;
             }
 
-            var localTypeNode = (ArrayTypeNode)TypeNode;
-            var array = Array.CreateInstance(localTypeNode.ChildType, Children.Count);
-            var childValues = Children.Select(child => child.Value).ToArray();
+            ArrayTypeNode localTypeNode = (ArrayTypeNode)TypeNode;
+            Array array = Array.CreateInstance(localTypeNode.ChildType, Children.Count);
+            object[] childValues = [.. Children.Select(child => child.Value)];
             Array.Copy(childValues, array, childValues.Length);
             return array;
         }
@@ -38,23 +38,23 @@ internal class ArrayValueNode(ValueNode parent, string name, TypeNode typeNode) 
                 return;
             }
 
-            var localTypeNode = (ArrayTypeNode)TypeNode;
+            ArrayTypeNode localTypeNode = (ArrayTypeNode)TypeNode;
 
-            var array = (Array)value;
+            Array array = (Array)value;
 
-            var count = GetConstFieldCount();
+            long? count = GetConstFieldCount();
 
             if (count != null)
             {
                 /* Pad out const-sized array */
-                var valueArray = Array.CreateInstance(localTypeNode.ChildType, (int)count);
+                Array valueArray = Array.CreateInstance(localTypeNode.ChildType, (int)count);
                 Array.Copy(array, valueArray, array.Length);
                 array = valueArray;
             }
 
-            var children = array.Cast<object>().Select(childValue =>
+            System.Collections.Generic.IEnumerable<ValueNode> children = array.Cast<object>().Select(childValue =>
             {
-                var child = CreateChildSerializer();
+                ValueNode child = CreateChildSerializer();
                 child.Value = childValue;
                 return child;
             });

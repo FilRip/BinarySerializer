@@ -10,12 +10,12 @@ namespace BinarySerialization.Test.Context
         [TestMethod()]
         public void ContextTest()
         {
-            var contextClass = new ContextClass();
-            var serializer = new BinarySerializer();
+            ContextClass contextClass = new();
+            BinarySerializer serializer = new();
 
-            var context = new Context { SerializeCondtion = false };
+            Context context = new() { SerializeCondtion = false };
 
-            var stream = new MemoryStream();
+            MemoryStream stream = new();
             serializer.Serialize(stream, contextClass, context);
 
             context = new Context { SerializeCondtion = true };

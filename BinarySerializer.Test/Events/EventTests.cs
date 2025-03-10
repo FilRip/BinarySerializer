@@ -13,14 +13,14 @@ namespace BinarySerialization.Test.Events
         [TestMethod()]
         public void TestSerializeEvents()
         {
-            var serializer = new BinarySerializer();
+            BinarySerializer serializer = new();
 
-            var events = new List<MemberSerializingEventArgs>();
+            List<MemberSerializingEventArgs> events = [];
 
             serializer.MemberSerializing += (sender, args) => events.Add(args);
             serializer.MemberSerialized += (sender, args) => events.Add(args);
 
-            var stream = new MemoryStream();
+            MemoryStream stream = new();
             serializer.Serialize(stream,
                 new EventTestClass
                 {

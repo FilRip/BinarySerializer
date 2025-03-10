@@ -38,8 +38,8 @@ internal class RootValueNode(ValueNode parent, string name, TypeNode typeNode) :
         }
 
         // We have to dynamically generate a type graph for this new type
-        var contextGraph = GetContextGraph(value.GetType());
-        var contextSerializer = (RootValueNode)contextGraph.CreateSerializer(this);
+        RootTypeNode contextGraph = GetContextGraph(value.GetType());
+        RootValueNode contextSerializer = (RootValueNode)contextGraph.CreateSerializer(this);
         contextSerializer.EncodingCallback = EncodingCallback;
         contextSerializer.EndiannessCallback = EndiannessCallback;
         contextSerializer.Value = value;
@@ -101,7 +101,7 @@ internal class RootValueNode(ValueNode parent, string name, TypeNode typeNode) :
     {
         lock (ContextCacheLock)
         {
-            if (ContextCache.TryGetValue(valueType, out var graph))
+            if (ContextCache.TryGetValue(valueType, out RootTypeNode graph))
             {
                 return graph;
             }

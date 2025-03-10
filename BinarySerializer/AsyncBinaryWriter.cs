@@ -17,67 +17,67 @@ internal class AsyncBinaryWriter(BoundedStream output, Encoding encoding, byte p
 
     public Task WriteAsync(byte value, FieldLength fieldLength, CancellationToken cancellationToken)
     {
-        var data = new[] { value };
+        byte[] data = [value];
         return WriteAsync(data, fieldLength, cancellationToken);
     }
 
     public Task WriteAsync(char value, FieldLength fieldLength, CancellationToken cancellationToken)
     {
-        var data = _encoding.GetBytes([value]);
+        byte[] data = _encoding.GetBytes([value]);
         return WriteAsync(data, fieldLength, cancellationToken);
     }
 
     public Task WriteAsync(sbyte value, FieldLength fieldLength, CancellationToken cancellationToken)
     {
-        var data = new[] { (byte)value };
+        byte[] data = [(byte)value];
         return WriteAsync(data, fieldLength, cancellationToken);
     }
 
     public Task WriteAsync(short value, FieldLength fieldLength, CancellationToken cancellationToken)
     {
-        var data = BitConverter.GetBytes(value);
+        byte[] data = BitConverter.GetBytes(value);
         return WriteAsync(data, fieldLength, cancellationToken);
     }
 
     public Task WriteAsync(ushort value, FieldLength fieldLength, CancellationToken cancellationToken)
     {
-        var data = BitConverter.GetBytes(value);
+        byte[] data = BitConverter.GetBytes(value);
         return WriteAsync(data, fieldLength, cancellationToken);
     }
 
     public Task WriteAsync(int value, FieldLength fieldLength, CancellationToken cancellationToken)
     {
-        var data = BitConverter.GetBytes(value);
+        byte[] data = BitConverter.GetBytes(value);
         return WriteAsync(data, fieldLength, cancellationToken);
     }
 
     public Task WriteAsync(uint value, FieldLength fieldLength, CancellationToken cancellationToken)
     {
-        var data = BitConverter.GetBytes(value);
+        byte[] data = BitConverter.GetBytes(value);
         return WriteAsync(data, fieldLength, cancellationToken);
     }
 
     public Task WriteAsync(long value, FieldLength fieldLength, CancellationToken cancellationToken)
     {
-        var data = BitConverter.GetBytes(value);
+        byte[] data = BitConverter.GetBytes(value);
         return WriteAsync(data, fieldLength, cancellationToken);
     }
 
     public Task WriteAsync(ulong value, FieldLength fieldLength, CancellationToken cancellationToken)
     {
-        var data = BitConverter.GetBytes(value);
+        byte[] data = BitConverter.GetBytes(value);
         return WriteAsync(data, fieldLength, cancellationToken);
     }
 
     public Task WriteAsync(float value, FieldLength fieldLength, CancellationToken cancellationToken)
     {
-        var data = BitConverter.GetBytes(value);
+        byte[] data = BitConverter.GetBytes(value);
         return WriteAsync(data, fieldLength, cancellationToken);
     }
 
     public Task WriteAsync(double value, FieldLength fieldLength, CancellationToken cancellationToken)
     {
-        var data = BitConverter.GetBytes(value);
+        byte[] data = BitConverter.GetBytes(value);
         return WriteAsync(data, fieldLength, cancellationToken);
     }
 
@@ -85,67 +85,67 @@ internal class AsyncBinaryWriter(BoundedStream output, Encoding encoding, byte p
     {
         Resize(ref data, fieldLength);
 
-        var length = fieldLength ?? data.Length;
+        FieldLength length = fieldLength ?? data.Length;
         return OutputStream.WriteAsync(data, length, cancellationToken);
     }
 
     public void Write(byte value, FieldLength fieldLength)
     {
-        var data = new[] { value };
+        byte[] data = [value];
         Write(data, fieldLength);
     }
 
     public void Write(sbyte value, FieldLength fieldLength)
     {
-        var data = new[] { (byte)value };
+        byte[] data = [(byte)value];
         Write(data, fieldLength);
     }
 
     public void Write(short value, FieldLength fieldLength)
     {
-        var data = BitConverter.GetBytes(value);
+        byte[] data = BitConverter.GetBytes(value);
         Write(data, fieldLength);
     }
 
     public void Write(ushort value, FieldLength fieldLength)
     {
-        var data = BitConverter.GetBytes(value);
+        byte[] data = BitConverter.GetBytes(value);
         Write(data, fieldLength);
     }
 
     public void Write(int value, FieldLength fieldLength)
     {
-        var data = BitConverter.GetBytes(value);
+        byte[] data = BitConverter.GetBytes(value);
         Write(data, fieldLength);
     }
 
     public void Write(uint value, FieldLength fieldLength)
     {
-        var data = BitConverter.GetBytes(value);
+        byte[] data = BitConverter.GetBytes(value);
         Write(data, fieldLength);
     }
 
     public void Write(long value, FieldLength fieldLength)
     {
-        var data = BitConverter.GetBytes(value);
+        byte[] data = BitConverter.GetBytes(value);
         Write(data, fieldLength);
     }
 
     public void Write(ulong value, FieldLength fieldLength)
     {
-        var data = BitConverter.GetBytes(value);
+        byte[] data = BitConverter.GetBytes(value);
         Write(data, fieldLength);
     }
 
     public void Write(float value, FieldLength fieldLength)
     {
-        var data = BitConverter.GetBytes(value);
+        byte[] data = BitConverter.GetBytes(value);
         Write(data, fieldLength);
     }
 
     public void Write(double value, FieldLength fieldLength)
     {
-        var data = BitConverter.GetBytes(value);
+        byte[] data = BitConverter.GetBytes(value);
         Write(data, fieldLength);
     }
 
@@ -153,7 +153,7 @@ internal class AsyncBinaryWriter(BoundedStream output, Encoding encoding, byte p
     {
         Resize(ref data, fieldLength);
 
-        var length = fieldLength ?? data.Length;
+        FieldLength length = fieldLength ?? data.Length;
         OutputStream.Write(data, length);
     }
 
@@ -164,8 +164,8 @@ internal class AsyncBinaryWriter(BoundedStream output, Encoding encoding, byte p
             return;
         }
 
-        var dataLength = data.Length;
-        var totalByteCount = (int)length.TotalByteCount;
+        int dataLength = data.Length;
+        int totalByteCount = (int)length.TotalByteCount;
 
         if (dataLength == totalByteCount)
         {

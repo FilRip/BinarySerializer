@@ -8,7 +8,7 @@ namespace BinarySerialization.Test.Misc
         [TestMethod()]
         public void SkipTest()
         {
-            var actual = Deserialize<SkipableContainerClass>([]);
+            SkipableContainerClass actual = Deserialize<SkipableContainerClass>([]);
             Assert.IsNull(actual.Skipable);
         }
     }

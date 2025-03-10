@@ -89,7 +89,7 @@ public class BoundedStream : Stream
 
         set
         {
-            var delta = value - RelativePosition;
+            FieldLength delta = value - RelativePosition;
             Source.Position += delta.ByteCount;
             RelativePosition = value;
         }
@@ -148,7 +148,7 @@ public class BoundedStream : Stream
                 return MaxLength - Position;
             }
 
-            var source = Source as BoundedStream;
+            BoundedStream source = Source as BoundedStream;
             return source?.AvailableForWriting ?? long.MaxValue;
         }
     }
@@ -287,8 +287,8 @@ public class BoundedStream : Stream
             }
             else
             {
-                var lastByteIndex = length.BitCount == 0 ? length.ByteCount - 1 : length.ByteCount;
-                var bitCount = length.BitCount == 0 ? BitsPerByte : length.BitCount;
+                long lastByteIndex = length.BitCount == 0 ? length.ByteCount - 1 : length.ByteCount;
+                int bitCount = length.BitCount == 0 ? BitsPerByte : length.BitCount;
 
                 for (long i = 0; i < lastByteIndex; i++)
                 {
@@ -325,8 +325,8 @@ public class BoundedStream : Stream
             }
             else
             {
-                var lastByteIndex = length.BitCount == 0 ? length.ByteCount - 1 : length.ByteCount;
-                var bitCount = length.BitCount == 0 ? BitsPerByte : length.BitCount;
+                long lastByteIndex = length.BitCount == 0 ? length.ByteCount - 1 : length.ByteCount;
+                int bitCount = length.BitCount == 0 ? BitsPerByte : length.BitCount;
 
                 // collect bits in this, the bottom bounded stream
                 for (long i = 0; i < lastByteIndex; i++)
@@ -364,14 +364,14 @@ public class BoundedStream : Stream
 
     private void WriteBits(byte value, int count, bool msbFirst)
     {
-        var copied = 0;
+        int copied = 0;
         while (copied < count)
         {
-            var headroom = BitsPerByte - _bitBufferCount;
-            var remaining = count - copied;
+            int headroom = BitsPerByte - _bitBufferCount;
+            int remaining = count - copied;
             byte mask = (byte)((1 << count) - 1 ^ (1 << copied) - 1); // generate bit mask for all bits within [count..copied]
-            var copyLength = Math.Min(remaining, headroom);
-            var shift = msbFirst ?
+            int copyLength = Math.Min(remaining, headroom);
+            int shift = msbFirst ?
                             copied - (BitsPerByte - (copyLength + _bitBufferCount))
                             : copied - _bitBufferCount;
 
@@ -397,7 +397,7 @@ public class BoundedStream : Stream
 
     private void FlushBits()
     {
-        var data = new[] { _bitBuffer };
+        byte[] data = [_bitBuffer];
         WriteByteAligned(data, data.Length);
         _bitBuffer = 0;
         _bitBufferCount = 0;
@@ -405,14 +405,14 @@ public class BoundedStream : Stream
 
     private async Task WriteBitsAsync(byte value, int count, CancellationToken cancellationToken, bool msbFirst)
     {
-        var copied = 0;
+        int copied = 0;
         while (copied < count)
         {
-            var headroom = BitsPerByte - _bitBufferCount;
-            var remaining = count - copied;
+            int headroom = BitsPerByte - _bitBufferCount;
+            int remaining = count - copied;
             byte mask = (byte)((1 << count) - 1 ^ (1 << copied) - 1); // generate bit mask for all bits below 1<<count
-            var copyLength = Math.Min(remaining, headroom);
-            var shift = msbFirst ?
+            int copyLength = Math.Min(remaining, headroom);
+            int shift = msbFirst ?
                             copied - (BitsPerByte - (copyLength + _bitBufferCount))
                             : copied - _bitBufferCount;
 
@@ -438,7 +438,7 @@ public class BoundedStream : Stream
 
     private async Task FlushBitsAsync(CancellationToken cancellationToken)
     {
-        var data = new[] { _bitBuffer };
+        byte[] data = [_bitBuffer];
         await WriteByteAlignedAsync(data, data.Length, cancellationToken).ConfigureAwait(false);
         _bitBuffer = 0;
         _bitBufferCount = 0;
@@ -447,7 +447,7 @@ public class BoundedStream : Stream
     public override async Task<int> ReadAsync(byte[] buffer, int offset, int count,
         CancellationToken cancellationToken)
     {
-        var read = await ReadAsyncImpl(buffer, count, cancellationToken)
+        FieldLength read = await ReadAsyncImpl(buffer, count, cancellationToken)
             .ConfigureAwait(false);
         return (int)read.ByteCount;
     }
@@ -483,8 +483,8 @@ public class BoundedStream : Stream
             {
                 readLength = FieldLength.Zero;
 
-                var lastByteIndex = length.BitCount == 0 ? length.ByteCount - 1 : length.ByteCount;
-                var bitCount = length.BitCount == 0 ? BitsPerByte : length.BitCount;
+                long lastByteIndex = length.BitCount == 0 ? length.ByteCount - 1 : length.ByteCount;
+                int bitCount = length.BitCount == 0 ? BitsPerByte : length.BitCount;
 
                 byte value;
                 int readBitCount;
@@ -534,10 +534,10 @@ public class BoundedStream : Stream
             {
                 readLength = FieldLength.Zero;
 
-                var lastByteIndex = length.BitCount == 0 ? length.ByteCount - 1 : length.ByteCount;
-                var bitCount = length.BitCount == 0 ? BitsPerByte : length.BitCount;
+                long lastByteIndex = length.BitCount == 0 ? length.ByteCount - 1 : length.ByteCount;
+                int bitCount = length.BitCount == 0 ? BitsPerByte : length.BitCount;
 
-                var value = new byte[1];
+                byte[] value = new byte[1];
                 int readBitCount;
 
                 for (long i = 0; i < lastByteIndex; i++)
@@ -573,20 +573,20 @@ public class BoundedStream : Stream
     private int ReadBits(int count, out byte value, bool msbFirst)
     {
         byte b = 0;
-        var copied = 0;
+        int copied = 0;
         while (copied < count)
         {
             if (_bitBufferCount == 0)
             {
-                var data = new byte[1];
+                byte[] data = new byte[1];
                 ReadByteAligned(data, data.Length);
                 _bitBuffer = data[0];
                 _bitBufferCount = BitsPerByte;
             }
 
-            var remaining = count - copied;
-            var copyLength = Math.Min(remaining, _bitBufferCount);
-            var shift = msbFirst ?
+            int remaining = count - copied;
+            int copyLength = Math.Min(remaining, _bitBufferCount);
+            int shift = msbFirst ?
                             copied - (_bitBufferCount - copyLength)
                             : copied - (BitsPerByte - _bitBufferCount);
 
@@ -612,20 +612,20 @@ public class BoundedStream : Stream
     private async Task<int> ReadBitsAsync(int count, byte[] value, CancellationToken cancellationToken, bool msbFirst)
     {
         byte b = 0;
-        var copied = 0;
+        int copied = 0;
         while (copied < count)
         {
             if (_bitBufferCount == 0)
             {
-                var data = new byte[1];
+                byte[] data = new byte[1];
                 await ReadByteAlignedAsync(data, data.Length, cancellationToken).ConfigureAwait(false);
                 _bitBuffer = data[0];
                 _bitBufferCount = BitsPerByte;
             }
 
-            var remaining = count - copied;
-            var copyLength = Math.Min(remaining, _bitBufferCount);
-            var shift = msbFirst ?
+            int remaining = count - copied;
+            int copyLength = Math.Min(remaining, _bitBufferCount);
+            int shift = msbFirst ?
                             copied - (_bitBufferCount - copyLength)
                             : copied - (BitsPerByte - _bitBufferCount);
 

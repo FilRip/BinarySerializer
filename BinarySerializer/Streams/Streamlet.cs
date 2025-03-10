@@ -145,7 +145,7 @@ public sealed class Streamlet : Stream
 
         Source.Position = Offset + Position;
 
-        var read = Source.Read(buffer, offset, count);
+        int read = Source.Read(buffer, offset, count);
         Position += read;
 
         return read;
@@ -163,7 +163,7 @@ public sealed class Streamlet : Stream
 
         Source.Position = Offset + Position;
 
-        var read = await Source.ReadAsync(buffer, offset, count, cancellationToken)
+        int read = await Source.ReadAsync(buffer, offset, count, cancellationToken)
             .ConfigureAwait(false);
         Position += read;
 

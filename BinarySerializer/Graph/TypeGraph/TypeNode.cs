@@ -82,12 +82,12 @@ internal abstract class TypeNode(TypeNode parent) : Node<TypeNode>(parent)
         {
             Type = subType ?? propertyInfo.PropertyType;
 
-            var indexParameters = propertyInfo.GetIndexParameters();
+            ParameterInfo[] indexParameters = propertyInfo.GetIndexParameters();
 
             // ignore custom indexers
             if (indexParameters.Length == 0)
             {
-                var getMethod = propertyInfo.GetGetMethod();
+                MethodInfo getMethod = propertyInfo.GetGetMethod();
 
 #if NETSTANDARD1_3
                 ValueGetter = RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
@@ -97,7 +97,7 @@ internal abstract class TypeNode(TypeNode parent) : Node<TypeNode>(parent)
                 ValueGetter = MagicMethods.MagicFunc(parentType, getMethod);
 #endif
 
-                var setMethod = propertyInfo.GetSetMethod();
+                MethodInfo setMethod = propertyInfo.GetSetMethod();
 
                 if (setMethod != null)
                 {
@@ -125,8 +125,8 @@ internal abstract class TypeNode(TypeNode parent) : Node<TypeNode>(parent)
 
         NullableUnderlyingType = Nullable.GetUnderlyingType(Type);
 
-        var attributes = memberInfo.GetCustomAttributes(true).ToList();
-        var parentAttributeNames = parentType.GetTypeInfo().GetCustomAttributes<IgnoreMemberAttribute>().Select(attribute => attribute.Name);
+        List<object> attributes = [.. memberInfo.GetCustomAttributes(true)];
+        IEnumerable<string> parentAttributeNames = parentType.GetTypeInfo().GetCustomAttributes<IgnoreMemberAttribute>().Select(attribute => attribute.Name);
 
         IsIgnored = parentAttributeNames.Any(name => name == Name) || attributes.OfType<IgnoreAttribute>().Any();
 
@@ -136,13 +136,13 @@ internal abstract class TypeNode(TypeNode parent) : Node<TypeNode>(parent)
             return;
         }
 
-        var fieldOrderAttribute = attributes.OfType<FieldOrderAttribute>().SingleOrDefault();
+        FieldOrderAttribute fieldOrderAttribute = attributes.OfType<FieldOrderAttribute>().SingleOrDefault();
         if (fieldOrderAttribute != null)
         {
             Order = fieldOrderAttribute.Order;
         }
 
-        var serializeAsAttribute = attributes.OfType<SerializeAsAttribute>().SingleOrDefault();
+        SerializeAsAttribute serializeAsAttribute = attributes.OfType<SerializeAsAttribute>().SingleOrDefault();
         if (serializeAsAttribute != null)
         {
             _serializedType = serializeAsAttribute.SerializedType;
@@ -159,7 +159,7 @@ internal abstract class TypeNode(TypeNode parent) : Node<TypeNode>(parent)
         IsNullable = NullableUnderlyingType != null;
         if (!IsNullable)
         {
-            var serializedType = GetSerializedType();
+            SerializedType serializedType = GetSerializedType();
             IsNullable = serializedType == SerializedType.Default ||
                          serializedType == SerializedType.ByteArray ||
                          serializedType == SerializedType.TerminatedString ||
@@ -176,13 +176,13 @@ internal abstract class TypeNode(TypeNode parent) : Node<TypeNode>(parent)
         FieldEndiannessBindings = GetBindings<FieldEndiannessAttribute>(attributes);
         FieldEncodingBindings = GetBindings<FieldEncodingAttribute>(attributes);
 
-        var fieldAlignmentAttributes = attributes.OfType<FieldAlignmentAttribute>()
+        ILookup<FieldAlignmentMode, FieldAlignmentAttribute> fieldAlignmentAttributes = attributes.OfType<FieldAlignmentAttribute>()
             .ToLookup(attribute => attribute.Mode);
-        var leftAlignmentAttributes =
+        IEnumerable<FieldAlignmentAttribute> leftAlignmentAttributes =
             fieldAlignmentAttributes[FieldAlignmentMode.LeftAndRight].Concat(
                 fieldAlignmentAttributes[FieldAlignmentMode.LeftOnly]);
 
-        var rightAlignmentAttributes =
+        IEnumerable<FieldAlignmentAttribute> rightAlignmentAttributes =
             fieldAlignmentAttributes[FieldAlignmentMode.LeftAndRight].Concat(
                 fieldAlignmentAttributes[FieldAlignmentMode.RightOnly]);
 
@@ -191,7 +191,7 @@ internal abstract class TypeNode(TypeNode parent) : Node<TypeNode>(parent)
         RightFieldAlignmentBindings =
             GetBindings<FieldAlignmentAttribute>([.. rightAlignmentAttributes.Cast<object>()]);
 
-        var fieldValueAttributes = attributes.OfType<FieldValueAttributeBase>().ToArray();
+        FieldValueAttributeBase[] fieldValueAttributes = [.. attributes.OfType<FieldValueAttributeBase>()];
         FieldValueAttributes = new ReadOnlyCollection<FieldValueAttributeBase>(fieldValueAttributes);
 
         if (FieldValueAttributes.Count > 0)
@@ -199,7 +199,7 @@ internal abstract class TypeNode(TypeNode parent) : Node<TypeNode>(parent)
             FieldValueBindings = GetBindings<FieldValueAttributeBase>(attributes);
         }
 
-        var serializeWhenAttributes = attributes.OfType<SerializeWhenAttribute>().ToArray();
+        SerializeWhenAttribute[] serializeWhenAttributes = [.. attributes.OfType<SerializeWhenAttribute>()];
         SerializeWhenAttributes = new ReadOnlyCollection<SerializeWhenAttribute>(serializeWhenAttributes);
 
         if (SerializeWhenAttributes.Count > 0)
@@ -212,7 +212,7 @@ internal abstract class TypeNode(TypeNode parent) : Node<TypeNode>(parent)
         // don't inherit subtypes if this is itself a subtype
         if (subType == null)
         {
-            var subtypeAttributes = attributes.OfType<SubtypeAttribute>().Cast<SubtypeBaseAttribute>().ToArray();
+            SubtypeBaseAttribute[] subtypeAttributes = [.. attributes.OfType<SubtypeAttribute>().Cast<SubtypeBaseAttribute>()];
 
             SubtypeAttributes = new ReadOnlyCollection<SubtypeBaseAttribute>(subtypeAttributes);
             SubtypeBindings = GetBindings(subtypeAttributes, Type);
@@ -225,7 +225,7 @@ internal abstract class TypeNode(TypeNode parent) : Node<TypeNode>(parent)
                     $"{SubtypeDefaultAttribute.Subtype} is not a subtype of {Type}");
             }
 
-            var subtypeFactoryAttribute = attributes.OfType<SubtypeFactoryAttribute>().SingleOrDefault();
+            SubtypeFactoryAttribute subtypeFactoryAttribute = attributes.OfType<SubtypeFactoryAttribute>().SingleOrDefault();
             if (subtypeFactoryAttribute != null)
             {
                 SubtypeFactoryBinding = GetBinding(subtypeFactoryAttribute);
@@ -234,8 +234,7 @@ internal abstract class TypeNode(TypeNode parent) : Node<TypeNode>(parent)
             }
         }
 
-        var itemSubtypeAttributes = attributes.OfType<ItemSubtypeAttribute>().Cast<SubtypeBaseAttribute>()
-            .ToArray();
+        SubtypeBaseAttribute[] itemSubtypeAttributes = [.. attributes.OfType<ItemSubtypeAttribute>().Cast<SubtypeBaseAttribute>()];
         ItemSubtypeAttributes = new ReadOnlyCollection<SubtypeBaseAttribute>(itemSubtypeAttributes);
 
         if (itemSubtypeAttributes.Length > 0)
@@ -248,7 +247,7 @@ internal abstract class TypeNode(TypeNode parent) : Node<TypeNode>(parent)
             }
             else if (typeof(IList).IsAssignableFrom(Type))
             {
-                var genericArguments = Type.GetGenericArguments();
+                Type[] genericArguments = Type.GetGenericArguments();
                 if (genericArguments.Length > 1)
                 {
                     throw new InvalidOperationException("Multiple generic arguments not supported.");
@@ -264,7 +263,7 @@ internal abstract class TypeNode(TypeNode parent) : Node<TypeNode>(parent)
             ItemSubtypeBindings = GetBindings(itemSubtypeAttributes, itemBaseType);
         }
 
-        var itemSubtypeFactoryAttribute = attributes.OfType<ItemSubtypeFactoryAttribute>().SingleOrDefault();
+        ItemSubtypeFactoryAttribute itemSubtypeFactoryAttribute = attributes.OfType<ItemSubtypeFactoryAttribute>().SingleOrDefault();
         if (itemSubtypeFactoryAttribute != null)
         {
             ItemSubtypeFactoryBinding = GetBinding(itemSubtypeFactoryAttribute);
@@ -372,7 +371,7 @@ internal abstract class TypeNode(TypeNode parent) : Node<TypeNode>(parent)
             }
 
             // If null terminated string is specified but item field length is present, override
-            var localParent = Parent;
+            TypeNode localParent = Parent;
             if (localParent.ItemLengthBindings != null)
             {
                 serializedType = SerializedType.SizedString;
@@ -384,7 +383,7 @@ internal abstract class TypeNode(TypeNode parent) : Node<TypeNode>(parent)
 
     public static object GetDefaultValue(SerializedType serializedType)
     {
-        return SerializedTypeDefault.TryGetValue(serializedType, out var value) ? value : null;
+        return SerializedTypeDefault.TryGetValue(serializedType, out object value) ? value : null;
     }
 
     public ValueNode CreateSerializer(ValueNode parent)
@@ -395,10 +394,10 @@ internal abstract class TypeNode(TypeNode parent) : Node<TypeNode>(parent)
         }
         catch (Exception e)
         {
-            var reference = Name == null
+            string reference = Name == null
                 ? $"type '{Type}'"
                 : $"member '{Name}'";
-            var message = $"Error serializing {reference}.  See inner exception for detail.";
+            string message = $"Error serializing {reference}.  See inner exception for detail.";
             throw new InvalidOperationException(message, e);
         }
     }
@@ -407,7 +406,7 @@ internal abstract class TypeNode(TypeNode parent) : Node<TypeNode>(parent)
 
     public int GetBindingLevel(BindingInfo binding)
     {
-        var level = 0;
+        int level = 0;
 
         switch (binding.RelativeSourceMode)
         {
@@ -440,7 +439,7 @@ internal abstract class TypeNode(TypeNode parent) : Node<TypeNode>(parent)
             return () => string.Empty;
         }
 
-        var constructor = type.GetConstructor(Type.EmptyTypes);
+        ConstructorInfo constructor = type.GetConstructor(Type.EmptyTypes);
         return CreateCompiledConstructor(constructor);
     }
 
@@ -457,14 +456,14 @@ internal abstract class TypeNode(TypeNode parent) : Node<TypeNode>(parent)
     private BindingCollection GetBindings<TAttribute>(IEnumerable<object> attributes)
         where TAttribute : FieldBindingBaseAttribute
     {
-        var typeAttributes = attributes.OfType<TAttribute>().ToList();
+        List<TAttribute> typeAttributes = [.. attributes.OfType<TAttribute>()];
 
         if (!typeAttributes.Any())
         {
             return null;
         }
 
-        var bindings =
+        IEnumerable<Binding> bindings =
             typeAttributes.Select(
                 attribute =>
                     new Binding(attribute, GetBindingLevel(attribute.Binding)));
@@ -479,7 +478,7 @@ internal abstract class TypeNode(TypeNode parent) : Node<TypeNode>(parent)
             return null;
         }
 
-        var bindingGroups =
+        IEnumerable<IGrouping<BindingInfo, SubtypeBaseAttribute>> bindingGroups =
             attributes.GroupBy(subtypeAttribute => subtypeAttribute.Binding);
 
         if (bindingGroups.Count() > 1)
@@ -487,32 +486,30 @@ internal abstract class TypeNode(TypeNode parent) : Node<TypeNode>(parent)
             throw new BindingException("Subtypes must all specify the same binding configuration.");
         }
 
-        var bindings =
+        IEnumerable<Binding> bindings =
             attributes.Select(
                 attribute =>
                     new Binding(attribute, GetBindingLevel(attribute.Binding)));
 
-        var toSourceAttributes = attributes.Where(attribute => attribute.BindingMode != BindingMode.OneWayToSource)
-            .ToList();
-        var valueGroups = toSourceAttributes.GroupBy(attribute => attribute.Value);
+        List<SubtypeBaseAttribute> toSourceAttributes = [.. attributes.Where(attribute => attribute.BindingMode != BindingMode.OneWayToSource)];
+        IEnumerable<IGrouping<object, SubtypeBaseAttribute>> valueGroups = toSourceAttributes.GroupBy(attribute => attribute.Value);
 
         if (valueGroups.Count() < toSourceAttributes.Count)
         {
             throw new InvalidOperationException("Subtype values must be unique.");
         }
 
-        var toTargetAttributes = attributes.Where(attribute => attribute.BindingMode != BindingMode.OneWay)
-            .ToList();
+        List<SubtypeBaseAttribute> toTargetAttributes = [.. attributes.Where(attribute => attribute.BindingMode != BindingMode.OneWay)];
 
-        var subTypeGroups = toTargetAttributes.GroupBy(attribute => attribute.Subtype);
-        var subTypeGroupCount = subTypeGroups.Count();
+        IEnumerable<IGrouping<Type, SubtypeBaseAttribute>> subTypeGroups = toTargetAttributes.GroupBy(attribute => attribute.Subtype);
+        int subTypeGroupCount = subTypeGroups.Count();
         if (subTypeGroupCount < toTargetAttributes.Count)
         {
             throw new InvalidOperationException(
                 "Subtypes must be unique for two-way subtype bindings.  Set BindingMode to OneWay to disable updates to the binding source during serialization.");
         }
 
-        var invalidSubtype =
+        SubtypeBaseAttribute invalidSubtype =
             attributes.FirstOrDefault(attribute => !checkType.IsAssignableFrom(attribute.Subtype));
 
         if (invalidSubtype != null)
@@ -525,8 +522,8 @@ internal abstract class TypeNode(TypeNode parent) : Node<TypeNode>(parent)
 
     private int FindAncestorLevel(BindingInfo binding)
     {
-        var level = 1;
-        var localParent = Parent;
+        int level = 1;
+        TypeNode localParent = Parent;
         while (localParent != null)
         {
             if (binding != null && binding.RelativeSourceMode == RelativeSourceMode.FindAncestor)

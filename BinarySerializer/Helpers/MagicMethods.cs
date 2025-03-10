@@ -13,16 +13,16 @@ internal static class MagicMethods
     {
         // First fetch the generic form
 #pragma warning disable S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
-        var genericHelper = typeof(MagicMethods).GetMethod(nameof(MagicFuncHelper),
+        MethodInfo genericHelper = typeof(MagicMethods).GetMethod(nameof(MagicFuncHelper),
             BindingFlags.Static | BindingFlags.NonPublic);
 #pragma warning restore S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
 
         // Now supply the type arguments
-        var constructedHelper = genericHelper.MakeGenericMethod
+        MethodInfo constructedHelper = genericHelper.MakeGenericMethod
             (targetType, method.ReturnType);
 
         // Now call it. The null argument is because it’s a static method.
-        var ret = constructedHelper.Invoke(null, [method]);
+        object ret = constructedHelper.Invoke(null, [method]);
 
         // Cast the result to the right kind of delegate and return it
         return (Func<object, object>)ret;
@@ -32,16 +32,16 @@ internal static class MagicMethods
     {
         // First fetch the generic form
 #pragma warning disable S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
-        var genericHelper = typeof(MagicMethods).GetMethod(nameof(MagicActionHelper),
+        MethodInfo genericHelper = typeof(MagicMethods).GetMethod(nameof(MagicActionHelper),
             BindingFlags.Static | BindingFlags.NonPublic);
 #pragma warning restore S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
 
         // Now supply the type arguments
-        var constructedHelper = genericHelper.MakeGenericMethod
+        MethodInfo constructedHelper = genericHelper.MakeGenericMethod
             (targetType, method.GetParameters().Single().ParameterType);
 
         // Now call it. The null argument is because it’s a static method.
-        var ret = constructedHelper.Invoke(null, [method]);
+        object ret = constructedHelper.Invoke(null, [method]);
 
         // Cast the result to the right kind of delegate and return it
         return (Action<object, object>)ret;
@@ -51,7 +51,7 @@ internal static class MagicMethods
     private static Func<object, object> MagicFuncHelper<TTarget, TReturn>(MethodInfo method)
     {
         // Convert the slow MethodInfo into a fast, strongly typed, open delegate
-        var func = (Func<TTarget, TReturn>)method.CreateDelegate(typeof(Func<TTarget, TReturn>));
+        Func<TTarget, TReturn> func = (Func<TTarget, TReturn>)method.CreateDelegate(typeof(Func<TTarget, TReturn>));
 
         // Now create a more weakly typed delegate which will call the strongly typed one
         object Func(object target)
@@ -66,7 +66,7 @@ internal static class MagicMethods
     private static Action<object, object> MagicActionHelper<TTarget, TValue>(MethodInfo method)
     {
         // Convert the slow MethodInfo into a fast, strongly typed, open delegate
-        var action = (Action<TTarget, TValue>)method.CreateDelegate(typeof(Action<TTarget, TValue>));
+        Action<TTarget, TValue> action = (Action<TTarget, TValue>)method.CreateDelegate(typeof(Action<TTarget, TValue>));
 
         // Now create a more weakly typed delegate which will call the strongly typed one
         void Func(object target, object value)

@@ -14,7 +14,7 @@ namespace BinarySerialization.Test.Custom
 
         public void Serialize(Stream stream, Endianness endianness, BinarySerializationContext serializationContext)
         {
-            var writer = new BinaryWriter(stream);
+            BinaryWriter writer = new(stream);
             writer.Write((ushort)Value.Year);
             writer.Write((byte)Value.Month);
             writer.Write((byte)Value.Day);
@@ -26,14 +26,14 @@ namespace BinarySerialization.Test.Custom
 
         public void Deserialize(Stream stream, Endianness endianness, BinarySerializationContext serializationContext)
         {
-            var reader = new BinaryReader(stream);
-            var year = reader.ReadUInt16();
-            var month = reader.ReadByte();
-            var day = reader.ReadByte();
-            var hour = reader.ReadByte();
-            var minute = reader.ReadByte();
-            var second = reader.ReadByte();
-            var ms = reader.ReadUInt16();
+            BinaryReader reader = new(stream);
+            ushort year = reader.ReadUInt16();
+            byte month = reader.ReadByte();
+            byte day = reader.ReadByte();
+            byte hour = reader.ReadByte();
+            byte minute = reader.ReadByte();
+            byte second = reader.ReadByte();
+            ushort ms = reader.ReadUInt16();
 
             Value = new DateTime(year, month, day, hour, minute, second, DateTimeKind.Local).AddMilliseconds(ms);
         }

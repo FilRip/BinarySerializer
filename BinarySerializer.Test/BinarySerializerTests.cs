@@ -25,8 +25,8 @@ namespace BinarySerialization.Test
 
         private static Cereal Cerealize()
         {
-            var disclaimerStream = new MemoryStream();
-            var writer = new StreamWriter(disclaimerStream);
+            MemoryStream disclaimerStream = new();
+            StreamWriter writer = new(disclaimerStream);
             writer.Write(Disclaimer);
             writer.Flush();
             disclaimerStream.Position = 0;
@@ -78,17 +78,17 @@ namespace BinarySerialization.Test
         [TestMethod()]
         public void ParallelCerealTest()
         {
-            var runs = Enumerable.Range(0, 1000);
+            System.Collections.Generic.IEnumerable<int> runs = Enumerable.Range(0, 1000);
             Parallel.ForEach(runs, i => CerealTest());
         }
 
         [TestMethod()]
         public void CerealTest()
         {
-            var cereal = Cerealize();
+            Cereal cereal = Cerealize();
 
 
-            using var stream = new MemoryStream();
+            using MemoryStream stream = new();
             _serializer.Serialize(stream, cereal);
             stream.Position = 0;
 
@@ -97,7 +97,7 @@ namespace BinarySerialization.Test
             //File.WriteAllBytes("c:\\temp\\out.bin", stream.ToArray());
 
 
-            var cereal2 = _serializer.Deserialize<Cereal>(stream);
+            Cereal cereal2 = _serializer.Deserialize<Cereal>(stream);
 
             Assert.AreEqual("Cheeri", cereal2.Name);
             Assert.AreEqual(cereal.Manufacturer, cereal2.Manufacturer);
@@ -133,7 +133,7 @@ namespace BinarySerialization.Test
             Assert.IsTrue(cereal.ExplicitlyTerminatedList.SequenceEqual(cereal2.ExplicitlyTerminatedList));
             Assert.IsTrue(cereal.ImplicitlyTerminatedList.SequenceEqual(cereal2.ImplicitlyTerminatedList));
 
-            var reader = new StreamReader(cereal2.Disclaimer);
+            StreamReader reader = new(cereal2.Disclaimer);
             Assert.AreEqual(Disclaimer, reader.ReadToEnd());
         }
 
@@ -142,7 +142,7 @@ namespace BinarySerialization.Test
         {
             if (e.MemberName == "IsLittleEndian")
             {
-                var isLittleEndian = bool.Parse((string)e.Value);
+                bool isLittleEndian = bool.Parse((string)e.Value);
                 if (!isLittleEndian)
                     _serializer.Endianness = Endianness.Big;
             }
@@ -154,7 +154,7 @@ namespace BinarySerialization.Test
         {
             if (e.MemberName == "IsLittleEndian")
             {
-                var isLittleEndian = bool.Parse((string)e.Value);
+                bool isLittleEndian = bool.Parse((string)e.Value);
                 if (!isLittleEndian)
                     _serializer.Endianness = Endianness.Big;
             }
@@ -165,8 +165,8 @@ namespace BinarySerialization.Test
         [TestMethod()]
         public void NonSeekableStreamSerializationTest()
         {
-            var stream = new NonSeekableStream();
-            var serializer = new BinarySerializer();
+            NonSeekableStream stream = new();
+            BinarySerializer serializer = new();
             serializer.Serialize(stream, new Iron());
             Assert.IsNull(stream.GetStream());
         }
@@ -174,23 +174,23 @@ namespace BinarySerialization.Test
         [TestMethod()]
         public void NonSeekableStreamWithOffsetAttributeShouldThrowInvalidOperationException()
         {
-            var stream = new NonSeekableStream();
-            var serializer = new BinarySerializer();
+            NonSeekableStream stream = new();
+            BinarySerializer serializer = new();
             Assert.ThrowsExactly<InvalidOperationException>(() => serializer.Serialize(stream, Cerealize()));
         }
 
         [TestMethod()]
         public void NullStreamSerializationShouldThrowArgumentNullException()
         {
-            var serializer = new BinarySerializer();
+            BinarySerializer serializer = new();
             Assert.ThrowsExactly<ArgumentNullException>(() => serializer.Serialize(null, new object()));
         }
 
         [TestMethod()]
         public void NullGraphSerializationShouldSerializeNothing()
         {
-            var serializer = new BinarySerializer();
-            var stream = new MemoryStream();
+            BinarySerializer serializer = new();
+            MemoryStream stream = new();
             serializer.Serialize(stream, null);
             Assert.AreEqual(0, stream.Length);
         }
@@ -210,18 +210,18 @@ namespace BinarySerialization.Test
         [TestMethod()]
         public void UnresolvedSubtypeMemberDeserializationYieldsNull()
         {
-            var serializer = new BinarySerializer();
-            var ingredients = serializer.Deserialize<Ingredients>([0x4]);
+            BinarySerializer serializer = new();
+            Ingredients ingredients = serializer.Deserialize<Ingredients>([0x4]);
             Assert.IsNull(ingredients.MainIngredient);
         }
 
         [TestMethod()]
         public void ImplicitTermination()
         {
-            var data = new byte[] { 0x0, 0x1, 0x2, 0x3 };
+            byte[] data = [0x0, 0x1, 0x2, 0x3];
 
-            var serializer = new BinarySerializer();
-            var byteList = serializer.Deserialize<ImplictTermination>(data);
+            BinarySerializer serializer = new();
+            ImplictTermination byteList = serializer.Deserialize<ImplictTermination>(data);
 
             Assert.AreEqual(4, byteList.Data.Count);
         }

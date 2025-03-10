@@ -8,7 +8,7 @@ namespace BinarySerialization.Test.Misc
         [TestMethod()]
         public void InvalidButIgnoredTest()
         {
-            var actual = Roundtrip(new InvalidButIgnoredContainerClass
+            InvalidButIgnoredContainerClass actual = Roundtrip(new InvalidButIgnoredContainerClass
             {
                 InvalidButIgnored = new InvalidButIgnoredTypeClass()
             });

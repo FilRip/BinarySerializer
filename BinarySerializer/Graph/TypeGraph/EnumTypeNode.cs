@@ -30,14 +30,14 @@ internal class EnumTypeNode : ValueTypeNode
 
     private void InitializeEnumValues()
     {
-        var serializedType = GetSerializedType();
+        SerializedType serializedType = GetSerializedType();
 
-        var values = Enum.GetValues(BaseSerializedType).Cast<Enum>();
+        System.Collections.Generic.IEnumerable<Enum> values = Enum.GetValues(BaseSerializedType).Cast<Enum>();
 
         /* Get enum attributes */
-        var enumAttributes = values.ToDictionary(value => value, value =>
+        System.Collections.Generic.Dictionary<Enum, SerializeAsEnumAttribute> enumAttributes = values.ToDictionary(value => value, value =>
         {
-            var memberInfo = BaseSerializedType.GetMember(value.ToString()).Single();
+            MemberInfo memberInfo = BaseSerializedType.GetMember(value.ToString()).Single();
             return (SerializeAsEnumAttribute)memberInfo.GetCustomAttributes(
                 typeof(SerializeAsEnumAttribute),
                 false).FirstOrDefault();
@@ -54,17 +54,17 @@ internal class EnumTypeNode : ValueTypeNode
             EnumInfo.EnumValues = enumAttributes.ToDictionary(enumAttribute => enumAttribute.Key,
                 enumAttribute =>
                 {
-                    var attribute = enumAttribute.Value;
+                    SerializeAsEnumAttribute attribute = enumAttribute.Value;
                     return attribute?.Value ?? enumAttribute.Key.ToString();
                 });
 
             EnumInfo.ValueEnums = EnumInfo.EnumValues.ToDictionary(enumValue => enumValue.Value,
                 enumValue => enumValue.Key);
 
-            var lengthGroups =
-                EnumInfo.EnumValues.Where(enumValue => enumValue.Value != null)
+            System.Collections.Generic.List<IGrouping<int, string>> lengthGroups =
+                [.. EnumInfo.EnumValues.Where(enumValue => enumValue.Value != null)
                     .Select(enumValue => enumValue.Value)
-                    .GroupBy(value => value.Length).ToList();
+                    .GroupBy(value => value.Length)];
 
 
             /* If the graphType isn't specified, let's try to guess it smartly */

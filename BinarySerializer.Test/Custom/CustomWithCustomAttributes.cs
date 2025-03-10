@@ -13,7 +13,7 @@ namespace BinarySerialization.Test.Custom
     {
         public void Serialize(Stream stream, Endianness endianness, BinarySerializationContext serializationContext)
         {
-            var memberInfo = serializationContext.MemberInfo;
+            MemberInfo memberInfo = serializationContext.MemberInfo;
             AssertCustomAttribute(memberInfo);
         }
 
@@ -21,14 +21,14 @@ namespace BinarySerialization.Test.Custom
         public void Deserialize(Stream stream, Endianness endianness, BinarySerializationContext serializationContext)
 #pragma warning restore S4144 // Methods should not have identical implementations
         {
-            var memberInfo = serializationContext.MemberInfo;
+            MemberInfo memberInfo = serializationContext.MemberInfo;
             AssertCustomAttribute(memberInfo);
         }
 
         private static void AssertCustomAttribute(MemberInfo memberInfo)
         {
-            var attributes = memberInfo.CustomAttributes;
-            var customAttribute = attributes.Single();
+            System.Collections.Generic.IEnumerable<CustomAttributeData> attributes = memberInfo.CustomAttributes;
+            CustomAttributeData customAttribute = attributes.Single();
             Assert.AreEqual(typeof(CustomAttribute), customAttribute.AttributeType);
         }
     }

@@ -8,8 +8,8 @@ namespace BinarySerialization.Test.Ignore
         [TestMethod()]
         public void IgnoreObjectTest()
         {
-            var expected = new IgnoreObjectClass { FirstField = 1, IgnoreMe = "hello", LastField = 2 };
-            var actual = Roundtrip(expected, 8);
+            IgnoreObjectClass expected = new() { FirstField = 1, IgnoreMe = "hello", LastField = 2 };
+            IgnoreObjectClass actual = Roundtrip(expected, 8);
 
             Assert.AreEqual(expected.FirstField, actual.FirstField);
             Assert.IsNull(actual.IgnoreMe);
@@ -19,8 +19,8 @@ namespace BinarySerialization.Test.Ignore
         [TestMethod()]
         public void IgnoreBindingTest()
         {
-            var expected = new IgnoreBindingClass { Value = "Hello" };
-            var actual = Roundtrip(expected);
+            IgnoreBindingClass expected = new() { Value = "Hello" };
+            IgnoreBindingClass actual = Roundtrip(expected);
 
             Assert.AreEqual(expected.Value, actual.Value);
             Assert.AreEqual(4, expected.Length);
@@ -29,8 +29,8 @@ namespace BinarySerialization.Test.Ignore
         [TestMethod()]
         public void IgnoreMemberTest()
         {
-            var expected = new IgnoreMemberClass { IgnoreMe = "ignore me" };
-            var actual = Roundtrip(expected);
+            IgnoreMemberClass expected = new() { IgnoreMe = "ignore me" };
+            IgnoreMemberClass actual = Roundtrip(expected);
 
             Assert.IsNull(actual.IgnoreMe);
         }

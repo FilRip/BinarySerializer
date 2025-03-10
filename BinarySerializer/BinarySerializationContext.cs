@@ -81,9 +81,9 @@ public class BinarySerializationContext
     /// <returns></returns>
     public T FindAncestor<T>() where T : class
     {
-        var parentValue = ParentValue;
-        var parentType = ParentType;
-        var parentContext = ParentContext;
+        object parentValue = ParentValue;
+        Type parentType = ParentType;
+        BinarySerializationContext parentContext = ParentContext;
 
         while (parentType != typeof(T))
         {

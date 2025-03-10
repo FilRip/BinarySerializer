@@ -16,19 +16,19 @@ internal class PrimitiveArrayValueNode(ValueNode parent, string name, TypeNode t
     protected override void PrimitiveCollectionSerializeOverride(BoundedStream stream, object boundValue,
         ValueValueNode childSerializer, SerializedType childSerializedType, FieldLength itemLength, long? itemCount)
     {
-        var array = (Array)BoundValue;
+        Array array = (Array)BoundValue;
 
         // Handle const-sized mismatched collections
         PadArray(ref array, itemCount);
 
-        for (var i = 0; i < array.Length; i++)
+        for (int i = 0; i < array.Length; i++)
         {
             if (stream.IsAtLimit)
             {
                 break;
             }
 
-            var value = array.GetValue(i);
+            object value = array.GetValue(i);
             childSerializer.Serialize(stream, value, childSerializedType, itemLength);
         }
     }
@@ -36,19 +36,19 @@ internal class PrimitiveArrayValueNode(ValueNode parent, string name, TypeNode t
     protected override async Task PrimitiveCollectionSerializeOverrideAsync(BoundedStream stream, object boundValue, ValueValueNode childSerializer,
         SerializedType childSerializedType, FieldLength itemLength, long? itemCount, CancellationToken cancellationToken)
     {
-        var array = (Array)BoundValue;
+        Array array = (Array)BoundValue;
 
         // Handle const-sized mismatched collections
         PadArray(ref array, itemCount);
 
-        for (var i = 0; i < array.Length; i++)
+        for (int i = 0; i < array.Length; i++)
         {
             if (stream.IsAtLimit)
             {
                 break;
             }
 
-            var value = array.GetValue(i);
+            object value = array.GetValue(i);
             await childSerializer.SerializeAsync(stream, value, childSerializedType, itemLength, cancellationToken)
                 .ConfigureAwait(false);
         }
@@ -56,26 +56,26 @@ internal class PrimitiveArrayValueNode(ValueNode parent, string name, TypeNode t
 
     protected override object CreateCollection(long size)
     {
-        var localTypeNode = (ArrayTypeNode)TypeNode;
+        ArrayTypeNode localTypeNode = (ArrayTypeNode)TypeNode;
         return Array.CreateInstance(localTypeNode.ChildType, (int)size);
     }
 
     protected override object CreateCollection(IEnumerable enumerable)
     {
-        var localTypeNode = (ArrayTypeNode)TypeNode;
+        ArrayTypeNode localTypeNode = (ArrayTypeNode)TypeNode;
         return enumerable.Cast<object>().Select(item => item.ConvertTo(localTypeNode.ChildType)).ToArray();
     }
 
     protected override void SetCollectionValue(object item, long index)
     {
-        var array = (Array)BoundValue;
-        var localTypeNode = (ArrayTypeNode)TypeNode;
+        Array array = (Array)BoundValue;
+        ArrayTypeNode localTypeNode = (ArrayTypeNode)TypeNode;
         array.SetValue(item.ConvertTo(localTypeNode.ChildType), (int)index);
     }
 
     protected override long CountOverride()
     {
-        var array = (Array)BoundValue;
+        Array array = (Array)BoundValue;
 
         if (array == null)
         {
@@ -89,7 +89,7 @@ internal class PrimitiveArrayValueNode(ValueNode parent, string name, TypeNode t
     {
         if (itemCount != null && array.Length != itemCount)
         {
-            var tempArray = array;
+            Array tempArray = array;
             array = (Array)CreateCollection(itemCount.Value);
             Array.Copy(tempArray, array, Math.Min(tempArray.Length, array.Length));
         }

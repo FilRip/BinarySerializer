@@ -238,7 +238,7 @@ public sealed class FieldLength : IEquatable<FieldLength>
             return ByteCount.ToString();
         }
 
-        var totalBitCount = TotalBitCount;
+        long totalBitCount = TotalBitCount;
         return totalBitCount == 1 ? "1 bit" : $"{totalBitCount} bits";
     }
 }

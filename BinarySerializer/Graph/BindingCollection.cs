@@ -37,7 +37,7 @@ internal class BindingCollection : ReadOnlyCollection<Binding>, IBinding
 
     public void Bind(ValueNode target, Func<object> callback)
     {
-        foreach (var binding in this)
+        foreach (Binding binding in this)
         {
             if (binding.BindingMode != BindingMode.OneWay)
             {
@@ -49,16 +49,16 @@ internal class BindingCollection : ReadOnlyCollection<Binding>, IBinding
     private object GetValue(Func<Binding, object> bindingFunction)
     {
         // get first value and use that to compare any others
-        var value = bindingFunction(this[0]);
+        object value = bindingFunction(this[0]);
 
         // handle multiple bindings (probably not typical)
         if (Count > 1 && AdditionalBindings.Any(binding =>
             {
-                var otherValue = bindingFunction(binding);
+                object otherValue = bindingFunction(binding);
 
                 if (value != null)
                 {
-                    var convertedValue = Convert.ChangeType(otherValue, value.GetType(), null);
+                    object convertedValue = Convert.ChangeType(otherValue, value.GetType(), null);
 
                     if (convertedValue == null)
                     {

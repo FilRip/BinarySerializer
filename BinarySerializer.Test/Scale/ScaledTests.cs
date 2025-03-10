@@ -8,32 +8,32 @@ namespace BinarySerialization.Test.Scale
         [TestMethod()]
         public void ScaleTest()
         {
-            var expected = new ScaledValueClass { Value = 3 };
-            var actual = Roundtrip(expected, [0x6, 0, 0, 0]);
+            ScaledValueClass expected = new() { Value = 3 };
+            ScaledValueClass actual = Roundtrip(expected, [0x6, 0, 0, 0]);
             Assert.AreEqual(expected.Value, actual.Value);
         }
 
         [TestMethod()]
         public void ScaleIntTest()
         {
-            var expected = new ScaledIntValueClass { Value = 3 };
-            var actual = Roundtrip(expected, [0x6, 0, 0, 0]);
+            ScaledIntValueClass expected = new() { Value = 3 };
+            ScaledIntValueClass actual = Roundtrip(expected, [0x6, 0, 0, 0]);
             Assert.AreEqual(expected.Value, actual.Value);
         }
 
         [TestMethod()]
         public void NegativeScaleTest()
         {
-            var expected = new ScaledValueClass { Value = -3 };
-            var actual = Roundtrip(expected, [0xFA, 0xFF, 0xFF, 0xFF]);
+            ScaledValueClass expected = new() { Value = -3 };
+            ScaledValueClass actual = Roundtrip(expected, [0xFA, 0xFF, 0xFF, 0xFF]);
             Assert.AreEqual(expected.Value, actual.Value);
         }
 
         [TestMethod()]
         public void BigEndianScaleTest()
         {
-            var expected = new ScaledValueClass { Value = 3 };
-            var actual = RoundtripBigEndian(expected, [0, 0, 0, 6]);
+            ScaledValueClass expected = new() { Value = 3 };
+            ScaledValueClass actual = RoundtripBigEndian(expected, [0, 0, 0, 6]);
             Assert.AreEqual(expected.Value, actual.Value);
         }
     }

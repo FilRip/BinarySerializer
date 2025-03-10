@@ -8,12 +8,12 @@ namespace BinarySerialization.Test.Until
         [TestMethod()]
         public void TestUntilConst()
         {
-            var expected = new UntilTestClass<string>
+            UntilTestClass<string> expected = new()
             {
                 Items = ["unless", "someone", "like", "you"],
                 AfterItems = "a whole awful lot"
             };
-            var actual = Roundtrip(expected);
+            UntilTestClass<string> actual = Roundtrip(expected);
 
             Assert.AreEqual(expected.Items.Count, actual.Items.Count);
             Assert.AreEqual(expected.AfterItems, actual.AfterItems);
@@ -22,8 +22,8 @@ namespace BinarySerialization.Test.Until
         [TestMethod()]
         public void PrimitiveTestUntilConst()
         {
-            var expected = new UntilTestClass<int> { Items = [3, 2, 1], AfterItems = "a whole awful lot" };
-            var actual = Roundtrip(expected);
+            UntilTestClass<int> expected = new() { Items = [3, 2, 1], AfterItems = "a whole awful lot" };
+            UntilTestClass<int> actual = Roundtrip(expected);
 
             Assert.AreEqual(expected.Items.Count, actual.Items.Count);
             Assert.AreEqual(expected.AfterItems, actual.AfterItems);

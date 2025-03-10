@@ -51,7 +51,7 @@ internal class ConditionalBinding : Binding
             return false;
         }
 
-        var convertedValue = value.ConvertTo(_conditionalValueType);
+        object convertedValue = value.ConvertTo(_conditionalValueType);
 
         return convertedValue.Equals(_conditionalValue);
     }
@@ -63,10 +63,10 @@ internal class ConditionalBinding : Binding
             throw new InvalidOperationException("Unable to compare null values");
         }
 
-        var convertedValue = value.ConvertTo(_conditionalValueType);
+        object convertedValue = value.ConvertTo(_conditionalValueType);
 
-        var lhs = Convert.ToDouble(convertedValue);
-        var rhs = Convert.ToDouble(_conditionalValue);
+        double lhs = Convert.ToDouble(convertedValue);
+        double rhs = Convert.ToDouble(_conditionalValue);
 
         return comparator(lhs, rhs);
     }

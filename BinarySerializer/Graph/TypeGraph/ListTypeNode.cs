@@ -29,7 +29,7 @@ internal sealed class ListTypeNode : CollectionTypeNode
 
     protected override Type GetChildType()
     {
-        var genericArguments = Type.GetHierarchyGenericArguments().Distinct().ToList();
+        System.Collections.Generic.List<Type> genericArguments = [.. Type.GetHierarchyGenericArguments().Distinct()];
 
         if (genericArguments.Count != 1)
         {

@@ -15,14 +15,14 @@ namespace BinarySerialization.Test.ReaderWriterTests
         // ReSharper disable once InconsistentNaming
         public async Task ReadCharAsyncASCIITest()
         {
-            var encoding = System.Text.Encoding.ASCII;
+            System.Text.Encoding encoding = System.Text.Encoding.ASCII;
 
-            var expected = 'a';
-            var data = encoding.GetBytes(expected.ToString());
-            var stream = new MemoryStream(data);
-            var boundedStream = new BoundedStream(stream, string.Empty);
-            var reader = new AsyncBinaryReader(boundedStream, encoding);
-            var actual = await reader.ReadCharAsync(CancellationToken.None);
+            char expected = 'a';
+            byte[] data = encoding.GetBytes(expected.ToString());
+            MemoryStream stream = new(data);
+            BoundedStream boundedStream = new(stream, string.Empty);
+            AsyncBinaryReader reader = new(boundedStream, encoding);
+            char actual = await reader.ReadCharAsync(CancellationToken.None);
             Assert.AreEqual(expected, actual);
         }
 
@@ -30,14 +30,14 @@ namespace BinarySerialization.Test.ReaderWriterTests
         // ReSharper disable once InconsistentNaming
         public async Task ReadCharAsyncUTF8Test()
         {
-            var encoding = System.Text.Encoding.UTF8;
+            System.Text.Encoding encoding = System.Text.Encoding.UTF8;
 
-            var expected = 'ش';
-            var data = encoding.GetBytes(expected.ToString());
-            var stream = new MemoryStream(data);
-            var boundedStream = new BoundedStream(stream, string.Empty);
-            var reader = new AsyncBinaryReader(boundedStream, encoding);
-            var actual = await reader.ReadCharAsync(CancellationToken.None);
+            char expected = 'ش';
+            byte[] data = encoding.GetBytes(expected.ToString());
+            MemoryStream stream = new(data);
+            BoundedStream boundedStream = new(stream, string.Empty);
+            AsyncBinaryReader reader = new(boundedStream, encoding);
+            char actual = await reader.ReadCharAsync(CancellationToken.None);
             Assert.AreEqual(expected, actual);
         }
 
@@ -45,14 +45,14 @@ namespace BinarySerialization.Test.ReaderWriterTests
         // ReSharper disable once InconsistentNaming
         public async Task ReadCharAsyncUTF16Test()
         {
-            var encoding = System.Text.Encoding.Unicode;
+            System.Text.Encoding encoding = System.Text.Encoding.Unicode;
 
-            var expected = 'ش';
-            var data = encoding.GetBytes(expected.ToString());
-            var stream = new MemoryStream(data);
-            var boundedStream = new BoundedStream(stream, string.Empty);
-            var reader = new AsyncBinaryReader(boundedStream, encoding);
-            var actual = await reader.ReadCharAsync(CancellationToken.None);
+            char expected = 'ش';
+            byte[] data = encoding.GetBytes(expected.ToString());
+            MemoryStream stream = new(data);
+            BoundedStream boundedStream = new(stream, string.Empty);
+            AsyncBinaryReader reader = new(boundedStream, encoding);
+            char actual = await reader.ReadCharAsync(CancellationToken.None);
             Assert.AreEqual(expected, actual);
         }
     }

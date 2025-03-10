@@ -9,7 +9,7 @@ namespace BinarySerialization.Test.Encoding
     {
         public object Convert(object value, object parameter, BinarySerializationContext context)
         {
-            var encodingName = (string)value;
+            string encodingName = (string)value;
             return EncodingHelper.GetEncoding(encodingName);
         }
 

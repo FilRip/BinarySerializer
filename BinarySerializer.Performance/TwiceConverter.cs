@@ -7,13 +7,13 @@ namespace BinarySerializer.Performance
     {
         public object Convert(object value, object parameter, BinarySerializationContext context)
         {
-            var a = System.Convert.ToInt32(value);
+            int a = System.Convert.ToInt32(value);
             return a * 2;
         }
 
         public object ConvertBack(object value, object parameter, BinarySerializationContext context)
         {
-            var a = System.Convert.ToInt32(value);
+            int a = System.Convert.ToInt32(value);
             return a / 2;
         }
     }

@@ -10,8 +10,8 @@ namespace BinarySerialization.Test.Misc
         [TestMethod()]
         public void ShouldThrowIOExceptionNotInvalidOperationExceptionTest()
         {
-            var stream = new UnreadableStream();
-            var serializer = new BinarySerializer();
+            UnreadableStream stream = new();
+            BinarySerializer serializer = new();
             Assert.ThrowsExactly<IOException>(() => _ = serializer.Deserialize<int>(stream));
         }
     }

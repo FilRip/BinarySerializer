@@ -16,9 +16,9 @@ namespace BinarySerialization.Test.Encoding
         [TestMethod()]
         public void EncodingTest()
         {
-            var expected = new EncodingClass { Name = "السلام عليكم" };
-            var expectedData = System.Text.Encoding.GetEncoding("windows-1256").GetBytes(expected.Name + char.MinValue);
-            var actual = Roundtrip(expected, expectedData);
+            EncodingClass expected = new() { Name = "السلام عليكم" };
+            byte[] expectedData = System.Text.Encoding.GetEncoding("windows-1256").GetBytes(expected.Name + char.MinValue);
+            EncodingClass actual = Roundtrip(expected, expectedData);
 
             Assert.AreEqual(expected.Name, actual.Name);
         }
@@ -26,9 +26,9 @@ namespace BinarySerialization.Test.Encoding
         [TestMethod()]
         public void EncodingTest2()
         {
-            var expected = new EncodingClass2 { Name = "السلام عليكم" };
-            var expectedData = System.Text.Encoding.GetEncoding("windows-1256").GetBytes(expected.Name + char.MinValue);
-            var actual = Roundtrip(expected, expectedData);
+            EncodingClass2 expected = new() { Name = "السلام عليكم" };
+            byte[] expectedData = System.Text.Encoding.GetEncoding("windows-1256").GetBytes(expected.Name + char.MinValue);
+            EncodingClass2 actual = Roundtrip(expected, expectedData);
 
             Assert.AreEqual(expected.Name, actual.Name);
         }
@@ -36,13 +36,13 @@ namespace BinarySerialization.Test.Encoding
         [TestMethod()]
         public void FieldEncodingTest()
         {
-            var expected = new FieldEncodingClass { Value = "السلام عليكم", Encoding = "windows-1256" };
-            var encodingFieldData = System.Text.Encoding.UTF8.GetBytes(expected.Encoding + char.MinValue);
-            var expectedValueData = System.Text.Encoding.GetEncoding(expected.Encoding).GetBytes(expected.Value + char.MinValue);
+            FieldEncodingClass expected = new() { Value = "السلام عليكم", Encoding = "windows-1256" };
+            byte[] encodingFieldData = System.Text.Encoding.UTF8.GetBytes(expected.Encoding + char.MinValue);
+            byte[] expectedValueData = System.Text.Encoding.GetEncoding(expected.Encoding).GetBytes(expected.Value + char.MinValue);
 
-            var expectedData = encodingFieldData.Concat(expectedValueData).ToArray();
+            byte[] expectedData = [.. encodingFieldData, .. expectedValueData];
 
-            var actual = Roundtrip(expected, expectedData);
+            FieldEncodingClass actual = Roundtrip(expected, expectedData);
 
             Assert.AreEqual(expected.Encoding, actual.Encoding);
             Assert.AreEqual(expected.Value, actual.Value);
@@ -51,9 +51,9 @@ namespace BinarySerialization.Test.Encoding
         [TestMethod()]
         public void ConstFieldEncodingTest()
         {
-            var expected = new ConstEncodingClass { Value = "السلام عليكم" };
-            var expectedData = System.Text.Encoding.GetEncoding("windows-1256").GetBytes(expected.Value + char.MinValue);
-            var actual = Roundtrip(expected, expectedData);
+            ConstEncodingClass expected = new() { Value = "السلام عليكم" };
+            byte[] expectedData = System.Text.Encoding.GetEncoding("windows-1256").GetBytes(expected.Value + char.MinValue);
+            ConstEncodingClass actual = Roundtrip(expected, expectedData);
 
             Assert.AreEqual(expected.Value, actual.Value);
         }
@@ -61,9 +61,9 @@ namespace BinarySerialization.Test.Encoding
         [TestMethod()]
         public void NullTerminatedUtf16Test()
         {
-            var expected = new EncodingClassUtf16 { Name = "hello" };
-            var expectedData = System.Text.Encoding.Unicode.GetBytes(expected.Name + char.MinValue);
-            var actual = Roundtrip(expected, expectedData);
+            EncodingClassUtf16 expected = new() { Name = "hello" };
+            byte[] expectedData = System.Text.Encoding.Unicode.GetBytes(expected.Name + char.MinValue);
+            EncodingClassUtf16 actual = Roundtrip(expected, expectedData);
 
             Assert.AreEqual(expected.Name, actual.Name);
         }

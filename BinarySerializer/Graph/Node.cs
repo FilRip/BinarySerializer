@@ -35,12 +35,12 @@ public abstract class Node<TNode>(TNode parent) : IEquatable<Node<TNode>>, IEqua
 
     public TNode GetChild(string path)
     {
-        var memberNames = path.Split(PathSeparator);
+        string[] memberNames = path.Split(PathSeparator);
 
         if (memberNames.Length == 0) throw new BindingException("Path cannot be empty.");
 
-        var child = (TNode)this;
-        foreach (var name in memberNames)
+        TNode child = (TNode)this;
+        foreach (string name in memberNames)
         {
             child = child.Children.SingleOrDefault(c => c.Name == name);
 

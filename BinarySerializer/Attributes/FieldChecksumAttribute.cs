@@ -38,18 +38,18 @@ public sealed class FieldChecksumAttribute(string checksumPath) : FieldValueAttr
     /// <param name="count"></param>
     protected override object GetUpdatedState(object state, byte[] buffer, int offset, int count)
     {
-        var checksum = (byte)state;
+        byte checksum = (byte)state;
 
         if (Mode == ChecksumMode.Xor)
         {
-            for (var i = offset; i < count; i++)
+            for (int i = offset; i < count; i++)
             {
                 checksum ^= buffer[i];
             }
         }
         else
         {
-            for (var i = offset; i < count; i++)
+            for (int i = offset; i < count; i++)
             {
                 checksum = (byte)(checksum + buffer[i]);
             }
@@ -64,7 +64,7 @@ public sealed class FieldChecksumAttribute(string checksumPath) : FieldValueAttr
     /// <returns></returns>
     protected override object GetFinalValue(object state)
     {
-        var checksum = (byte)state;
+        byte checksum = (byte)state;
 
         return Mode switch
         {

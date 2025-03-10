@@ -16,18 +16,18 @@ namespace BinarySerialization.Test.Custom
         public void Serialize(Stream stream, Endianness endianness,
             BinarySerializationContext serializationContext)
         {
-            var boundedStream = (BoundedStream)stream;
+            BoundedStream boundedStream = (BoundedStream)stream;
             Assert.AreEqual(0, boundedStream.Position);
             Assert.AreEqual(100, (int)boundedStream.MaxLength.ByteCount);
 
-            var varuint = new Varuint { Value = Value };
+            Varuint varuint = new() { Value = Value };
             varuint.Serialize(stream, endianness, serializationContext);
         }
 
         public void Deserialize(Stream stream, Endianness endianness,
             BinarySerializationContext serializationContext)
         {
-            var varuint = new Varuint { Value = Value };
+            Varuint varuint = new() { Value = Value };
             varuint.Deserialize(stream, endianness, serializationContext);
             Value = varuint.Value;
         }

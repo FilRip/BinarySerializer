@@ -42,18 +42,18 @@ internal abstract class Crc<T> : CrcBase
 
     public void Compute(byte[] buffer, int offset, int count)
     {
-        var remainder = ToUInt32(_crc);
+        uint remainder = ToUInt32(_crc);
 
-        for (var i = offset; i < count; i++)
+        for (int i = offset; i < count; i++)
         {
-            var b = buffer[i];
+            byte b = buffer[i];
 
             if (IsDataReflected)
             {
                 b = (byte)Reflect(b, BitsPerByte);
             }
 
-            var data = (byte)(b ^ remainder >> Width - BitsPerByte);
+            byte data = (byte)(b ^ remainder >> Width - BitsPerByte);
 
             remainder = ToUInt32(_table[data]) ^ remainder << BitsPerByte;
         }
@@ -64,7 +64,7 @@ internal abstract class Crc<T> : CrcBase
 
     public T ComputeFinal()
     {
-        var crc = _crc;
+        T crc = _crc;
 
         if (IsRemainderReflected)
         {
@@ -80,19 +80,19 @@ internal abstract class Crc<T> : CrcBase
 
     private T[] BuildTable(T polynomial)
     {
-        var table = new T[TableSize];
+        T[] table = new T[TableSize];
 
-        var poly = ToUInt32(polynomial);
+        uint poly = ToUInt32(polynomial);
 
-        var padWidth = Width - BitsPerByte;
+        int padWidth = Width - BitsPerByte;
 
-        var topBit = 1 << Width - 1;
+        int topBit = 1 << Width - 1;
 
         // Compute the remainder of each possible dividend.
         for (uint dividend = 0; dividend < table.Length; dividend++)
         {
             // Start with the dividend followed by zeros.
-            var remainder = dividend << padWidth;
+            uint remainder = dividend << padWidth;
 
             // Perform modulo-2 division, a bit at a time.
             for (uint bit = BitsPerByte; bit > 0; bit--)

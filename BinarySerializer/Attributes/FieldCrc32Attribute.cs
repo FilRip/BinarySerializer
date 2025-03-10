@@ -66,7 +66,7 @@ public sealed class FieldCrc32Attribute(string crcPath) : FieldValueAttributeBas
     /// <param name="count"></param>
     protected override object GetUpdatedState(object state, byte[] buffer, int offset, int count)
     {
-        var crc = (Crc32)state;
+        Crc32 crc = (Crc32)state;
         crc.Compute(buffer, offset, count);
         return crc;
     }
@@ -77,7 +77,7 @@ public sealed class FieldCrc32Attribute(string crcPath) : FieldValueAttributeBas
     /// <returns></returns>
     protected override object GetFinalValue(object state)
     {
-        var crc = (Crc32)state;
+        Crc32 crc = (Crc32)state;
         return crc.ComputeFinal();
     }
 }

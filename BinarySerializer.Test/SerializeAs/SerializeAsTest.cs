@@ -10,8 +10,8 @@ namespace BinarySerialization.Test.SerializeAs
         [TestMethod()]
         public void SerializeIntAsSizedStringTest()
         {
-            var expected = new SizedStringClass<int> { Value = 33 };
-            var actual = Roundtrip(expected, System.Text.Encoding.UTF8.GetBytes(expected.Value.ToString()));
+            SizedStringClass<int> expected = new() { Value = 33 };
+            SizedStringClass<int> actual = Roundtrip(expected, System.Text.Encoding.UTF8.GetBytes(expected.Value.ToString()));
 
             Assert.AreEqual(expected.Value, actual.Value);
         }
@@ -19,8 +19,8 @@ namespace BinarySerialization.Test.SerializeAs
         [TestMethod()]
         public void SerializeAsLengthPrefixedStringTest()
         {
-            var expected = new LengthPrefixedStringClass { Value = new string('c', ushort.MaxValue) };
-            var actual = Roundtrip(expected, ushort.MaxValue + 3);
+            LengthPrefixedStringClass expected = new() { Value = new string('c', ushort.MaxValue) };
+            LengthPrefixedStringClass actual = Roundtrip(expected, ushort.MaxValue + 3);
 
             Assert.AreEqual(expected.Value, actual.Value);
         }
@@ -28,8 +28,8 @@ namespace BinarySerialization.Test.SerializeAs
         [TestMethod()]
         public void SerializeAsWithPaddingValue()
         {
-            var expected = new PaddingValueClass { Value = "hi" };
-            var actual = Roundtrip(expected, [0x68, 0x69, 0x33, 0x33, 0x33]);
+            PaddingValueClass expected = new() { Value = "hi" };
+            PaddingValueClass actual = Roundtrip(expected, [0x68, 0x69, 0x33, 0x33, 0x33]);
 
             Assert.AreEqual(expected.Value, actual.Value.Trim((char)0x33));
         }
@@ -37,7 +37,7 @@ namespace BinarySerialization.Test.SerializeAs
         [TestMethod()]
         public void CollectionPaddingValue()
         {
-            var expected = new CollectionPaddingValue
+            CollectionPaddingValue expected = new()
             {
                 Items =
                 [
@@ -45,9 +45,9 @@ namespace BinarySerialization.Test.SerializeAs
                 ]
             };
 
-            var actual = Roundtrip(expected, [(byte)'a', (byte)' ', (byte)'b', (byte)' ']);
+            CollectionPaddingValue actual = Roundtrip(expected, [(byte)'a', (byte)' ', (byte)'b', (byte)' ']);
 
-            var actualItems = actual.Items.Select(i => i.Trim()).ToList();
+            System.Collections.Generic.List<string> actualItems = [.. actual.Items.Select(i => i.Trim())];
             CollectionAssert.AreEqual(expected.Items, actualItems);
         }
     }

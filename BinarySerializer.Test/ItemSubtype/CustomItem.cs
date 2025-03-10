@@ -17,7 +17,7 @@ namespace BinarySerialization.Test.ItemSubtype
 
         public void Deserialize(Stream stream, Endianness endianness, BinarySerializationContext serializationContext)
         {
-            var data = new byte[Data.Length];
+            byte[] data = new byte[Data.Length];
             stream.Read(data, 0, data.Length);
 
             if (!data.SequenceEqual(Data))

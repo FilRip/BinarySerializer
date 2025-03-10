@@ -19,12 +19,12 @@ namespace BinarySerialization.Test.Misc
         [TestMethod()]
         public void IncompleteObjectTest()
         {
-            var serializer = new BinarySerializer
+            BinarySerializer serializer = new()
             {
                 Options = SerializationOptions.AllowIncompleteObjects
             };
 
-            var actual = serializer.Deserialize<SimpleClass>([0x1, 0x2, 0x3, 0x4]);
+            SimpleClass actual = serializer.Deserialize<SimpleClass>([0x1, 0x2, 0x3, 0x4]);
             Assert.IsNotNull(actual);
             Assert.AreEqual(0, actual.B);
         }

@@ -8,13 +8,13 @@ namespace BinarySerialization.Test.BitOrderTest
         [TestMethod()]
         public void Test()
         {
-            var expected = new BitOrderClass
+            BitOrderClass expected = new()
             {
                 Value1 = 0x7,
                 Value2 = 0x2,
             };
 
-            var actual = Roundtrip(expected, [0x72]);
+            BitOrderClass actual = Roundtrip(expected, [0x72]);
             Assert.AreEqual(expected.Value1, actual.Value1);
             Assert.AreEqual(expected.Value2, actual.Value2);
         }
@@ -22,13 +22,13 @@ namespace BinarySerialization.Test.BitOrderTest
         [TestMethod()]
         public void TestForward()
         {
-            var expected = new CipMessageRouterDataForward
+            CipMessageRouterDataForward expected = new()
             {
                 Service = CipServiceCodes.GetAttributeSingle,
                 Response = false,
             };
 
-            var actual = Roundtrip(expected, [0x0E]);
+            CipMessageRouterDataForward actual = Roundtrip(expected, [0x0E]);
             Assert.AreEqual(expected.Service, actual.Service);
             Assert.AreEqual(expected.Response, actual.Response);
         }
@@ -36,13 +36,13 @@ namespace BinarySerialization.Test.BitOrderTest
         [TestMethod()]
         public void TestBackward()
         {
-            var expected = new CipMessageRouterDataBackward
+            CipMessageRouterDataBackward expected = new()
             {
                 Service = CipServiceCodes.GetAttributeSingle,
                 Response = false,
             };
 
-            var actual = Roundtrip(expected, [0x0E]);
+            CipMessageRouterDataBackward actual = Roundtrip(expected, [0x0E]);
             Assert.AreEqual(expected.Service, actual.Service);
             Assert.AreEqual(expected.Response, actual.Response);
         }

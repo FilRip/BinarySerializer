@@ -6,13 +6,13 @@ namespace BinarySerialization.Test
     {
         public object Convert(object value, object parameter, BinarySerializationContext context)
         {
-            var a = System.Convert.ToDouble(value);
+            double a = System.Convert.ToDouble(value);
             return a * 2;
         }
 
         public object ConvertBack(object value, object parameter, BinarySerializationContext context)
         {
-            var a = System.Convert.ToDouble(value);
+            double a = System.Convert.ToDouble(value);
             return a / 2;
         }
     }

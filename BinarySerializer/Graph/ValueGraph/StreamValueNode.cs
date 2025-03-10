@@ -17,13 +17,13 @@ internal class StreamValueNode(ValueNode parent, string name, TypeNode typeNode)
 
     internal override void SerializeOverride(BoundedStream stream, EventShuttle eventShuttle)
     {
-        var valueStream = (Stream)Value;
+        Stream valueStream = (Stream)Value;
 
-        var length = GetConstFieldLength();
+        FieldLength length = GetConstFieldLength();
 
         if (length != null)
         {
-            var valueStreamlet = new Streamlet(valueStream, valueStream.Position, length.ByteCount);
+            Streamlet valueStreamlet = new(valueStream, valueStream.Position, length.ByteCount);
             valueStreamlet.CopyTo(stream);
         }
         else
@@ -34,13 +34,13 @@ internal class StreamValueNode(ValueNode parent, string name, TypeNode typeNode)
 
     internal override async Task SerializeOverrideAsync(BoundedStream stream, EventShuttle eventShuttle, CancellationToken cancellationToken)
     {
-        var valueStream = (Stream)Value;
+        Stream valueStream = (Stream)Value;
 
-        var length = GetConstFieldLength();
+        FieldLength length = GetConstFieldLength();
 
         if (length != null)
         {
-            var valueStreamlet = new Streamlet(valueStream, valueStream.Position, length.ByteCount);
+            Streamlet valueStreamlet = new(valueStream, valueStream.Position, length.ByteCount);
             await valueStreamlet.CopyToAsync(stream, CopyToBufferSize, cancellationToken).ConfigureAwait(false);
         }
         else
@@ -51,9 +51,9 @@ internal class StreamValueNode(ValueNode parent, string name, TypeNode typeNode)
 
     internal override void DeserializeOverride(BoundedStream stream, SerializationOptions options, EventShuttle eventShuttle)
     {
-        var rootStream = GetRootStream(stream);
+        Stream rootStream = GetRootStream(stream);
 
-        var length = GetFieldLength();
+        FieldLength length = GetFieldLength();
 
         Value = length != null
             ? new Streamlet(rootStream, rootStream.Position, length.ByteCount)
@@ -61,7 +61,7 @@ internal class StreamValueNode(ValueNode parent, string name, TypeNode typeNode)
 
         if (length != null)
         {
-            var nullStream = new NullStream();
+            NullStream nullStream = new();
             stream.CopyTo(nullStream, (int)length.ByteCount, CopyToBufferSize);
         }
         else
@@ -73,9 +73,9 @@ internal class StreamValueNode(ValueNode parent, string name, TypeNode typeNode)
     internal override async Task DeserializeOverrideAsync(BoundedStream stream, SerializationOptions options, EventShuttle eventShuttle,
         CancellationToken cancellationToken)
     {
-        var rootStream = GetRootStream(stream);
+        Stream rootStream = GetRootStream(stream);
 
-        var length = GetFieldLength();
+        FieldLength length = GetFieldLength();
 
         Value = length != null
             ? new Streamlet(rootStream, rootStream.Position, length.ByteCount)
@@ -83,7 +83,7 @@ internal class StreamValueNode(ValueNode parent, string name, TypeNode typeNode)
 
         if (length != null)
         {
-            var nullStream = new NullStream();
+            NullStream nullStream = new();
             await stream.CopyToAsync(nullStream, (int)length.ByteCount, CopyToBufferSize, cancellationToken)
                 .ConfigureAwait(false);
         }
@@ -95,9 +95,9 @@ internal class StreamValueNode(ValueNode parent, string name, TypeNode typeNode)
 
     protected override FieldLength MeasureOverride()
     {
-        var valueStream = (Stream)Value;
+        Stream valueStream = (Stream)Value;
 
-        var length = GetConstFieldLength();
+        FieldLength length = GetConstFieldLength();
 
         if (length != null)
         {

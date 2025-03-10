@@ -65,7 +65,7 @@ internal class ObjectTypeNode : ContainerTypeNode
             GenerateSubtype(type);
 
             // get matching subtype and make sure it's constructed
-            var subType = _subTypesLazy.Value[type];
+            ObjectTypeNode subType = _subTypesLazy.Value[type];
             subType.Construct(true);
             return subType;
         }
@@ -112,7 +112,7 @@ internal class ObjectTypeNode : ContainerTypeNode
 
         ObjectTypeNode typeNode;
 
-        var parent = Parent;
+        TypeNode parent = Parent;
         if (MemberInfo != null)
         {
             // check for custom subtype
@@ -136,7 +136,7 @@ internal class ObjectTypeNode : ContainerTypeNode
     /// </summary>
     private void ConstructSubtypes()
     {
-        var parent = Parent;
+        TypeNode parent = Parent;
 
         if (SubtypeAttributes != null && SubtypeAttributes.Count > 0)
         {
@@ -155,10 +155,10 @@ internal class ObjectTypeNode : ContainerTypeNode
             .ToDictionary(attribute => attribute.Subtype, attribute => attribute.Value);
 
         // Generate subtype children 
-        var subTypes = attributes.Where(attribute => attribute.BindingMode != BindingMode.OneWay)
+        IEnumerable<Type> subTypes = attributes.Where(attribute => attribute.BindingMode != BindingMode.OneWay)
             .Select(attribute => attribute.Subtype);
 
-        foreach (var subType in subTypes)
+        foreach (Type subType in subTypes)
         {
             GenerateSubtype(subType);
         }
@@ -170,7 +170,7 @@ internal class ObjectTypeNode : ContainerTypeNode
     /// </summary>
     private void InitializeConstructors()
     {
-        var typeInfo = Type.GetTypeInfo();
+        TypeInfo typeInfo = Type.GetTypeInfo();
 
         // if abstract we will never be constructed, nothing to do
         if (typeInfo.IsAbstract || typeInfo.IsInterface)
@@ -179,19 +179,19 @@ internal class ObjectTypeNode : ContainerTypeNode
         }
 
         // we're going to start finding valid constructors.  start by getting all constructors.
-        var constructors = Type.GetConstructors(ConstructorBindingFlags);
+        ConstructorInfo[] constructors = Type.GetConstructors(ConstructorBindingFlags);
 
-        var serializableChildren = Children.Where(child => !child.IsIgnored);
+        IEnumerable<TypeNode> serializableChildren = Children.Where(child => !child.IsIgnored);
 
         // don't include constructors that we'll never be able to use because they require more parameters
         // than for which we have field definitions.
-        var validConstructors =
+        IEnumerable<ConstructorInfo> validConstructors =
             constructors.Where(
                 constructor => constructor.GetParameters().Length <= serializableChildren.Count());
 
         // build a map of all constructors, filling in nulls for parameters without
         // corresponding fields, matched on name and type
-        var constructorParameterMap = validConstructors.ToDictionary(constructor => constructor,
+        Dictionary<ConstructorInfo, IEnumerable<TypeNode>> constructorParameterMap = validConstructors.ToDictionary(constructor => constructor,
             constructor =>
                 constructor.GetParameters()
                     .GroupJoin(serializableChildren,
@@ -202,9 +202,8 @@ internal class ObjectTypeNode : ContainerTypeNode
         );
 
         // eliminate any constructors that aren't complete in terms of required parameters
-        var completeConstructors =
-            constructorParameterMap.Where(constructorPair => constructorPair.Value.All(child => child != null))
-                .ToList();
+        List<KeyValuePair<ConstructorInfo, IEnumerable<TypeNode>>> completeConstructors =
+            [.. constructorParameterMap.Where(constructorPair => constructorPair.Value.All(child => child != null))];
 
         // see if there are any constructors left that can be used at all
         if (!completeConstructors.Any())
@@ -213,7 +212,7 @@ internal class ObjectTypeNode : ContainerTypeNode
         }
 
         // choose best match in terms of greatest number of valid parameters
-        var bestConstructor =
+        KeyValuePair<ConstructorInfo, IEnumerable<TypeNode>> bestConstructor =
             completeConstructors.OrderByDescending(constructorPair => constructorPair.Value.Count())
                 .First();
 
@@ -240,17 +239,17 @@ internal class ObjectTypeNode : ContainerTypeNode
 
         IEnumerable<MemberInfo> properties = parentType.GetProperties(MemberBindingFlags);
         IEnumerable<MemberInfo> fields = parentType.GetFields(MemberBindingFlags);
-        var all = properties.Union(fields);
+        IEnumerable<MemberInfo> all = properties.Union(fields);
 
-        var children =
-            all.Select(memberInfo => GenerateChild(parentType, memberInfo)).OrderBy(child => child.Order).ToList();
+        List<TypeNode> children =
+            [.. all.Select(memberInfo => GenerateChild(parentType, memberInfo)).OrderBy(child => child.Order)];
 
-        var serializableChildren = children.Where(child => !child.IsIgnored).ToList();
+        List<TypeNode> serializableChildren = [.. children.Where(child => !child.IsIgnored)];
 
         if (serializableChildren.Count > 1)
         {
-            var orderedChildren = serializableChildren.Where(child => child.Order != null).ToList();
-            var orderGroups = orderedChildren.GroupBy(child => child.Order);
+            List<TypeNode> orderedChildren = [.. serializableChildren.Where(child => child.Order != null)];
+            IEnumerable<IGrouping<int?, TypeNode>> orderGroups = orderedChildren.GroupBy(child => child.Order);
 
             if (orderGroups.Count() != orderedChildren.Count)
             {
@@ -262,10 +261,10 @@ internal class ObjectTypeNode : ContainerTypeNode
 
         if (parentType.GetTypeInfo().BaseType != null)
         {
-            var baseChildren = GenerateChildren(parentType.GetTypeInfo().BaseType);
+            IEnumerable<TypeNode> baseChildren = GenerateChildren(parentType.GetTypeInfo().BaseType);
 
             // ignore properties that have been overridden
-            var novelBaseChildren = baseChildren.Except(children);
+            IEnumerable<TypeNode> novelBaseChildren = baseChildren.Except(children);
 
             return novelBaseChildren.Concat(children);
         }

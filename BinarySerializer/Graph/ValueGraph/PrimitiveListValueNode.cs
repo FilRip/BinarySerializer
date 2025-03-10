@@ -16,12 +16,12 @@ internal class PrimitiveListValueNode(ValueNode parent, string name, TypeNode ty
     protected override void PrimitiveCollectionSerializeOverride(BoundedStream stream, object boundValue,
         ValueValueNode childSerializer, SerializedType childSerializedType, FieldLength itemLength, long? itemCount)
     {
-        var list = (IList)boundValue;
+        IList list = (IList)boundValue;
 
         // Handle const-sized mismatched collections
         PadList(ref list, itemCount);
 
-        foreach (var value in list)
+        foreach (object value in list)
         {
             if (stream.IsAtLimit)
             {
@@ -35,12 +35,12 @@ internal class PrimitiveListValueNode(ValueNode parent, string name, TypeNode ty
     protected override async Task PrimitiveCollectionSerializeOverrideAsync(BoundedStream stream, object boundValue, ValueValueNode childSerializer,
         SerializedType childSerializedType, FieldLength itemLength, long? itemCount, CancellationToken cancellationToken)
     {
-        var list = (IList)boundValue;
+        IList list = (IList)boundValue;
 
         // Handle const-sized mismatched collections
         PadList(ref list, itemCount);
 
-        foreach (var value in list)
+        foreach (object value in list)
         {
             if (stream.IsAtLimit)
             {
@@ -54,8 +54,8 @@ internal class PrimitiveListValueNode(ValueNode parent, string name, TypeNode ty
 
     protected override object CreateCollection(long size)
     {
-        var localTypeNode = (ListTypeNode)TypeNode;
-        var array = Array.CreateInstance(localTypeNode.ChildType, (int)size);
+        ListTypeNode localTypeNode = (ListTypeNode)TypeNode;
+        Array array = Array.CreateInstance(localTypeNode.ChildType, (int)size);
         return Activator.CreateInstance(localTypeNode.Type, array);
     }
 
@@ -63,20 +63,20 @@ internal class PrimitiveListValueNode(ValueNode parent, string name, TypeNode ty
     {
         // don't think this can ever actually happen b/c it would signify a "jagged list", which isn't a real thing
         // TODO probably remove at some point once I verify that
-        var localTypeNode = (ListTypeNode)TypeNode;
+        ListTypeNode localTypeNode = (ListTypeNode)TypeNode;
         return enumerable.Cast<object>().Select(item => item.ConvertTo(localTypeNode.ChildType)).ToList();
     }
 
     protected override void SetCollectionValue(object item, long index)
     {
-        var list = (IList)Value;
-        var localTypeNode = (ListTypeNode)TypeNode;
+        IList list = (IList)Value;
+        ListTypeNode localTypeNode = (ListTypeNode)TypeNode;
         list[(int)index] = item.ConvertTo(localTypeNode.ChildType);
     }
 
     protected override long CountOverride()
     {
-        var list = (IList)Value;
+        IList list = (IList)Value;
 
         if (list == null)
         {
@@ -90,10 +90,10 @@ internal class PrimitiveListValueNode(ValueNode parent, string name, TypeNode ty
     {
         if (itemCount != null && list.Count != itemCount)
         {
-            var tempList = list;
+            IList tempList = list;
             list = (IList)CreateCollection(itemCount.Value);
 
-            for (var i = 0; i < Math.Min(tempList.Count, list.Count); i++)
+            for (int i = 0; i < Math.Min(tempList.Count, list.Count); i++)
             {
                 list[i] = tempList[i];
             }

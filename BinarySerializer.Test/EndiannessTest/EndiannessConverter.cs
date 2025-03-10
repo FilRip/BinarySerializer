@@ -15,7 +15,7 @@ namespace BinarySerialization.Test.EndiannessTest
             if (value == null)
                 return Endianness.Little;
 
-            var indicator = System.Convert.ToUInt32(value);
+            uint indicator = System.Convert.ToUInt32(value);
 
             if (indicator == LittleEndiannessMagic)
                 return Endianness.Little;

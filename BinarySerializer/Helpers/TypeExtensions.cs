@@ -31,7 +31,7 @@ internal static class TypeExtensions
             return null;
         }
 
-        var valueType = value.GetType();
+        Type valueType = value.GetType();
 
         if (valueType == type)
         {
@@ -44,16 +44,16 @@ internal static class TypeExtensions
             value = 0;
         }
 
-        if (TypeConverters.TryGetValue(type, out var converter))
+        if (TypeConverters.TryGetValue(type, out Func<object, object> converter))
         {
             return converter(value);
         }
 
         if (type.GetTypeInfo().IsEnum && (valueType.GetTypeInfo().IsPrimitive || valueType.GetTypeInfo().IsEnum))
         {
-            var underlyingType = Enum.GetUnderlyingType(type);
+            Type underlyingType = Enum.GetUnderlyingType(type);
 
-            if (TypeConverters.TryGetValue(underlyingType, out var c))
+            if (TypeConverters.TryGetValue(underlyingType, out Func<object, object> c))
             {
                 return Enum.ToObject(type, c(value));
             }
@@ -66,24 +66,24 @@ internal static class TypeExtensions
 
     public static IEnumerable<Type> GetHierarchyGenericArguments(this Type type)
     {
-        var genericTypes = type.GetGenericArguments();
+        Type[] genericTypes = type.GetGenericArguments();
 
-        foreach (var genericType in genericTypes)
+        foreach (Type genericType in genericTypes)
         {
             yield return genericType;
         }
 
-        var typeInfo = type.GetTypeInfo();
-        var baseType = typeInfo.BaseType;
+        TypeInfo typeInfo = type.GetTypeInfo();
+        Type baseType = typeInfo.BaseType;
 
         if (baseType == null)
         {
             yield break;
         }
 
-        var baseGenericArguments = baseType.GetHierarchyGenericArguments();
+        IEnumerable<Type> baseGenericArguments = baseType.GetHierarchyGenericArguments();
 
-        foreach (var baseGenericArgument in baseGenericArguments)
+        foreach (Type baseGenericArgument in baseGenericArguments)
         {
             yield return baseGenericArgument;
         }

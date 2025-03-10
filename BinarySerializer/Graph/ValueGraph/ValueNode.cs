@@ -47,7 +47,7 @@ internal abstract class ValueNode : Node<ValueNode>
 
         set
         {
-            foreach (var child in Children)
+            foreach (ValueNode child in Children)
             {
                 child.Visited = value;
             }
@@ -71,7 +71,7 @@ internal abstract class ValueNode : Node<ValueNode>
 
     public virtual void Bind()
     {
-        var typeNode = TypeNode;
+        TypeNode typeNode = TypeNode;
 
         typeNode.FieldLengthBindings?.Bind(this, () => MeasureOverride().ByteCount);
         typeNode.FieldBitLengthBindings?.Bind(this, () => MeasureOverride().TotalBitCount);
@@ -86,7 +86,7 @@ internal abstract class ValueNode : Node<ValueNode>
             typeNode.SubtypeFactoryBinding.Bind(this, () => SubtypeBindingCallback(typeNode));
         }
 
-        var parent = typeNode.Parent;
+        TypeNode parent = typeNode.Parent;
         parent.ItemSubtypeBindings?.Bind(Parent, () => ItemSubtypeBindingCallback(typeNode));
 
         if (parent.ItemSubtypeFactoryBinding != null &&
@@ -104,16 +104,16 @@ internal abstract class ValueNode : Node<ValueNode>
         if (typeNode.FieldValueBindings != null)
         {
             // for each field value binding, create an anonymous function to get the final value from the corresponding attribute.
-            for (var index = 0; index < typeNode.FieldValueBindings.Count; index++)
+            for (int index = 0; index < typeNode.FieldValueBindings.Count; index++)
             {
-                var fieldValueBinding = typeNode.FieldValueBindings[index];
+                Binding fieldValueBinding = typeNode.FieldValueBindings[index];
 
                 if (fieldValueBinding.BindingMode == BindingMode.OneWay)
                 {
                     continue;
                 }
 
-                var fieldValueAttribute = typeNode.FieldValueAttributes[index];
+                FieldValueAttributeBase fieldValueAttribute = typeNode.FieldValueAttributes[index];
 
                 fieldValueBinding.Bind(this, () =>
                 {
@@ -123,10 +123,10 @@ internal abstract class ValueNode : Node<ValueNode>
                             "Reverse binding not allowed on FieldValue attributes.  Consider swapping source and target.");
                     }
 
-                    var source = fieldValueBinding.GetSource(this);
-                    if (!source._fieldValueAttributeFinalValue.TryGetValue(fieldValueAttribute, out var finalValue))
+                    ValueNode source = fieldValueBinding.GetSource(this);
+                    if (!source._fieldValueAttributeFinalValue.TryGetValue(fieldValueAttribute, out object finalValue))
                     {
-                        var tap = source._fieldValueAttributeTaps[fieldValueAttribute];
+                        FieldValueAdapterStream tap = source._fieldValueAttributeTaps[fieldValueAttribute];
 
                         finalValue = fieldValueAttribute.GetFinalValueInternal(tap.State);
                         source._fieldValueAttributeFinalValue.Add(fieldValueAttribute, finalValue);
@@ -138,7 +138,7 @@ internal abstract class ValueNode : Node<ValueNode>
         }
 
         // recurse to children
-        foreach (var child in Children)
+        foreach (ValueNode child in Children)
         {
             child.Bind();
         }
@@ -146,21 +146,21 @@ internal abstract class ValueNode : Node<ValueNode>
 
     public virtual void BindChecks()
     {
-        var typeNode = TypeNode;
+        TypeNode typeNode = TypeNode;
 
         if (typeNode.FieldValueBindings != null)
         {
             // for each field value binding, create an anonymous function to get the final value from the corresponding attribute.
-            for (var index = 0; index < typeNode.FieldValueBindings.Count; index++)
+            for (int index = 0; index < typeNode.FieldValueBindings.Count; index++)
             {
-                var fieldValueBinding = typeNode.FieldValueBindings[index];
+                Binding fieldValueBinding = typeNode.FieldValueBindings[index];
 
                 if (fieldValueBinding.BindingMode == BindingMode.OneWayToSource)
                 {
                     continue;
                 }
 
-                var fieldValueAttribute = typeNode.FieldValueAttributes[index];
+                FieldValueAttributeBase fieldValueAttribute = typeNode.FieldValueAttributes[index];
 
                 fieldValueBinding.Bind(this, () =>
                 {
@@ -170,10 +170,10 @@ internal abstract class ValueNode : Node<ValueNode>
                             "Reverse binding not allowed on FieldValue attributes.  Consider swapping source and target.");
                     }
 
-                    var source = fieldValueBinding.GetSource(this);
-                    if (!source._fieldValueAttributeFinalValue.TryGetValue(fieldValueAttribute, out var finalValue))
+                    ValueNode source = fieldValueBinding.GetSource(this);
+                    if (!source._fieldValueAttributeFinalValue.TryGetValue(fieldValueAttribute, out object finalValue))
                     {
-                        var tap = source._fieldValueAttributeTaps[fieldValueAttribute];
+                        FieldValueAdapterStream tap = source._fieldValueAttributeTaps[fieldValueAttribute];
 
                         finalValue = fieldValueAttribute.GetFinalValueInternal(tap.State);
                         source._fieldValueAttributeFinalValue.Add(fieldValueAttribute, finalValue);
@@ -184,7 +184,7 @@ internal abstract class ValueNode : Node<ValueNode>
             }
         }
 
-        foreach (var valueNode in Children)
+        foreach (ValueNode valueNode in Children)
         {
             valueNode.BindChecks();
         }
@@ -205,7 +205,7 @@ internal abstract class ValueNode : Node<ValueNode>
                 AlignLeft(stream, true);
             }
 
-            var offset = GetFieldOffset();
+            long? offset = GetFieldOffset();
 
             if (offset != null)
             {
@@ -259,7 +259,7 @@ internal abstract class ValueNode : Node<ValueNode>
                 AlignLeft(stream, true);
             }
 
-            var offset = GetFieldOffset();
+            long? offset = GetFieldOffset();
 
             if (offset != null)
             {
@@ -303,10 +303,10 @@ internal abstract class ValueNode : Node<ValueNode>
 
     private void ThrowSerializationException(Exception e)
     {
-        var reference = Name == null
+        string reference = Name == null
             ? $"type '{TypeNode.Type}'"
             : $"member '{Name}'";
-        var message = $"Error serializing {reference}.  See inner exception for detail.";
+        string message = $"Error serializing {reference}.  See inner exception for detail.";
         throw new InvalidOperationException(message, e);
     }
 
@@ -321,7 +321,7 @@ internal abstract class ValueNode : Node<ValueNode>
 
             AlignLeft(stream);
 
-            var offset = GetFieldOffset();
+            long? offset = GetFieldOffset();
 
             if (offset != null)
             {
@@ -372,7 +372,7 @@ internal abstract class ValueNode : Node<ValueNode>
 
             AlignLeft(stream);
 
-            var offset = GetFieldOffset();
+            long? offset = GetFieldOffset();
 
             if (offset != null)
             {
@@ -409,16 +409,16 @@ internal abstract class ValueNode : Node<ValueNode>
 
     private void ThrowDeserializationException(Exception e)
     {
-        var reference = Name == null
+        string reference = Name == null
             ? $"type '{TypeNode.Type}'"
             : $"member '{Name}'";
-        var message = $"Error deserializing '{reference}'.  See inner exception for detail.";
+        string message = $"Error deserializing '{reference}'.  See inner exception for detail.";
         throw new InvalidOperationException(message, e);
     }
 
     internal LazyBinarySerializationContext CreateLazySerializationContext()
     {
-        var lazyContext = new Lazy<BinarySerializationContext>(CreateSerializationContext);
+        Lazy<BinarySerializationContext> lazyContext = new(CreateSerializationContext);
         return new LazyBinarySerializationContext(lazyContext);
     }
 
@@ -441,14 +441,14 @@ internal abstract class ValueNode : Node<ValueNode>
 
     protected FieldLength GetFieldLength()
     {
-        var length = GetNumericValue(TypeNode.FieldLengthBindings);
+        long? length = GetNumericValue(TypeNode.FieldLengthBindings);
         if (length != null)
         {
             return length.Value;
         }
 
-        var bitLength = GetNumericValue(TypeNode.FieldBitLengthBindings);
-        var bitOrder = ((BitOrder?)GetNumericValue(TypeNode.FieldBitOrderBindings) ??
+        long? bitLength = GetNumericValue(TypeNode.FieldBitLengthBindings);
+        BitOrder bitOrder = ((BitOrder?)GetNumericValue(TypeNode.FieldBitOrderBindings) ??
                        (BitOrder?)GetConstNumericValue(TypeNode.FieldBitOrderBindings)) ??
                        BitOrder.LsbFirst;
 
@@ -458,15 +458,15 @@ internal abstract class ValueNode : Node<ValueNode>
             return FieldLength.FromBitCount((int)bitLength, bitOrder);
         }
 
-        var parent = Parent;
-        var parentItemLengthBindings = parent?.TypeNode.ItemLengthBindings;
+        ValueNode parent = Parent;
+        BindingCollection parentItemLengthBindings = parent?.TypeNode.ItemLengthBindings;
 
         if (parentItemLengthBindings == null)
         {
             return null;
         }
 
-        var parentItemLength = parentItemLengthBindings.GetValue(parent);
+        object parentItemLength = parentItemLengthBindings.GetValue(parent);
         if (parentItemLength.GetType().GetTypeInfo().IsPrimitive)
         {
             return Convert.ToInt64(parentItemLength);
@@ -477,15 +477,15 @@ internal abstract class ValueNode : Node<ValueNode>
 
     protected FieldLength GetConstFieldLength()
     {
-        var length = GetConstNumericValue(TypeNode.FieldLengthBindings);
+        long? length = GetConstNumericValue(TypeNode.FieldLengthBindings);
 
         if (length != null)
         {
             return length;
         }
 
-        var bitLength = GetConstNumericValue(TypeNode.FieldBitLengthBindings);
-        var bitOrder = ((BitOrder?)GetNumericValue(TypeNode.FieldBitOrderBindings) ??
+        long? bitLength = GetConstNumericValue(TypeNode.FieldBitLengthBindings);
+        BitOrder bitOrder = ((BitOrder?)GetNumericValue(TypeNode.FieldBitOrderBindings) ??
                        (BitOrder?)GetConstNumericValue(TypeNode.FieldBitOrderBindings)) ??
                        BitOrder.LsbFirst;
 
@@ -496,7 +496,7 @@ internal abstract class ValueNode : Node<ValueNode>
     {
         // Field alignment cannot be determined from graph
         // so always go to a const or bound value
-        var value = TypeNode.LeftFieldAlignmentBindings?.GetBoundValue(this);
+        object value = TypeNode.LeftFieldAlignmentBindings?.GetBoundValue(this);
 
         if (value == null)
         {
@@ -510,7 +510,7 @@ internal abstract class ValueNode : Node<ValueNode>
     {
         // Field alignment cannot be determined from graph
         // so always go to a const or bound value
-        var value = TypeNode.RightFieldAlignmentBindings?.GetBoundValue(this);
+        object value = TypeNode.RightFieldAlignmentBindings?.GetBoundValue(this);
         if (value == null)
         {
             return null;
@@ -546,9 +546,9 @@ internal abstract class ValueNode : Node<ValueNode>
 
     protected virtual Endianness GetFieldEndianness()
     {
-        var endianness = Endianness.Inherit;
+        Endianness endianness = Endianness.Inherit;
 
-        var value = TypeNode.FieldEndiannessBindings?.GetBoundValue(this);
+        object value = TypeNode.FieldEndiannessBindings?.GetBoundValue(this);
 
         if (value != null)
         {
@@ -565,7 +565,7 @@ internal abstract class ValueNode : Node<ValueNode>
 
         if (endianness == Endianness.Inherit && Parent != null)
         {
-            var parent = Parent;
+            ValueNode parent = Parent;
             endianness = parent.GetFieldEndianness();
         }
 
@@ -576,7 +576,7 @@ internal abstract class ValueNode : Node<ValueNode>
     {
         Encoding encoding = null;
 
-        var value = TypeNode.FieldEncodingBindings?.GetBoundValue(this);
+        object value = TypeNode.FieldEncodingBindings?.GetBoundValue(this);
 
         if (value != null)
         {
@@ -592,7 +592,7 @@ internal abstract class ValueNode : Node<ValueNode>
 
         if (encoding == null && Parent != null)
         {
-            var parent = Parent;
+            ValueNode parent = Parent;
             encoding = parent.GetFieldEncoding();
         }
 
@@ -612,8 +612,8 @@ internal abstract class ValueNode : Node<ValueNode>
 
     protected virtual FieldLength MeasureOverride()
     {
-        var nullStream = new NullStream();
-        var boundedStream = new BoundedStream(nullStream, Name);
+        NullStream nullStream = new();
+        BoundedStream boundedStream = new(nullStream, Name);
         Serialize(boundedStream, null, false, true);
         return boundedStream.RelativePosition;
     }
@@ -650,8 +650,8 @@ internal abstract class ValueNode : Node<ValueNode>
             return UnsetValue;
         }
 
-        var valueType = GetValueTypeOverride() ?? throw new InvalidOperationException("Binding targets must not be null.");
-        var objectTypeNode = (ObjectTypeNode)typeNode;
+        Type valueType = GetValueTypeOverride() ?? throw new InvalidOperationException("Binding targets must not be null.");
+        ObjectTypeNode objectTypeNode = (ObjectTypeNode)typeNode;
 
 
         // first try explicitly specified subtypes
@@ -679,9 +679,9 @@ internal abstract class ValueNode : Node<ValueNode>
 
     private object ItemSubtypeBindingCallback(TypeNode typeNode)
     {
-        var valueType = GetValueTypeOverride() ?? throw new InvalidOperationException("Binding targets must not be null.");
-        var parent = typeNode.Parent;
-        var objectTypeNode = (ObjectTypeNode)typeNode;
+        Type valueType = GetValueTypeOverride() ?? throw new InvalidOperationException("Binding targets must not be null.");
+        TypeNode parent = typeNode.Parent;
+        ObjectTypeNode objectTypeNode = (ObjectTypeNode)typeNode;
 
 
         // first try explicitly specified subtypes
@@ -737,22 +737,22 @@ internal abstract class ValueNode : Node<ValueNode>
 
         if (!measuring && TypeNode.FieldValueAttributes != null && TypeNode.FieldValueAttributes.Count > 0)
         {
-            var context = CreateLazySerializationContext();
+            LazyBinarySerializationContext context = CreateLazySerializationContext();
 
             // Setup tap for value attributes if we need to siphon serialized data for later
-            for (var index = 0; index < TypeNode.FieldValueAttributes.Count; index++)
+            for (int index = 0; index < TypeNode.FieldValueAttributes.Count; index++)
             {
-                var fieldValueAttribute = TypeNode.FieldValueAttributes[index];
-                var fieldValueBinding = TypeNode.FieldValueBindings[index];
+                FieldValueAttributeBase fieldValueAttribute = TypeNode.FieldValueAttributes[index];
+                Binding fieldValueBinding = TypeNode.FieldValueBindings[index];
 
-                var source = fieldValueBinding.GetSource(this);
+                ValueNode source = fieldValueBinding.GetSource(this);
 
                 // Check if this tap has never been created, or if it has been created by this node, in
                 // which case we need to recreate it and reset processing of the source value node.  This
                 // would happen in instances where the tap was previously used inside of a measure override.
-                if (!source._fieldValueAttributeTaps.TryGetValue(fieldValueAttribute, out var tap))
+                if (!source._fieldValueAttributeTaps.TryGetValue(fieldValueAttribute, out FieldValueAdapterStream tap))
                 {
-                    var state = fieldValueAttribute.GetInitialStateInternal(context);
+                    object state = fieldValueAttribute.GetInitialStateInternal(context);
                     tap = new FieldValueAdapterStream(fieldValueAttribute, state);
                     source._fieldValueAttributeTaps[fieldValueAttribute] = tap;
                 }
@@ -782,7 +782,7 @@ internal abstract class ValueNode : Node<ValueNode>
 
     private void AlignRight(BoundedStream stream, bool pad = false)
     {
-        var rightAlignment = GetRightFieldAlignment();
+        long? rightAlignment = GetRightFieldAlignment();
         if (rightAlignment != null)
         {
             Align(stream, rightAlignment, pad);
@@ -791,7 +791,7 @@ internal abstract class ValueNode : Node<ValueNode>
 
     private void AlignLeft(BoundedStream stream, bool pad = false)
     {
-        var leftAlignment = GetLeftFieldAlignment();
+        long? leftAlignment = GetLeftFieldAlignment();
         if (leftAlignment != null)
         {
             Align(stream, leftAlignment, pad);
@@ -805,8 +805,8 @@ internal abstract class ValueNode : Node<ValueNode>
             throw new ArgumentNullException(nameof(alignment));
         }
 
-        var position = stream.RelativePosition;
-        var delta = (alignment - position % alignment) % alignment;
+        FieldLength position = stream.RelativePosition;
+        FieldLength delta = (alignment - position % alignment) % alignment;
 
         if (delta == FieldLength.Zero)
         {
@@ -815,12 +815,12 @@ internal abstract class ValueNode : Node<ValueNode>
 
         if (pad)
         {
-            var padding = new byte[delta.TotalByteCount];
+            byte[] padding = new byte[delta.TotalByteCount];
             stream.Write(padding, delta);
         }
         else
         {
-            for (var i = 0; i < (int)delta.ByteCount; i++)
+            for (int i = 0; i < (int)delta.ByteCount; i++)
             {
                 if (stream.ReadByte() < 0)
                 {
@@ -881,7 +881,7 @@ internal abstract class ValueNode : Node<ValueNode>
 
     private void ProcessPadding(BoundedStream stream, Action<BoundedStream, byte[], FieldLength> streamOperation)
     {
-        var length = GetConstFieldLength();
+        FieldLength length = GetConstFieldLength();
 
         if (length == null)
         {
@@ -890,15 +890,15 @@ internal abstract class ValueNode : Node<ValueNode>
 
         if (length > stream.RelativePosition)
         {
-            var padLength = length - stream.RelativePosition;
-            var pad = new byte[(int)padLength.TotalByteCount];
+            FieldLength padLength = length - stream.RelativePosition;
+            byte[] pad = new byte[(int)padLength.TotalByteCount];
             streamOperation(stream, pad, padLength);
         }
     }
 
     private async Task ProcessPaddingAsync(BoundedStream stream, Func<BoundedStream, byte[], FieldLength, Task> streamOperationAsync)
     {
-        var length = GetConstFieldLength();
+        FieldLength length = GetConstFieldLength();
 
         if (length == null)
         {
@@ -907,15 +907,15 @@ internal abstract class ValueNode : Node<ValueNode>
 
         if (length > stream.RelativePosition)
         {
-            var padLength = length - stream.RelativePosition;
-            var pad = new byte[(int)padLength.TotalByteCount];
+            FieldLength padLength = length - stream.RelativePosition;
+            byte[] pad = new byte[(int)padLength.TotalByteCount];
             await streamOperationAsync(stream, pad, padLength).ConfigureAwait(false);
         }
     }
 
     private long? GetNumericValue(IBinding binding)
     {
-        var value = binding?.GetValue(this);
+        object value = binding?.GetValue(this);
         if (value == null)
         {
             return null;
@@ -941,7 +941,7 @@ internal abstract class ValueNode : Node<ValueNode>
 
     private BinarySerializationContext CreateSerializationContext()
     {
-        var parent = Parent;
+        ValueNode parent = Parent;
         return new BinarySerializationContext(Value, parent?.Value, parent?.TypeNode.Type,
             parent?.CreateSerializationContext(), TypeNode.MemberInfo);
     }

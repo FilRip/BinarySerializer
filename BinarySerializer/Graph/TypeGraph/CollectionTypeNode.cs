@@ -39,7 +39,7 @@ internal abstract class CollectionTypeNode : ContainerTypeNode
         ChildType = GetChildType();
         CompiledChildConstructor = CreateCompiledConstructor(ChildType);
 
-        TerminationChild = GetTerminationChild(out var terminationValue);
+        TerminationChild = GetTerminationChild(out object terminationValue);
         TerminationValue = terminationValue;
 
         _lazyChild = new Lazy<TypeNode>(() => GenerateChild(ChildType));

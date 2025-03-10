@@ -8,13 +8,13 @@ namespace BinarySerialization.Test.WhenNot
         [TestMethod()]
         public void SimpleTest()
         {
-            var expected = new WhenNotClass
+            WhenNotClass expected = new()
             {
                 ExcludeValue = true,
                 Value = 100
             };
 
-            var data = Serialize(expected);
+            byte[] data = Serialize(expected);
             Assert.AreEqual(1, data.Length);
 
             expected.ExcludeValue = false;
