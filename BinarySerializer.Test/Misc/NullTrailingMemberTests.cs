@@ -2,10 +2,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BinarySerialization.Test.Misc
 {
-    [TestClass]
+    [TestClass()]
     public class NullTrailingMemberTests : TestBase
     {
-        [TestMethod]
+        [TestMethod()]
         public void NullTrailingMemberTest()
         {
             var container = new NullTrailingMemberClassContainer();

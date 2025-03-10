@@ -1,4 +1,7 @@
-﻿namespace BinarySerialization.Test.Scale
+﻿using BinarySerialization.Attributes;
+using BinarySerialization.Constants;
+
+namespace BinarySerialization.Test.Scale
 {
     public class ScaledValueClass
     {

@@ -1,28 +1,31 @@
 ﻿using System;
 using System.IO;
+
+using BinarySerialization.Streams;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BinarySerialization.Test.Streams
 {
-    [TestClass]
+    [TestClass()]
     public class StreamTests : TestBase
     {
-        [TestMethod]
+        [TestMethod()]
         public void StreamTest()
         {
             var stream = new MemoryStream(System.Text.Encoding.ASCII.GetBytes("StreamValue"));
-            var expected = new StreamClass {Field = stream};
+            var expected = new StreamClass { Field = stream };
             var actual = Roundtrip(expected);
             Assert.AreEqual(stream.Length, actual.Field.Length);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void BoundedStreamSetLengthThrowsNotSupported()
         {
-            Assert.ThrowsException<NotSupportedException>(() => new BoundedStream(new MemoryStream(), string.Empty).SetLength(0));
+            Assert.ThrowsExactly<NotSupportedException>(() => new BoundedStream(new MemoryStream(), string.Empty).SetLength(0));
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void BoundedStreamToStringIsName()
         {
             const string name = "Name";

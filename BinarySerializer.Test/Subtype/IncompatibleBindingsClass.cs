@@ -1,4 +1,6 @@
-﻿namespace BinarySerialization.Test.Subtype
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test.Subtype
 {
     public class IncompatibleBindingsClass
     {
@@ -9,8 +11,8 @@
         public byte Indicator2 { get; set; }
 
         [FieldOrder(2)]
-        [Subtype(nameof(Indicator), 1, typeof (SubclassA))]
-        [Subtype(nameof(Indicator2), 2, typeof (SubclassB))]
+        [Subtype(nameof(Indicator), 1, typeof(SubclassA))]
+        [Subtype(nameof(Indicator2), 2, typeof(SubclassB))]
         public Superclass Superclass { get; set; }
     }
 }

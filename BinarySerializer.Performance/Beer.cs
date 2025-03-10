@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using BinarySerialization;
+using BinarySerialization.Attributes;
+using BinarySerialization.Constants;
 
 namespace BinarySerializer.Performance
 {
@@ -10,7 +13,9 @@ namespace BinarySerializer.Performance
         [SerializeAs(SerializedType.LengthPrefixedString)]
         [FieldOrder(0)] public string Brand;
 
-        [NonSerialized] [FieldOrder(1)] public byte SortCount;
+#pragma warning disable S1104 // Fields should not have public accessibility
+        [NonSerialized, FieldOrder(1)] public byte SortCount;
+#pragma warning restore S1104 // Fields should not have public accessibility
 
         [FieldOrder(2)]
         [FieldCount("SortCount", ConverterType = typeof(TwiceConverter))]
@@ -46,7 +51,9 @@ namespace BinarySerializer.Performance
     {
         [NonSerialized]
         [FieldOrder(0)]
+#pragma warning disable S1104 // Fields should not have public accessibility
         public byte NameLength;
+#pragma warning restore S1104 // Fields should not have public accessibility
 
         [FieldOrder(1)]
         [FieldLength("NameLength")]

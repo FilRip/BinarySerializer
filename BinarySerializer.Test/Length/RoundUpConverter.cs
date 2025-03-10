@@ -1,16 +1,16 @@
 ﻿using System;
 
+using BinarySerialization.Interfaces;
+
 namespace BinarySerialization.Test.Length
 {
     public class RoundUpConverter : IValueConverter
     {
         public object Convert(object value, object parameter, BinarySerializationContext context)
         {
-            if (value == null)
-                throw new ArgumentNullException(nameof(value));
+            ArgumentNullException.ThrowIfNull(value);
 
-            if (parameter == null)
-                throw new ArgumentNullException(nameof(parameter));
+            ArgumentNullException.ThrowIfNull(parameter);
 
             var v = System.Convert.ToUInt64(value);
             var m = System.Convert.ToUInt64(parameter);

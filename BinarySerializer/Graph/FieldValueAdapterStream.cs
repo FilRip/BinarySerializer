@@ -3,106 +3,102 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BinarySerialization.Graph
+using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Graph;
+
+internal class FieldValueAdapterStream(FieldValueAttributeBase attribute, object state) : Stream
 {
-    internal class FieldValueAdapterStream : Stream
+    private readonly FieldValueAttributeBase _attribute = attribute;
+    private readonly byte[] _block = new byte[attribute.BlockSize];
+    private int _blockOffset;
+
+    public object State { get; private set; } = state;
+
+    public override bool CanRead => false;
+    public override bool CanSeek => false;
+    public override bool CanWrite => true;
+
+    public override long Length => throw new InvalidOperationException();
+
+    public override long Position
     {
-        private readonly FieldValueAttributeBase _attribute;
-        private readonly byte[] _block;
-        private int _blockOffset;
+        get => throw new InvalidOperationException();
+        set => throw new InvalidOperationException();
+    }
 
-        public FieldValueAdapterStream(FieldValueAttributeBase attribute, object state)
+    public override void Flush()
+    {
+        if (_blockOffset > 0)
         {
-            _attribute = attribute;
-            _block = new byte[attribute.BlockSize];
-            State = state;
+            State = _attribute.GetUpdatedStateInternal(State, _block, 0, _blockOffset);
         }
 
-        public object State { get; private set; }
+        _blockOffset = 0;
+    }
 
-        public override bool CanRead => false;
-        public override bool CanSeek => false;
-        public override bool CanWrite => true;
+    public override int Read(byte[] buffer, int offset, int count)
+    {
+        throw new NotSupportedException();
+    }
 
-        public override long Length => throw new InvalidOperationException();
+    public override long Seek(long offset, SeekOrigin origin)
+    {
+        throw new NotSupportedException();
+    }
 
-        public override long Position
+    public override void SetLength(long value)
+    {
+        throw new NotSupportedException();
+    }
+
+    public override void Write(byte[] buffer, int offset, int count)
+    {
+        if (buffer == null)
         {
-            get => throw new InvalidOperationException();
-            set => throw new InvalidOperationException();
+            throw new ArgumentNullException(nameof(buffer));
         }
 
-        public override void Flush()
+        if (offset < 0)
         {
-            if (_blockOffset > 0)
-            {
-                State = _attribute.GetUpdatedStateInternal(State, _block, 0, _blockOffset);
-            }
-
-            _blockOffset = 0;
+            throw new ArgumentOutOfRangeException(nameof(offset), "< 0");
         }
 
-        public override int Read(byte[] buffer, int offset, int count)
+        if (count < 0)
         {
-            throw new NotSupportedException();
+            throw new ArgumentOutOfRangeException(nameof(count), "< 0");
         }
 
-        public override long Seek(long offset, SeekOrigin origin)
+        // avoid possible integer overflow
+        if (buffer.Length - offset < count)
         {
-            throw new NotSupportedException();
+            throw new ArgumentException("array.Length - offset < count");
         }
 
-        public override void SetLength(long value)
-        {
-            throw new NotSupportedException();
-        }
 
-        public override void Write(byte[] buffer, int offset, int count)
-        {
-            if (buffer == null)
-            {
-                throw new ArgumentNullException(nameof(buffer));
-            }
-
-            if (offset < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(offset), "< 0");
-            }
-
-            if (count < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(count), "< 0");
-            }
-
-            // avoid possible integer overflow
-            if (buffer.Length - offset < count)
-            {
-                throw new ArgumentException("array.Length - offset < count");
-            }
-
-
-            // reordered to avoid possible integer overflow
-            if (_blockOffset >= _block.Length - count)
-            {
-                Flush();
-                State = _attribute.GetUpdatedStateInternal(State, buffer, offset, count);
-            }
-            else
-            {
-                Buffer.BlockCopy(buffer, offset, _block, _blockOffset, count);
-                _blockOffset += count;
-            }
-        }
-
-        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-        {
-            Write(buffer, offset, count);
-            return Task.CompletedTask;
-        }
-
-        protected override void Dispose(bool disposing)
+        // reordered to avoid possible integer overflow
+        if (_blockOffset >= _block.Length - count)
         {
             Flush();
+            State = _attribute.GetUpdatedStateInternal(State, buffer, offset, count);
         }
+        else
+        {
+            Buffer.BlockCopy(buffer, offset, _block, _blockOffset, count);
+            _blockOffset += count;
+        }
+    }
+
+    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+    {
+        Write(buffer, offset, count);
+        return Task.CompletedTask;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        if (disposing)
+            Flush();
     }
 }

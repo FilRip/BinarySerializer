@@ -1,4 +1,6 @@
-﻿namespace BinarySerialization.Test.Misc
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test.Misc
 {
     public class InvalidForwardBindingClass
     {

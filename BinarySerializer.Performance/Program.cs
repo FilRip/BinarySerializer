@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -9,20 +8,22 @@ using System.Threading.Tasks;
 
 namespace BinarySerializer.Performance
 {
-    class Program
+    internal static class Program
     {
-        private static void Main(string[] args)
+#pragma warning disable IDE0060 // Supprimer le paramètre inutilisé
+        internal static void Main(string[] args)
+#pragma warning restore IDE0060 // Supprimer le paramètre inutilisé
         {
             var beer = new Beer
             {
                 Alcohol = 6,
 
                 Brand = "Brand",
-                Sort = new List<SortContainer>
-                {
-                    new SortContainer {Name = "some sort of beer"},
-                    new SortContainer {Name = "another beer"}
-                },
+                Sort =
+                [
+                    new() {Name = "some sort of beer"},
+                    new() {Name = "another beer"}
+                ],
                 WeirdNumber = 3,
                 WeirdNumber2 = 2,
                 Color = Color.Blue,
@@ -120,17 +121,15 @@ namespace BinarySerializer.Performance
             stopwatch.Start();
             var data = Enumerable.Range(0, iterations).AsParallel().Select(i =>
             {
-                using (var ms = new MemoryStream())
-                {
-                    ser.Serialize(ms, obj);
-                    return ms.ToArray();
-                }
+                using var ms = new MemoryStream();
+                ser.Serialize(ms, obj);
+                return ms.ToArray();
             }).ToArray();
-            
+
             stopwatch.Stop();
             Console.WriteLine("BS || SER: {0}", stopwatch.Elapsed);
             stopwatch.Reset();
-            
+
             stopwatch.Start();
             data.AsParallel().ForAll(d => ser.Deserialize<T>(d));
             stopwatch.Stop();

@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 
+using BinarySerialization.Attributes;
+
 namespace BinarySerialization.Test.Value
 {
     // TODO not tested
@@ -21,7 +23,7 @@ namespace BinarySerialization.Test.Value
         public byte Offset { get; set; }
 
         [FieldOrder(5)]
-        public TcpHeaderFlags Flags { get; set; }
+        public ETcpHeader Flags { get; set; }
 
         [FieldOrder(6)]
         public ushort WindowSize { get; set; }

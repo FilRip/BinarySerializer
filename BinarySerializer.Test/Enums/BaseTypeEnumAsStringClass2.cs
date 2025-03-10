@@ -1,4 +1,7 @@
-﻿namespace BinarySerialization.Test.Enums
+﻿using BinarySerialization.Attributes;
+using BinarySerialization.Constants;
+
+namespace BinarySerialization.Test.Enums
 {
     internal class BaseTypeEnumAsStringClass2
     {

@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 
+using BinarySerialization.Attributes;
+
 namespace BinarySerialization.Test.Value
 {
     public class Png

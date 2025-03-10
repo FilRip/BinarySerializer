@@ -71,7 +71,7 @@ Attributes
 
 There are a number of attributes that can be used to control the serialization of fields.
 
-* [Ignore](#ignoreattribute)
+* [Ignore()](#ignoreattribute)
 * [IgnoreMember](#ignorememberattribute)
 * [FieldOrder](#fieldorderattribute)
 * [FieldLength](#fieldlengthattribute)
@@ -1057,7 +1057,7 @@ When all else fails, it is possible to define a custom serialization object.
 /// </summary>
 public class Varuint : IBinarySerializable
 {
-    [Ignore]
+    [Ignore()]
     public uint Value { get; set; }
 
     public void Deserialize(Stream stream, Endianness endianness, BinarySerializationContext context)

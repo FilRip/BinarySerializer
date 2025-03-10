@@ -1,4 +1,6 @@
-﻿namespace BinarySerialization.Test.Offset
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test.Offset
 {
     public class ConstOffsetClass
     {

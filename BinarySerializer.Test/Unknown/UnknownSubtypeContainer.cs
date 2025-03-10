@@ -1,4 +1,6 @@
-﻿namespace BinarySerialization.Test.Unknown
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test.Unknown
 {
     public class UnknownSubtypeContainer
     {

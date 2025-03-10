@@ -1,5 +1,7 @@
 ﻿using System.IO;
 
+using BinarySerialization.Attributes;
+
 namespace BinarySerialization.Test.Value
 {
     public class StreamValueClass

@@ -1,4 +1,7 @@
-﻿namespace BinarySerialization.Test.Value
+﻿using BinarySerialization.Attributes;
+using BinarySerialization.Constants;
+
+namespace BinarySerialization.Test.Value
 {
     public class FieldCrc16OneWayClass
     {

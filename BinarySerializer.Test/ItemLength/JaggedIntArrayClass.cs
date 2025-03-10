@@ -1,4 +1,6 @@
-﻿namespace BinarySerialization.Test.ItemLength
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test.ItemLength
 {
     public class JaggedIntArrayClass
     {

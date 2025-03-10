@@ -1,4 +1,6 @@
-﻿namespace BinarySerialization.Test.Length
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test.Length
 {
     public class EmbeddedConstrainedCollectionClass
     {

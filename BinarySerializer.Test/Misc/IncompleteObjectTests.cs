@@ -1,8 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using BinarySerialization.Attributes;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BinarySerialization.Test.Misc
 {
-    [TestClass]
+    [TestClass()]
     public class IncompleteObjectTests
     {
         public class SimpleClass
@@ -14,7 +16,7 @@ namespace BinarySerialization.Test.Misc
             public int B { get; set; }
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void IncompleteObjectTest()
         {
             var serializer = new BinarySerializer
@@ -22,7 +24,7 @@ namespace BinarySerialization.Test.Misc
                 Options = SerializationOptions.AllowIncompleteObjects
             };
 
-            var actual = serializer.Deserialize<SimpleClass>(new byte[] { 0x1, 0x2, 0x3, 0x4 });
+            var actual = serializer.Deserialize<SimpleClass>([0x1, 0x2, 0x3, 0x4]);
             Assert.IsNotNull(actual);
             Assert.AreEqual(0, actual.B);
         }

@@ -1,14 +1,18 @@
 ﻿using System;
 using System.IO;
 
+using BinarySerialization.Attributes;
+using BinarySerialization.Constants;
+using BinarySerialization.Interfaces;
+
 namespace BinarySerialization.Test.Custom
 {
     public class CustomDateTime : IBinarySerializable
     {
-        [Ignore]
+        [Ignore()]
         public DateTime Value;
 
-        public void Serialize(Stream stream, BinarySerialization.Endianness endianness, BinarySerializationContext serializationContext)
+        public void Serialize(Stream stream, Endianness endianness, BinarySerializationContext serializationContext)
         {
             var writer = new BinaryWriter(stream);
             writer.Write((ushort)Value.Year);
@@ -20,7 +24,7 @@ namespace BinarySerialization.Test.Custom
             writer.Write((ushort)Value.Millisecond);
         }
 
-        public void Deserialize(Stream stream, BinarySerialization.Endianness endianness, BinarySerializationContext serializationContext)
+        public void Deserialize(Stream stream, Endianness endianness, BinarySerializationContext serializationContext)
         {
             var reader = new BinaryReader(stream);
             var year = reader.ReadUInt16();

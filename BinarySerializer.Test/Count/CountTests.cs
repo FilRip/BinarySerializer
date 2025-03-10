@@ -1,44 +1,44 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BinarySerialization.Test.Count
 {
-    [TestClass]
+    [TestClass()]
     public class CountTests : TestBase
     {
-        [TestMethod]
+        [TestMethod()]
         public void ConstCountTest()
         {
             var actual = Roundtrip(new ConstCountClass<string>
             {
-                Field = new List<string>(TestSequence),
-                Field2 = TestSequence.ToArray()
+                Field = [.. TestSequence],
+                Field2 = [.. TestSequence]
             });
 
             Assert.AreEqual(3, actual.Field.Count);
             Assert.AreEqual(3, actual.Field2.Length);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void PrimitiveConstCountTest()
         {
             var actual = Roundtrip(new ConstCountClass<int>
             {
-                Field = new List<int>(PrimitiveTestSequence),
-                Field2 = PrimitiveTestSequence.ToArray()
+                Field = [.. PrimitiveTestSequence],
+                Field2 = [.. PrimitiveTestSequence]
             });
 
             Assert.AreEqual(3, actual.Field.Count);
             Assert.AreEqual(3, actual.Field2.Length);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void CountTest()
         {
             var expected = new BoundCountClass
             {
-                Field = new List<string>(TestSequence)
+                Field = [.. TestSequence]
             };
 
             var actual = Roundtrip(expected);
@@ -47,43 +47,43 @@ namespace BinarySerialization.Test.Count
             Assert.IsTrue(expected.Field.SequenceEqual(actual.Field));
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void ConstCountMismatchTest()
         {
-            var actual = Roundtrip(new ConstCountClass<string> {Field = new List<string>(TestSequence.Take(2))});
+            var actual = Roundtrip(new ConstCountClass<string> { Field = [.. TestSequence.Take(2)] });
             Assert.AreEqual(3, actual.Field.Count);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void PrimitiveConstCountMismatchTest()
         {
             var actual = Roundtrip(new ConstCountClass<int>
             {
-                Field = new List<int>(PrimitiveTestSequence.Take(2)),
-                Field2 = PrimitiveTestSequence.Take(2).ToArray()
+                Field = [.. PrimitiveTestSequence.Take(2)],
+                Field2 = [.. PrimitiveTestSequence.Take(2)]
             });
             Assert.AreEqual(3, actual.Field.Count);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void PrimitiveListBindingTest()
         {
-            var expected = new PrimitiveListBindingClass {Ints = new List<int> {1, 2, 3}};
+            var expected = new PrimitiveListBindingClass { Ints = [1, 2, 3] };
             var actual = Roundtrip(expected);
 
             Assert.AreEqual(expected.Ints.Count, actual.ItemCount);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void PrimitiveArrayBindingTest()
         {
-            var expected = new PrimitiveArrayBindingClass {Ints = new[] {1, 2, 3}};
+            var expected = new PrimitiveArrayBindingClass { Ints = [1, 2, 3] };
             var actual = Roundtrip(expected);
 
             Assert.AreEqual(expected.Ints.Length, actual.ItemCount);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void EmptyListBindingTest()
         {
             var expected = new PrimitiveListBindingClass();
@@ -92,7 +92,7 @@ namespace BinarySerialization.Test.Count
             Assert.AreEqual(0, actual.Ints.Count);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void EmptyArrayBindingTest()
         {
             var expected = new PrimitiveArrayBindingClass();
@@ -101,12 +101,12 @@ namespace BinarySerialization.Test.Count
             Assert.AreEqual(0, actual.Ints.Length);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void MultibindingTest()
         {
             var expected = new MultibindingClass
             {
-                Items = new List<string>(new[] {"hello", "world"})
+                Items = [.. new[] { "hello", "world" }]
             };
 
             var actual = Roundtrip(expected);
@@ -115,73 +115,73 @@ namespace BinarySerialization.Test.Count
             Assert.AreEqual(2, actual.Count2);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void PaddedConstSizeListTest()
         {
             var expected = new PaddedConstSizedListClass
             {
-                Items = new List<PaddedConstSizeListItemClass>()
+                Items = []
             };
 
             var actual = Roundtrip(expected);
             Assert.AreEqual(6, actual.Items.Count);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void PrimitiveNullByteArrayTest()
         {
             PrimitiveNullArrayLengthTest<byte>(sizeof(byte));
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void PrimitiveNullSByteArrayTest()
         {
             PrimitiveNullArrayLengthTest<sbyte>(sizeof(sbyte));
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void PrimitiveNullShortArrayTest()
         {
             PrimitiveNullArrayLengthTest<short>(sizeof(short));
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void PrimitiveNullUShortArrayTest()
         {
             PrimitiveNullArrayLengthTest<ushort>(sizeof(ushort));
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void PrimitiveNullIntArrayTest()
         {
             PrimitiveNullArrayLengthTest<int>(sizeof(int));
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void PrimitiveNullUIntArrayTest()
         {
             PrimitiveNullArrayLengthTest<uint>(sizeof(uint));
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void PrimitiveNullLongArrayTest()
         {
             PrimitiveNullArrayLengthTest<uint>(sizeof(uint));
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void PrimitiveNullULongArrayTest()
         {
             PrimitiveNullArrayLengthTest<uint>(sizeof(uint));
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void PrimitiveNullStringArrayTest()
         {
             PrimitiveNullArrayLengthTest<string>(0);
         }
 
-        private void PrimitiveNullArrayLengthTest<TValue>(int expectedChildLength)
+        private static void PrimitiveNullArrayLengthTest<TValue>(int expectedChildLength)
         {
             var expected = new PrimitiveArrayConstClass<TValue>();
             Roundtrip(expected, expectedChildLength * 5);

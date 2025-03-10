@@ -2,6 +2,6 @@
 {
     public class NegativeEnumClass
     {
-        public NegativeEnum Value { get; set; }
+        public ENegative Value { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿
+﻿using BinarySerialization.Attributes;
+
 namespace BinarySerialization.Test
 {
     public class Empty

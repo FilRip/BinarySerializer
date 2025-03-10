@@ -1,8 +1,10 @@
-﻿namespace BinarySerialization.Test.Misc
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test.Misc
 {
     public class ImmutableClass4
     {
-        public ImmutableClass4(int header, int? responseId = null)
+        public ImmutableClass4(int header, int? responseId)
         {
             Header = header;
             ResponseId = responseId;
@@ -16,7 +18,7 @@
         [FieldOrder(0)]
         public int Header { get; }
 
-        [Ignore]
+        [Ignore()]
         public int? ResponseId { get; }
     }
 }

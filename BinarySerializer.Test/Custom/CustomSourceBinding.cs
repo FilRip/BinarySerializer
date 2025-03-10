@@ -1,4 +1,6 @@
-﻿namespace BinarySerialization.Test.Custom
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test.Custom
 {
     public class CustomSourceBinding
     {
@@ -9,7 +11,7 @@
         [FieldLength("NameLength.Value")]
         public string Name { get; set; }
 
-        [Ignore]
+        [Ignore()]
         public uint Length => NameLength.Value;
     }
 }

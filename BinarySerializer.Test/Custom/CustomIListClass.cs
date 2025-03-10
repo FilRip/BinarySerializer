@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 
+using BinarySerialization.Attributes;
+using BinarySerialization.Constants;
+using BinarySerialization.Interfaces;
+
 namespace BinarySerialization.Test.Custom
 {
     public class CustomIListClass : IList<string>, IBinarySerializable
     {
-        private readonly List<string> _list = new List<string>();
+        private readonly List<string> _list = [];
 
         public IEnumerator<string> GetEnumerator()
         {
@@ -43,10 +47,10 @@ namespace BinarySerialization.Test.Custom
             return _list.Remove(item);
         }
 
-        [Ignore]
+        [Ignore()]
         public int Count => _list.Count;
 
-        [Ignore]
+        [Ignore()]
         public bool IsReadOnly => false;
 
         public int IndexOf(string item)
@@ -64,14 +68,14 @@ namespace BinarySerialization.Test.Custom
             _list.RemoveAt(index);
         }
 
-        [Ignore]
+        [Ignore()]
         public string this[int index]
         {
             get => _list[index];
             set => _list[index] = value;
         }
 
-        public void Serialize(Stream stream, BinarySerialization.Endianness endianness, BinarySerializationContext serializationContext)
+        public void Serialize(Stream stream, Endianness endianness, BinarySerializationContext serializationContext)
         {
             foreach (var item in this)
             {
@@ -81,7 +85,7 @@ namespace BinarySerialization.Test.Custom
             }
         }
 
-        public void Deserialize(Stream stream, BinarySerialization.Endianness endianness, BinarySerializationContext serializationContext)
+        public void Deserialize(Stream stream, Endianness endianness, BinarySerializationContext serializationContext)
         {
             while (stream.Position < stream.Length)
             {

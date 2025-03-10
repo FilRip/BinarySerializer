@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using BinarySerialization.Attributes;
+using BinarySerialization.Constants;
 
 namespace BinarySerialization.Test.BitLength
 {

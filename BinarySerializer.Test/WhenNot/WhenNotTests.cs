@@ -2,10 +2,10 @@
 
 namespace BinarySerialization.Test.WhenNot
 {
-    [TestClass]
+    [TestClass()]
     public class WhenNotTests : TestBase
     {
-        [TestMethod]
+        [TestMethod()]
         public void SimpleTest()
         {
             var expected = new WhenNotClass

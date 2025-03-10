@@ -1,4 +1,6 @@
-﻿namespace BinarySerialization.Test.WhenNot
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test.WhenNot
 {
     public class WhenNotClass
     {
@@ -6,9 +8,7 @@
         public bool ExcludeValue { get; set; }
 
         [FieldOrder(1)]
-#pragma warning disable 612, 618
-        [SerializeWhenNot(nameof(ExcludeValue), true)]
-#pragma warning restore 612, 618
+        [SerializeWhen(nameof(ExcludeValue), true, Constants.ComparisonOperator.NotEqual)]
         public int Value { get; set; }
     }
 }

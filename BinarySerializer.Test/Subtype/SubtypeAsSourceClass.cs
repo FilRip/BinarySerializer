@@ -1,4 +1,6 @@
-﻿namespace BinarySerialization.Test.Subtype
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test.Subtype
 {
     public class SubtypeAsSourceClass
     {
@@ -6,7 +8,7 @@
         public byte Selector { get; set; }
 
         [FieldOrder(1)]
-        [Subtype(nameof(Selector), 42, typeof (SubclassA))]
+        [Subtype(nameof(Selector), 42, typeof(SubclassA))]
         public Superclass Superclass { get; set; }
 
         [FieldOrder(2)]

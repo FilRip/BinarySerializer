@@ -1,10 +1,11 @@
-﻿namespace BinarySerialization.Test.Enums
+﻿using BinarySerialization.Attributes;
+using BinarySerialization.Constants;
+
+namespace BinarySerialization.Test.Enums
 {
     internal class BaseTypeEnumAsStringClass
     {
-#pragma warning disable 618
-        [SerializeAs(SerializedType.NullTerminatedString)]
-#pragma warning restore 618
+        [SerializeAs(SerializedType.TerminatedString)]
         public BaseTypeEnumValues Field { get; set; }
     }
 }

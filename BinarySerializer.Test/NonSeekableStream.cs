@@ -45,6 +45,11 @@ namespace BinarySerialization.Test
             set { throw new NotSupportedException(); }
         }
 
+        public Stream GetStream()
+        {
+            return _stream;
+        }
+
         public override void Flush()
         {
         }

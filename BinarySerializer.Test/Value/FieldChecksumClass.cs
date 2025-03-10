@@ -1,4 +1,7 @@
-﻿namespace BinarySerialization.Test.Value
+﻿using BinarySerialization.Attributes;
+using BinarySerialization.Constants;
+
+namespace BinarySerialization.Test.Value
 {
     public class FieldChecksumClass
     {
@@ -14,7 +17,7 @@
 
         [FieldOrder(2)]
         public byte Checksum { get; set; }
-        
+
         [FieldOrder(3)]
         public byte ModuloChecksum { get; set; }
 

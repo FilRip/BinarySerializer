@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
 
+using BinarySerialization.Attributes;
+using BinarySerialization.Constants;
+
 namespace BinarySerialization.Test.UntilItem
 {
     public class UntilItemContainer
@@ -26,7 +29,7 @@ namespace BinarySerialization.Test.UntilItem
         public uint StuffAfter { get; set; }
 
         [FieldOrder(6)]
-        [ItemSerializeUntil(nameof(UntilItemClass.Type), (int)UntilItemEnum.End)]
+        [ItemSerializeUntil(nameof(UntilItemClass.Type), (int)EUntilItem.End)]
         public List<UntilItemClass> EnumTerminationItems { get; set; }
 
         [FieldOrder(7)]

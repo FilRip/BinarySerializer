@@ -1,4 +1,7 @@
-﻿namespace BinarySerialization.Test.Context
+﻿using BinarySerialization.Attributes;
+using BinarySerialization.Constants;
+
+namespace BinarySerialization.Test.Context
 {
     public class ContextClass
     {

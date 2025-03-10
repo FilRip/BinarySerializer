@@ -1,76 +1,71 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+
 using BinarySerialization.Graph.TypeGraph;
+using BinarySerialization.Streams;
 
-namespace BinarySerialization.Graph.ValueGraph
+namespace BinarySerialization.Graph.ValueGraph;
+
+internal abstract class CollectionValueNodeBase(ValueNode parent, string name, TypeNode typeNode) : ValueNode(parent, name, typeNode)
 {
-    internal abstract class CollectionValueNodeBase : ValueNode
+    protected ValueNode CreateChildSerializer()
     {
-        protected CollectionValueNodeBase(ValueNode parent, string name, TypeNode typeNode) : base(parent, name, typeNode)
-        {
-        }
+        var localTypeNode = (CollectionTypeNode)TypeNode;
+        return localTypeNode.Child.CreateSerializer(this);
+    }
 
-        protected ValueNode CreateChildSerializer()
-        {
-            var typeNode = (CollectionTypeNode) TypeNode;
-            return typeNode.Child.CreateSerializer(this);
-        }
+    protected object GetTerminationValue()
+    {
+        var localTypeNode = (CollectionTypeNode)TypeNode;
+        return localTypeNode.TerminationValue;
+    }
 
-        protected object GetTerminationValue()
+    protected static bool IsTerminated(BoundedStream stream, ValueNode terminationChild, object terminationValue, SerializationOptions options,
+        EventShuttle eventShuttle)
+    {
+        if (terminationChild != null)
         {
-            var typeNode = (CollectionTypeNode) TypeNode;
-            return typeNode.TerminationValue;
-        }
+            using var streamResetter = new StreamResetter(stream);
+            terminationChild.Deserialize(stream, options, eventShuttle);
 
-        protected static bool IsTerminated(BoundedStream stream, ValueNode terminationChild, object terminationValue, SerializationOptions options,
-            EventShuttle eventShuttle)
-        {
-            if (terminationChild != null)
+            if (terminationChild.Value.Equals(terminationValue))
             {
-                using (var streamResetter = new StreamResetter(stream))
-                {
-                    terminationChild.Deserialize(stream, options, eventShuttle);
-
-                    if (terminationChild.Value.Equals(terminationValue))
-                    {
-                        streamResetter.CancelReset();
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        protected void SerializeTermination(BoundedStream stream, EventShuttle eventShuttle)
-        {
-            var typeNode = (CollectionTypeNode) TypeNode;
-
-            if (typeNode.TerminationChild != null)
-            {
-                var terminationChild = typeNode.TerminationChild.CreateSerializer(this);
-                terminationChild.Value = typeNode.TerminationValue;
-                terminationChild.Serialize(stream, eventShuttle);
+                streamResetter.CancelReset();
+                return true;
             }
         }
+        return false;
+    }
 
-        protected async Task SerializeTerminationAsync(BoundedStream stream, EventShuttle eventShuttle, CancellationToken cancellationToken)
+    protected void SerializeTermination(BoundedStream stream, EventShuttle eventShuttle)
+    {
+        var localTypeNode = (CollectionTypeNode)TypeNode;
+
+        if (localTypeNode.TerminationChild != null)
         {
-            var typeNode = (CollectionTypeNode)TypeNode;
-
-            if (typeNode.TerminationChild != null)
-            {
-                var terminationChild = typeNode.TerminationChild.CreateSerializer(this);
-                terminationChild.Value = typeNode.TerminationValue;
-                await terminationChild.SerializeAsync(stream, eventShuttle, true, cancellationToken)
-                    .ConfigureAwait(false);
-            }
+            var terminationChild = localTypeNode.TerminationChild.CreateSerializer(this);
+            terminationChild.Value = localTypeNode.TerminationValue;
+            terminationChild.Serialize(stream, eventShuttle);
         }
+    }
 
-        protected ValueNode GetTerminationChild()
+    protected async Task SerializeTerminationAsync(BoundedStream stream, EventShuttle eventShuttle, CancellationToken cancellationToken)
+    {
+        var localTypeNode = (CollectionTypeNode)TypeNode;
+
+        if (localTypeNode.TerminationChild != null)
         {
-            var typeNode = (CollectionTypeNode) TypeNode;
-            var terminationChild = typeNode.TerminationChild?.CreateSerializer(this);
-            return terminationChild;
+            var terminationChild = localTypeNode.TerminationChild.CreateSerializer(this);
+            terminationChild.Value = localTypeNode.TerminationValue;
+            await terminationChild.SerializeAsync(stream, eventShuttle, true, cancellationToken)
+                .ConfigureAwait(false);
         }
+    }
+
+    protected ValueNode GetTerminationChild()
+    {
+        var localTypeNode = (CollectionTypeNode)TypeNode;
+        var terminationChild = localTypeNode.TerminationChild?.CreateSerializer(this);
+        return terminationChild;
     }
 }

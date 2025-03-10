@@ -2,13 +2,14 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BinarySerialization.Test.Misc
 {
-    [TestClass]
+    [TestClass()]
     public class EmptyClassTest : TestBase
     {
-        [TestMethod]
+        [TestMethod()]
         public void RoundtripEmptyClassTest()
         {
-            Roundtrip(new EmptyClass());
+            var actual = Roundtrip(new EmptyClass());
+            Assert.IsInstanceOfType<EmptyClass>(actual);
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 
+using BinarySerialization.Attributes;
+
 namespace BinarySerialization.Test.Length
 {
     public class AncestorBindingCollectionClass
@@ -8,6 +10,6 @@ namespace BinarySerialization.Test.Length
         public int ItemLength { get; set; }
 
         [FieldOrder(1)]
-        public List<AncestorBindingCollectionItemClass> Items { get; set; } 
+        public List<AncestorBindingCollectionItemClass> Items { get; set; }
     }
 }

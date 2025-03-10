@@ -1,38 +1,36 @@
 ﻿using System.Collections.Generic;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BinarySerialization.Test.UntilItem
 {
-    [TestClass]
+    [TestClass()]
     public class UntilItemTests : TestBase
     {
-        [TestMethod]
+        [TestMethod()]
         public void UntilItemConstTest()
         {
             var items = new List<UntilItemClass>
             {
-                new UntilItemClass
-                {
+                new() {
                     Name = "Alice",
                     LastItem = "Nope",
                     Description = "She's just a girl in the world"
                 },
-                new UntilItemClass
-                {
+                new() {
                     Name = "Bob",
                     LastItem = "Not yet",
                     Description = "Well, he's just this guy, you know?"
                 },
-                new UntilItemClass
-                {
+                new() {
                     Name = "Charlie",
                     LastItem = "Yep", // this is only needed for bound case but it's that or reproduce it a bunch of times
                     Description = "What??  That's a great idea!",
-                    Type = UntilItemEnum.End
+                    Type = EUntilItem.End
                 }
             };
 
-            var expected = new UntilItemContainer {Items = items, ItemsLastItemExcluded = items, BoundItems = items, EnumTerminationItems = items};
+            var expected = new UntilItemContainer { Items = items, ItemsLastItemExcluded = items, BoundItems = items, EnumTerminationItems = items };
 
             var actual = Roundtrip(expected);
 
@@ -40,33 +38,30 @@ namespace BinarySerialization.Test.UntilItem
             Assert.AreEqual(expected.ItemsLastItemExcluded.Count - 1, actual.ItemsLastItemExcluded.Count);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void UntilItemBoundTest()
         {
             var items = new List<UntilItemClass>
             {
-                new UntilItemClass
-                {
+                new() {
                     Name = "Alice",
                     LastItem = "Nope",
                     Description = "She's just a girl in the world"
                 },
-                new UntilItemClass
-                {
+                new() {
                     Name = "Bob",
                     LastItem = "Not yet",
                     Description = "Well, he's just this guy, you know?"
                 },
-                new UntilItemClass
-                {
+                new() {
                     Name = "Charlie",
                     LastItem = "Yep",
                     Description = "What??  That's a great idea!",
-                    Type = UntilItemEnum.End
+                    Type = EUntilItem.End
                 }
             };
 
-            var expected = new UntilItemContainer {Items = items, ItemsLastItemExcluded = items, BoundItems = items, EnumTerminationItems = items};
+            var expected = new UntilItemContainer { Items = items, ItemsLastItemExcluded = items, BoundItems = items, EnumTerminationItems = items };
 
             var actual = Roundtrip(expected);
 
@@ -74,29 +69,26 @@ namespace BinarySerialization.Test.UntilItem
             Assert.AreEqual(expected.BoundItems[2].LastItem, actual.SerializeUntilField);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void UntilItemEnumTest()
         {
             var items = new List<UntilItemClass>
             {
-                new UntilItemClass
-                {
+                new() {
                     Name = "Alice",
                     LastItem = "Nope",
                     Description = "She's just a girl in the world"
                 },
-                new UntilItemClass
-                {
+                new() {
                     Name = "Bob",
                     LastItem = "Not yet",
                     Description = "Well, he's just this guy, you know?"
                 },
-                new UntilItemClass
-                {
+                new() {
                     Name = "Charlie",
                     LastItem = "Yep",
                     Description = "What??  That's a great idea!",
-                    Type = UntilItemEnum.End
+                    Type = EUntilItem.End
                 }
             };
 
@@ -107,39 +99,37 @@ namespace BinarySerialization.Test.UntilItem
             Assert.AreEqual(expected.EnumTerminationItems.Count, actual.EnumTerminationItems.Count);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void UntilItemDeferredTest()
         {
             var expected = new UntilItemContainerDeferred
             {
-                Sections = new List<Section>
-                {
-                    new Section
-                    {
-                        Header = new UntilItemSimpleClass {Type = UntilItemEnum.Header},
-                        Items = new List<UntilItemSimpleClass>
-                        {
-                            new UntilItemSimpleClass(),
-                            new UntilItemSimpleClass()
-                        }
+                Sections =
+                [
+                    new() {
+                        Header = new UntilItemSimpleClass {Type = EUntilItem.Header},
+                        Items =
+                        [
+                            new(),
+                            new()
+                        ]
                     },
-                    new Section
-                    {
-                        Header = new UntilItemSimpleClass {Type = UntilItemEnum.Header},
-                        Items = new List<UntilItemSimpleClass>
-                        {
-                            new UntilItemSimpleClass(),
-                            new UntilItemSimpleClass()
-                        }
+                    new() {
+                        Header = new UntilItemSimpleClass {Type = EUntilItem.Header},
+                        Items =
+                        [
+                            new(),
+                            new()
+                        ]
                     },
-                }
+                ]
             };
 
-            var actual = Roundtrip(expected, new byte[]
-            {
+            var actual = Roundtrip(expected,
+            [
                 2,0,0,0,0,0,
                 2,0,0,0,0,0
-            });
+            ]);
 
             Assert.AreEqual(expected.Sections.Count, actual.Sections.Count);
             Assert.AreEqual(expected.Sections[0].Items.Count, actual.Sections[0].Items.Count);

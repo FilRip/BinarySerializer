@@ -1,4 +1,6 @@
-﻿namespace BinarySerialization.Test.Subtype
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test.Subtype
 {
     public class AncestorSubtypeBindingContainerClass
     {
@@ -6,7 +8,7 @@
         public int Selector { get; set; }
 
         [FieldOrder(1)]
-        [Subtype(nameof(Selector), 1, typeof (AncestorSubtypeBindingClass))]
+        [Subtype(nameof(Selector), 1, typeof(AncestorSubtypeBindingClass))]
         public AncestorSubtypeBindingBaseClass AncestorSubtypeBindingClass { get; set; }
     }
 }

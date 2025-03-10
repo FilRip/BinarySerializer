@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
 
+using BinarySerialization.Attributes;
+using BinarySerialization.Constants;
+
 namespace BinarySerialization.Test.Count
 {
     public class MultibindingClass

@@ -2,31 +2,38 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+
+using BinarySerialization.Constants;
+using BinarySerialization.CustomEventArgs;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BinarySerialization.Test
 {
     public abstract class TestBase
     {
-        protected static readonly BinarySerializer Serializer = new BinarySerializer();
+        protected static readonly BinarySerializer Serializer = new();
 
-        protected static readonly BinarySerializer SerializerBe = new BinarySerializer
+        protected static readonly BinarySerializer SerializerBe = new()
         {
-            Endianness = BinarySerialization.Endianness.Big
+            Endianness = Endianness.Big
         };
 
-        protected static readonly string[] TestSequence = {"a", "b", "c"};
-        protected static readonly int[] PrimitiveTestSequence = {1, 2, 3};
+        protected static readonly string[] TestSequence = ["a", "b", "c"];
+        protected static readonly int[] PrimitiveTestSequence = [1, 2, 3];
 
-        static TestBase()
+        protected TestBase(bool registerEvent = true)
         {
-            Serializer.MemberSerializing += OnMemberSerializing;
-            Serializer.MemberSerialized += OnMemberSerialized;
-            Serializer.MemberDeserializing += OnMemberDeserializing;
-            Serializer.MemberDeserialized += OnMemberDeserialized;
+            if (registerEvent)
+            {
+                Serializer.MemberSerializing += OnMemberSerializing;
+                Serializer.MemberSerialized += OnMemberSerialized;
+                Serializer.MemberDeserializing += OnMemberDeserializing;
+                Serializer.MemberDeserialized += OnMemberDeserialized;
+            }
         }
 
-        public T Roundtrip<T>(T o, object context = null)
+        public static T Roundtrip<T>(T o, object context = null)
         {
             PrintSerialize(typeof(T));
 
@@ -39,7 +46,7 @@ namespace BinarySerialization.Test
             return Deserialize<T>(stream, context);
         }
 
-        protected T Roundtrip<T>(T o, long expectedLength)
+        protected static T Roundtrip<T>(T o, long expectedLength)
         {
             PrintSerialize(typeof(T));
             var stream = new MemoryStream();
@@ -55,22 +62,7 @@ namespace BinarySerialization.Test
         }
 
 
-        protected T RoundtripBigEndian<T>(T o, long expectedLength)
-        {
-            PrintSerialize(typeof(T));
-            var stream = new MemoryStream();
-            SerializeBe(stream, o);
-
-            stream.Position = 0;
-            var data = stream.ToArray();
-
-            Assert.AreEqual(expectedLength, data.Length);
-
-            PrintDeserialize(typeof(T));
-            return DeserializeBe<T>(stream);
-        }
-
-        protected T Roundtrip<T>(T o, byte[] expectedValue)
+        protected static T Roundtrip<T>(T o, byte[] expectedValue)
         {
             PrintSerialize(typeof(T));
             var stream = new MemoryStream();
@@ -85,7 +77,22 @@ namespace BinarySerialization.Test
             return Deserialize<T>(stream);
         }
 
-        protected T RoundtripBigEndian<T>(T o, byte[] expectedValue)
+        protected static T RoundtripBigEndian<T>(T o, long expectedLength)
+        {
+            PrintSerialize(typeof(T));
+            var stream = new MemoryStream();
+            SerializeBe(stream, o);
+
+            stream.Position = 0;
+            var data = stream.ToArray();
+
+            Assert.AreEqual(expectedLength, data.Length);
+
+            PrintDeserialize(typeof(T));
+            return DeserializeBe<T>(stream);
+        }
+
+        protected static T RoundtripBigEndian<T>(T o, byte[] expectedValue)
         {
             PrintSerialize(typeof(T));
             var stream = new MemoryStream();
@@ -100,7 +107,7 @@ namespace BinarySerialization.Test
             return DeserializeBe<T>(stream);
         }
 
-        private void AssertEqual(byte[] expected, byte[] actual)
+        private static void AssertEqual(byte[] expected, byte[] actual)
         {
             var length = Math.Min(expected.Length, actual.Length);
 
@@ -109,40 +116,33 @@ namespace BinarySerialization.Test
                 var e = expected[i];
                 var a = actual[i];
 
-                Assert.IsTrue(e == a, $"Value at position {i} does not match expected value.  Expected 0x{e:X2}, got 0x{a:X2}");
+                Assert.AreEqual(a, e, $"Value at position {i} does not match expected value.  Expected 0x{e:X2}, got 0x{a:X2}");
             }
 
-            Assert.IsTrue(expected.Length == actual.Length, $"Sequence lengths do not match.  Expected {expected.Length}, got {actual.Length}");
+            Assert.AreEqual(actual.Length, expected.Length, $"Sequence lengths do not match.  Expected {expected.Length}, got {actual.Length}");
         }
 
-        protected T RoundtripReverse<T>(byte[] data)
+        protected static T RoundtripReverse<T>(byte[] data)
         {
             var o = Deserialize<T>(data);
 
             return Roundtrip(o, data);
         }
 
-        protected byte[] Serialize(object o)
-        {
-            var stream = new MemoryStream();
-            Serialize(stream, o);
-            return stream.ToArray();
-        }
-
-        protected T Deserialize<T>(string filename)
+        protected static T Deserialize<T>(string filename)
         {
             using var stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
             PrintDeserialize(typeof(T));
             return Deserialize<T>(stream);
         }
 
-        protected T Deserialize<T>(byte[] data)
+        protected static T Deserialize<T>(byte[] data)
         {
             PrintDeserialize(typeof(T));
             return Deserialize<T>(new MemoryStream(data));
         }
 
-        protected T Deserialize<T>(Stream stream, object context = null)
+        protected static T Deserialize<T>(Stream stream, object context = null)
         {
 #if TESTASYNC
             var task = Serializer.DeserializeAsync<T>(stream, context);
@@ -154,7 +154,14 @@ namespace BinarySerialization.Test
 #endif
         }
 
-        protected void Serialize(Stream stream, object o, object context = null)
+        protected static byte[] Serialize(object o)
+        {
+            var stream = new MemoryStream();
+            Serialize(stream, o);
+            return stream.ToArray();
+        }
+
+        protected static void Serialize(Stream stream, object o, object context = null)
         {
 #if TESTASYNC
             var task = Serializer.SerializeAsync(stream, o, context);
@@ -165,7 +172,7 @@ namespace BinarySerialization.Test
 #endif
         }
 
-        protected void SerializeBe(Stream stream, object o)
+        protected static void SerializeBe(Stream stream, object o)
         {
 #if TESTASYNC
             var task = SerializerBe.SerializeAsync(stream, o);
@@ -176,7 +183,7 @@ namespace BinarySerialization.Test
 #endif
         }
 
-        protected T DeserializeBe<T>(Stream stream)
+        protected static T DeserializeBe<T>(Stream stream)
         {
 #if TESTASYNC
             var task = SerializerBe.DeserializeAsync<T>(stream);
@@ -190,7 +197,7 @@ namespace BinarySerialization.Test
 
         private static void PrintIndent(int depth)
         {
-            var indent = new string(Enumerable.Repeat(' ', depth * 4).ToArray());
+            var indent = new string([.. Enumerable.Repeat(' ', depth * 4)]);
             Debug.Write(indent);
         }
 
@@ -198,7 +205,7 @@ namespace BinarySerialization.Test
         {
             Debug.WriteLine($"S-{type}");
         }
-        
+
         private static void PrintDeserialize(Type type)
         {
             Debug.WriteLine($"D-{type}");
@@ -228,9 +235,9 @@ namespace BinarySerialization.Test
             PrintIndent(e.Context.Depth);
             var value = e.Value ?? "null";
 
-            if (value is byte[])
+            if (value is byte[] byteArray)
             {
-                value = BitConverter.ToString((byte[])value);
+                value = BitConverter.ToString(byteArray);
             }
 
             Debug.WriteLine("D-End: {0} ({1}) @ {2}", e.MemberName, value, e.Offset);

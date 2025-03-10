@@ -1,4 +1,6 @@
-﻿namespace BinarySerialization.Test.Encoding
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test.Encoding
 {
     public class FieldEncodingClass
     {

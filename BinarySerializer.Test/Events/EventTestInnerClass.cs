@@ -1,4 +1,6 @@
-﻿namespace BinarySerialization.Test.Events
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test.Events
 {
     public class EventTestInnerClass
     {

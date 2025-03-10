@@ -1,4 +1,6 @@
-﻿namespace BinarySerialization.Test
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test
 {
     public enum CerealShape
     {

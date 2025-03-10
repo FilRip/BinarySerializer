@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
+using BinarySerialization.Attributes;
+using BinarySerialization.Constants;
+
 namespace BinarySerialization.Test
 {
     public class Cereal
@@ -51,7 +54,7 @@ namespace BinarySerialization.Test
         public string SerializeMe { get; set; }
 
         [FieldOrder(12)]
-        [SerializeUntil((byte) 0)]
+        [SerializeUntil((byte)0)]
         public List<string> ExplicitlyTerminatedList { get; set; }
 
         [FieldOrder(13)]

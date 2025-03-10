@@ -2,10 +2,10 @@
 
 namespace BinarySerialization.Test.When
 {
-    [TestClass]
+    [TestClass()]
     public class WhenTests : TestBase
     {
-        [TestMethod]
+        [TestMethod()]
         public void WhenStringTest()
         {
             var expected = new WhenStringTestClass
@@ -23,7 +23,7 @@ namespace BinarySerialization.Test.When
             Assert.AreEqual(expected.SerializeThisNoMatterWhat, actual.SerializeThisNoMatterWhat);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void WhenIntTest()
         {
             var expected = new WhenIntTestClass
@@ -45,7 +45,7 @@ namespace BinarySerialization.Test.When
             Assert.AreNotEqual(expected.DontSerializeThis2, actual.DontSerializeThis2);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void WhenEnumTest()
         {
             var expected = new WhenEnumTestClass
@@ -63,7 +63,7 @@ namespace BinarySerialization.Test.When
             Assert.AreEqual(expected.SerializeThisNoMatterWhat, actual.SerializeThisNoMatterWhat);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void WhenConverterTest()
         {
             var expected = new WhenConverterTestClass

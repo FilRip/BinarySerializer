@@ -6,7 +6,7 @@ namespace BinarySerialization.Test.Misc
     {
         public DictionaryMemberClass()
         {
-            Field = new Dictionary<string, string>();
+            Field = [];
         }
 
         public Dictionary<string, string> Field { get; set; }

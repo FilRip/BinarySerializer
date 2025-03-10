@@ -3,125 +3,122 @@ using System.Collections;
 using System.IO;
 using System.Reflection;
 
-namespace BinarySerialization.Graph.TypeGraph
+using BinarySerialization.Interfaces;
+
+namespace BinarySerialization.Graph.TypeGraph;
+
+internal abstract class ContainerTypeNode : TypeNode
 {
-    internal abstract class ContainerTypeNode : TypeNode
+    protected const BindingFlags ConstructorBindingFlags = BindingFlags.Instance | BindingFlags.Public;
+
+    protected ContainerTypeNode(TypeNode parent, Type type)
+        : base(parent, type)
     {
-        protected const BindingFlags ConstructorBindingFlags = BindingFlags.Instance | BindingFlags.Public;
+    }
 
-        protected ContainerTypeNode(TypeNode parent, Type type)
-            : base(parent, type)
+    protected ContainerTypeNode(TypeNode parent, Type parentType, MemberInfo memberInfo, Type subType = null)
+        : base(parent, parentType, memberInfo, subType)
+    {
+    }
+
+    protected TypeNode GenerateChild(Type type)
+    {
+        try
         {
+            ThrowOnBadType(type);
+
+            var nodeType = GetNodeType(type);
+
+            var child = (TypeNode)Activator.CreateInstance(nodeType, this, type);
+            return child;
+        }
+        catch (Exception exception)
+        {
+            var message = $"There was an error reflecting type '{type}'";
+            throw new InvalidOperationException(message, exception);
+        }
+    }
+
+    protected TypeNode GenerateChild(Type parentType, MemberInfo memberInfo)
+    {
+        var memberType = GetMemberType(memberInfo);
+
+        try
+        {
+            ThrowOnBadType(memberType);
+
+            var nodeType = GetNodeType(memberType);
+
+            return (TypeNode)Activator.CreateInstance(nodeType, this, parentType, memberInfo);
+        }
+        catch (Exception exception)
+        {
+            var message = $"There was an error reflecting member '{memberInfo.Name}'";
+            throw new InvalidOperationException(message, exception);
+        }
+    }
+
+    protected static Type GetMemberType(MemberInfo memberInfo)
+    {
+        return memberInfo switch
+        {
+            PropertyInfo propertyInfo => propertyInfo.PropertyType,
+            FieldInfo fieldInfo => fieldInfo.FieldType,
+            _ => throw new NotSupportedException($"{memberInfo.GetType().Name} not supported"),
+        };
+    }
+
+    // ReSharper disable UnusedParameter.Local
+    private static void ThrowOnBadType(Type type)
+    {
+        if (typeof(IDictionary).IsAssignableFrom(type))
+        {
+            throw new InvalidOperationException("Cannot serialize objects that implement IDictionary.");
+        }
+    }
+    // ReSharper restore UnusedParameter.Local
+
+    private static Type GetNodeType(Type type)
+    {
+        var nullableType = Nullable.GetUnderlyingType(type);
+
+        var effectiveType = nullableType ?? type;
+
+        if (effectiveType.GetTypeInfo().IsEnum)
+        {
+            return typeof(EnumTypeNode);
         }
 
-        protected ContainerTypeNode(TypeNode parent, Type parentType, MemberInfo memberInfo, Type subType = null)
-            : base(parent, parentType, memberInfo, subType)
+        if (IsValueType(effectiveType))
         {
+            return typeof(ValueTypeNode);
         }
 
-        protected TypeNode GenerateChild(Type type)
+        if (type.IsArray)
         {
-            try
-            {
-                ThrowOnBadType(type);
-
-                var nodeType = GetNodeType(type);
-
-                var child = (TypeNode) Activator.CreateInstance(nodeType, this, type);
-                return child;
-            }
-            catch (Exception exception)
-            {
-                var message = $"There was an error reflecting type '{type}'";
-                throw new InvalidOperationException(message, exception);
-            }
+            return typeof(ArrayTypeNode);
         }
 
-        protected TypeNode GenerateChild(Type parentType, MemberInfo memberInfo)
+        if (typeof(IList).IsAssignableFrom(type))
         {
-            var memberType = GetMemberType(memberInfo);
-
-            try
-            {
-                ThrowOnBadType(memberType);
-
-                var nodeType = GetNodeType(memberType);
-
-                return (TypeNode) Activator.CreateInstance(nodeType, this, parentType, memberInfo);
-            }
-            catch (Exception exception)
-            {
-                var message = $"There was an error reflecting member '{memberInfo.Name}'";
-                throw new InvalidOperationException(message, exception);
-            }
+            return typeof(ListTypeNode);
         }
 
-        protected static Type GetMemberType(MemberInfo memberInfo)
+        if (typeof(Stream).IsAssignableFrom(type))
         {
-            switch (memberInfo)
-            {
-                case PropertyInfo propertyInfo:
-                    return propertyInfo.PropertyType;
-
-                case FieldInfo fieldInfo:
-                    return fieldInfo.FieldType;
-            }
-
-            throw new NotSupportedException($"{memberInfo.GetType().Name} not supported");
+            return typeof(StreamTypeNode);
         }
 
-// ReSharper disable UnusedParameter.Local
-        private static void ThrowOnBadType(Type type)
+        if (typeof(IBinarySerializable).IsAssignableFrom(type))
         {
-            if (typeof(IDictionary).IsAssignableFrom(type))
-            {
-                throw new InvalidOperationException("Cannot serialize objects that implement IDictionary.");
-            }
+            return typeof(CustomTypeNode);
         }
-// ReSharper restore UnusedParameter.Local
 
-        private static Type GetNodeType(Type type)
+        if (type == typeof(object))
         {
-            var nullableType = Nullable.GetUnderlyingType(type);
-
-            var effectiveType = nullableType ?? type;
-
-            if (effectiveType.GetTypeInfo().IsEnum)
-            {
-                return typeof(EnumTypeNode);
-            }
-
-            if (IsValueType(effectiveType))
-            {
-                return typeof(ValueTypeNode);
-            }
-
-            if (type.IsArray)
-            {
-                return typeof(ArrayTypeNode);
-            }
-
-            if (typeof(IList).IsAssignableFrom(type))
-            {
-                return typeof(ListTypeNode);
-            }
-
-            if (typeof(Stream).IsAssignableFrom(type))
-            {
-                return typeof(StreamTypeNode);
-            }
-
-            if (typeof(IBinarySerializable).IsAssignableFrom(type))
-            {
-                return typeof(CustomTypeNode);
-            }
-
-            if (type == typeof(object))
-            {
-                return typeof(UnknownTypeNode);
-            }
-
-            return typeof(ObjectTypeNode);
+            return typeof(UnknownTypeNode);
         }
+
+        return typeof(ObjectTypeNode);
     }
 }

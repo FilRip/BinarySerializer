@@ -1,33 +1,36 @@
 ﻿using System;
 using System.IO;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BinarySerialization.Test.Custom
 {
-    [TestClass]
+    [TestClass()]
     public class CustomTests : TestBase
     {
-        [TestMethod]
+        [TestMethod()]
         public void TestVaruint()
         {
-            var expected = new Varuint {Value = ushort.MaxValue};
+            var expected = new Varuint { Value = ushort.MaxValue };
             var actual = Roundtrip(expected, 3);
 
             Assert.AreEqual(expected.Value, actual.Value);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void TestCustomDateTime()
         {
-            var expected = new CustomDateTime {Value = new DateTime(1776, 7, 4)};
+            var expected = new CustomDateTime { Value = new DateTime(1776, 7, 4, 0, 0, 0, DateTimeKind.Local) };
             var actual = Roundtrip(expected);
             Assert.AreEqual(expected.Value, actual.Value);
         }
 
-        [TestMethod]
+        [TestMethod()]
+#pragma warning disable S2699 // Tests should include assertions
         public void CustomWithContextTest()
+#pragma warning restore S2699 // Tests should include assertions
         {
-            var expected = new CustomWithContextContainerClass {Value = new CustomWithContextClass()};
+            var expected = new CustomWithContextContainerClass { Value = new CustomWithContextClass() };
 
             var serializer = new BinarySerializer();
             var stream = new MemoryStream();
@@ -37,16 +40,16 @@ namespace BinarySerialization.Test.Custom
             serializer.Deserialize<CustomWithContextContainerClass>(stream);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void CustomSourceBindingTest()
         {
-            var expected = new CustomSourceBinding {NameLength = new Varuint(), Name = "Alice"};
+            var expected = new CustomSourceBinding { NameLength = new Varuint(), Name = "Alice" };
             var nameLength = System.Text.Encoding.UTF8.GetByteCount(expected.Name);
             var actual = Roundtrip(expected, nameLength + 1);
             Assert.AreEqual(expected.Name, actual.Name);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void CustomSourceBindingTest2()
         {
             var expected = new CustomSourceBinding
@@ -60,7 +63,7 @@ namespace BinarySerialization.Test.Custom
             Assert.AreEqual(expected.Name, actual.Name);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void CustomSubtypeTest()
         {
             var expected = new CustomSubtypeContainerClass
@@ -73,14 +76,16 @@ namespace BinarySerialization.Test.Custom
 
             var actual = Roundtrip(expected, 150);
 
-            var innerExpected = (CustomSubtypeCustomClass) expected.Inner;
-            var innerActual = (CustomSubtypeCustomClass) actual.Inner;
+            var innerExpected = (CustomSubtypeCustomClass)expected.Inner;
+            var innerActual = (CustomSubtypeCustomClass)actual.Inner;
 
             Assert.AreEqual(innerExpected.Value, innerActual.Value);
         }
 
-        [TestMethod]
+        [TestMethod()]
+#pragma warning disable S2699 // Tests should include assertions
         public void CustomAttributeTest()
+#pragma warning restore S2699 // Tests should include assertions
         {
             var expected = new CustomWithCustomAttributesContainerClass
             {
@@ -90,16 +95,16 @@ namespace BinarySerialization.Test.Custom
             Roundtrip(expected);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void CustomListTest()
         {
-            var expected = new CustomListClass {"hello"};
+            var expected = new CustomListClass { "hello" };
             var actual = Roundtrip(expected);
-            
+
             CollectionAssert.AreEqual(expected, actual);
         }
 
-        //[TestMethod]
+        //[TestMethod()]
         //public void CustomIListTest()
         //{
         //    var expected = new CustomIListClass {"hello"};

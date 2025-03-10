@@ -1,5 +1,7 @@
 ﻿using System;
 
+using BinarySerialization.Attributes;
+
 // ReSharper disable UnusedParameter.Local
 
 namespace BinarySerialization.Test.Misc

@@ -1,4 +1,7 @@
-﻿namespace BinarySerialization.Test.Length
+﻿using BinarySerialization.Attributes;
+using BinarySerialization.Constants;
+
+namespace BinarySerialization.Test.Length
 {
     public class OneWayLengthBindingClass
     {

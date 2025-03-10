@@ -1,12 +1,7 @@
 ﻿namespace BinarySerialization.Test.Misc
 {
-    public class ImmutableClass3
+    public class ImmutableClass3(int? value)
     {
-        public ImmutableClass3(int? value)
-        {
-            Value = value;
-        }
-
-        public int? Value { get; }
+        public int? Value { get; } = value;
     }
 }

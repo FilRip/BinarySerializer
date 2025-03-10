@@ -1,12 +1,15 @@
 ﻿using System;
 
+using BinarySerialization.Helpers;
+using BinarySerialization.Interfaces;
+
 namespace BinarySerialization.Test.Encoding
 {
     public class EncodingConverter : IValueConverter
     {
         public object Convert(object value, object parameter, BinarySerializationContext context)
         {
-            var encodingName = (string) value;
+            var encodingName = (string)value;
             return EncodingHelper.GetEncoding(encodingName);
         }
 

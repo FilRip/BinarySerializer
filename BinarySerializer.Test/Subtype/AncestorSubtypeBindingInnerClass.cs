@@ -1,10 +1,13 @@
-﻿namespace BinarySerialization.Test.Subtype
+﻿using BinarySerialization.Attributes;
+using BinarySerialization.Constants;
+
+namespace BinarySerialization.Test.Subtype
 {
     public class AncestorSubtypeBindingInnerClass
     {
         [FieldOrder(0)]
         [FieldLength(nameof(AncestorSubtypeBindingClass.ValueLength), RelativeSourceMode = RelativeSourceMode.FindAncestor,
-            AncestorType = typeof (AncestorSubtypeBindingClass))]
+            AncestorType = typeof(AncestorSubtypeBindingClass))]
         public string Value { get; set; }
 
         [FieldOrder(1)]

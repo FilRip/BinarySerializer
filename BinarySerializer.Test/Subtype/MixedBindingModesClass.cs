@@ -1,4 +1,7 @@
-﻿namespace BinarySerialization.Test.Subtype
+﻿using BinarySerialization.Attributes;
+using BinarySerialization.Constants;
+
+namespace BinarySerialization.Test.Subtype
 {
     public class MixedBindingModesClass
     {

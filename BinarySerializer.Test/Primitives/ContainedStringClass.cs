@@ -1,4 +1,6 @@
-﻿namespace BinarySerialization.Test.Primitives
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test.Primitives
 {
     public class ContainedStringClass
     {

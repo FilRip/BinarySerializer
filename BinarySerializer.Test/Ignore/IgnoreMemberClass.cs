@@ -1,4 +1,5 @@
-﻿
+﻿using BinarySerialization.Attributes;
+
 namespace BinarySerialization.Test.Ignore
 {
     [IgnoreMember(nameof(IgnoreMe))]

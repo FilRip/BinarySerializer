@@ -1,4 +1,7 @@
-﻿namespace BinarySerialization.Test.When
+﻿using BinarySerialization.Attributes;
+using BinarySerialization.Constants;
+
+namespace BinarySerialization.Test.When
 {
     public class WhenIntTestClass
     {

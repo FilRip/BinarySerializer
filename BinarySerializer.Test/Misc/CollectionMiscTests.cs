@@ -1,23 +1,24 @@
 ﻿using System.Collections.Generic;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BinarySerialization.Test.Misc
 {
-    [TestClass]
+    [TestClass()]
     public class CollectionMiscTests : TestBase
     {
-        [TestMethod]
+        [TestMethod()]
         public void ListAtRootTest()
         {
-            var expected = new List<string> {"1", "2", "3"};
+            var expected = new List<string> { "1", "2", "3" };
             var actual = Roundtrip(expected);
             Assert.AreEqual(expected.Count, actual.Count);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void ArrayAtRootTest()
         {
-            var expected = new[] {"a", "b", "c"};
+            var expected = new[] { "a", "b", "c" };
             var actual = Roundtrip(expected);
             Assert.AreEqual(expected.Length, actual.Length);
         }

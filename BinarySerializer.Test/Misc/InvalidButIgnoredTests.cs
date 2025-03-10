@@ -2,16 +2,18 @@
 
 namespace BinarySerialization.Test.Misc
 {
-    [TestClass]
+    [TestClass()]
     public class InvalidButIgnoredTests : TestBase
     {
-        [TestMethod]
+        [TestMethod()]
         public void InvalidButIgnoredTest()
         {
-            Roundtrip(new InvalidButIgnoredContainerClass
+            var actual = Roundtrip(new InvalidButIgnoredContainerClass
             {
                 InvalidButIgnored = new InvalidButIgnoredTypeClass()
             });
+            Assert.IsInstanceOfType<InvalidButIgnoredContainerClass>(actual);
+            Assert.IsNull(actual.InvalidButIgnored);
         }
     }
 }

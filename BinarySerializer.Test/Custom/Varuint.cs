@@ -1,6 +1,10 @@
 ﻿using System;
 using System.IO;
 
+using BinarySerialization.Attributes;
+using BinarySerialization.Constants;
+using BinarySerialization.Interfaces;
+
 namespace BinarySerialization.Test.Custom
 {
     /// <summary>
@@ -8,11 +12,11 @@ namespace BinarySerialization.Test.Custom
     /// </summary>
     public class Varuint : IBinarySerializable
     {
-        [Ignore]
+        [Ignore()]
         public uint Value { get; set; }
 
-        public void Deserialize(Stream stream, BinarySerialization.Endianness endianness,
-            BinarySerializationContext context)
+        public void Deserialize(Stream stream, Endianness endianness,
+            BinarySerializationContext serializationContext)
         {
             var more = true;
             var shift = 0;
@@ -26,20 +30,20 @@ namespace BinarySerialization.Test.Custom
                 if (b == -1)
                     throw new InvalidOperationException("Reached end of stream before end of varuint.");
 
-                var lower7Bits = (byte) b;
+                var lower7Bits = (byte)b;
                 more = (lower7Bits & 128) != 0;
-                Value |= (uint) ((lower7Bits & 127) << shift);
+                Value |= (uint)((lower7Bits & 127) << shift);
                 shift += 7;
             }
         }
 
-        public void Serialize(Stream stream, BinarySerialization.Endianness endianness,
-            BinarySerializationContext context)
+        public void Serialize(Stream stream, Endianness endianness,
+            BinarySerializationContext serializationContext)
         {
             var value = Value;
             do
             {
-                var lower7Bits = (byte) (value & 127);
+                var lower7Bits = (byte)(value & 127);
                 value >>= 7;
                 if (value > 0)
                     lower7Bits |= 128;

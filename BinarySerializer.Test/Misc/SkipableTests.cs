@@ -2,13 +2,13 @@
 
 namespace BinarySerialization.Test.Misc
 {
-    [TestClass]
+    [TestClass()]
     public class SkipableTests : TestBase
     {
-        [TestMethod]
+        [TestMethod()]
         public void SkipTest()
         {
-            var actual = Deserialize<SkipableContainerClass>(new byte[0]);
+            var actual = Deserialize<SkipableContainerClass>([]);
             Assert.IsNull(actual.Skipable);
         }
     }

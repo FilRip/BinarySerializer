@@ -1,4 +1,6 @@
-﻿namespace BinarySerialization.Test.SerializeAs
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test.SerializeAs
 {
     class PaddingValueClass
     {

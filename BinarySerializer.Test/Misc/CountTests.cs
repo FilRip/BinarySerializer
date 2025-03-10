@@ -1,28 +1,29 @@
 using System;
 using System.Collections.Generic;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BinarySerialization.Test.Misc
 {
-    [TestClass]
+    [TestClass()]
     public class CountTests : TestBase
     {
-        [TestMethod]
+        [TestMethod()]
         public void ThrowIfMemberImplementsIDictionary()
         {
 #if TESTASYNC
-            Assert.ThrowsException<AggregateException>(() => Roundtrip(new DictionaryMemberClass()));
+            Assert.ThrowsExactly<AggregateException>(() => _ = Roundtrip(new DictionaryMemberClass()));
 #else
             Assert.ThrowsException<InvalidOperationException>(() => Roundtrip(new DictionaryMemberClass()));
 #endif
 
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void ThrowIfImplementsIDictionary()
         {
 #if TESTASYNC
-            Assert.ThrowsException<AggregateException>(() => Roundtrip(new Dictionary<string, string>()));
+            Assert.ThrowsExactly<AggregateException>(() => _ = Roundtrip(new Dictionary<string, string>()));
 #else
             Assert.ThrowsException<InvalidOperationException>(() => Roundtrip(new Dictionary<string, string>()));
 #endif

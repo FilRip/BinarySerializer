@@ -1,4 +1,7 @@
 ﻿using System;
+
+using BinarySerialization.Attributes;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BinarySerialization.Test.Misc
@@ -12,16 +15,16 @@ namespace BinarySerialization.Test.Misc
         public float B;
     }
 
-    [TestClass]
+    [TestClass()]
     public class StructTests : TestBase
     {
-        [TestMethod]
+        [TestMethod()]
         public void TestStruct()
         {
             var expected = new Sample();
 
 #if TESTASYNC
-            Assert.ThrowsException<AggregateException>(() => Roundtrip(expected));
+            Assert.ThrowsExactly<AggregateException>(() => _ = Roundtrip(expected));
 #else
             Assert.ThrowsException<InvalidOperationException>(() => Roundtrip(expected));
 #endif

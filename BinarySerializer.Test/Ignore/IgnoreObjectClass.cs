@@ -1,5 +1,7 @@
 ﻿using System;
 
+using BinarySerialization.Attributes;
+
 namespace BinarySerialization.Test.Ignore
 {
     public class IgnoreObjectClass
@@ -7,10 +9,10 @@ namespace BinarySerialization.Test.Ignore
         [FieldOrder(0)]
         public int FirstField { get; set; }
 
-        [Ignore]
+        [Ignore()]
         public object IgnoreMe { get; set; }
 
-        [Ignore]
+        [Ignore()]
         public DateTime DateTime { get; set; }
 
         [FieldOrder(1)]

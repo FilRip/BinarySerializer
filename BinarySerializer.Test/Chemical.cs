@@ -1,13 +1,11 @@
-﻿namespace BinarySerialization.Test
-{
-    public abstract class Chemical
-    {
-        protected Chemical(string formula)
-        {
-            Formula = formula;
-        }
+﻿using BinarySerialization.Attributes;
+using BinarySerialization.Constants;
 
+namespace BinarySerialization.Test
+{
+    public abstract class Chemical(string formula)
+    {
         [SerializeAs(SerializedType.TerminatedString)]
-        public string Formula { get; set; }
+        public string Formula { get; set; } = formula;
     }
 }

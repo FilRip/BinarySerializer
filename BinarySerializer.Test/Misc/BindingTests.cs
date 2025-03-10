@@ -1,16 +1,17 @@
 ﻿using System;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BinarySerialization.Test.Misc
 {
-    [TestClass]
+    [TestClass()]
     public class BindingTests : TestBase
     {
-        [TestMethod]
+        [TestMethod()]
         public void InvalidForwardBindingTest()
         {
 #if TESTASYNC
-            Assert.ThrowsException<AggregateException>(() => Roundtrip(new InvalidForwardBindingClass()));
+            Assert.ThrowsExactly<AggregateException>(() => _ = Roundtrip(new InvalidForwardBindingClass()));
 #else
             Assert.ThrowsException<InvalidOperationException>(() => Roundtrip(new InvalidForwardBindingClass()));
 #endif

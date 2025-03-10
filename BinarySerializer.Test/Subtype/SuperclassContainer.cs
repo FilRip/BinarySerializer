@@ -1,4 +1,6 @@
-﻿namespace BinarySerialization.Test.Subtype
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test.Subtype
 {
     public class SuperclassContainer
     {
@@ -10,9 +12,9 @@
 
         [FieldOrder(2)]
         [FieldLength(nameof(Length))]
-        [Subtype(nameof(Indicator), 1, typeof (SubclassA))]
-        [Subtype(nameof(Indicator), 2, typeof (SubclassB))]
-        [Subtype(nameof(Indicator), 3, typeof (SubSubclassC))]
+        [Subtype(nameof(Indicator), 1, typeof(SubclassA))]
+        [Subtype(nameof(Indicator), 2, typeof(SubclassB))]
+        [Subtype(nameof(Indicator), 3, typeof(SubSubclassC))]
         public Superclass Value { get; set; }
     }
 }

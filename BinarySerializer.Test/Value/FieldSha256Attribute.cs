@@ -1,13 +1,13 @@
-﻿using System.Security.Cryptography;
+﻿using System;
+using System.Security.Cryptography;
+
+using BinarySerialization.Attributes;
 
 namespace BinarySerialization.Test.Value
 {
-    public class FieldSha256Attribute : FieldValueAttributeBase
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
+    public class FieldSha256Attribute(string valuePath) : FieldValueAttributeBase(valuePath)
     {
-        public FieldSha256Attribute(string valuePath) : base(valuePath)
-        {
-        }
-
         protected override object GetInitialState(BinarySerializationContext context)
         {
             return IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
@@ -15,7 +15,7 @@ namespace BinarySerialization.Test.Value
 
         protected override object GetUpdatedState(object state, byte[] buffer, int offset, int count)
         {
-            var sha = (IncrementalHash) state;
+            var sha = (IncrementalHash)state;
             sha.AppendData(buffer, offset, count);
             return sha;
         }

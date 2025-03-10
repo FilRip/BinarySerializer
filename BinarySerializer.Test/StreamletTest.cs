@@ -1,16 +1,19 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+
+using BinarySerialization.Streams;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BinarySerialization.Test
 {
-    [TestClass]
+    [TestClass()]
     public class StreamletTest
     {
-        private static readonly byte[] SourceData = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        private static readonly byte[] SourceData = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-        private void AssertRead(int offset, int length)
+        private static void AssertRead(int offset, int length)
         {
             var source = new MemoryStream(SourceData);
             var streamlet = new Streamlet(source, offset, length);
@@ -30,7 +33,7 @@ namespace BinarySerialization.Test
             Assert.AreEqual(offset + read, source.Position);
         }
 
-        private void AssertSeek(int offset, int length, int seekOffset, SeekOrigin seekOrigin)
+        /*private static void AssertSeek(int offset, int length, int seekOffset, SeekOrigin seekOrigin)
         {
             var source = new MemoryStream(SourceData);
             var streamlet = new Streamlet(source, offset, length);
@@ -57,21 +60,21 @@ namespace BinarySerialization.Test
 
             Assert.AreEqual(sourcePosition, source.Position);
             Assert.AreEqual(position, streamlet.Position);
-        }
+        }*/
 
-        [TestMethod]
+        [TestMethod()]
         public void ReadFullTest()
         {
             AssertRead(0, SourceData.Length);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void ReadPartialTest()
         {
             AssertRead(0, 4);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void ReadPartialOffsetTest()
         {
             AssertRead(2, 4);

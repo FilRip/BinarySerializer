@@ -1,4 +1,6 @@
-﻿namespace BinarySerialization.Test.Custom
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test.Custom
 {
     public class CustomSubtypeContainerClass
     {
@@ -8,7 +10,7 @@
         [FieldOrder(1)]
         [FieldOffset(50)]
         [FieldLength(100)]
-        [Subtype(nameof(Indicator), 1, typeof (CustomSubtypeCustomClass))]
+        [Subtype(nameof(Indicator), 1, typeof(CustomSubtypeCustomClass))]
         public CustomSubtypeBaseClass Inner { get; set; }
     }
 }

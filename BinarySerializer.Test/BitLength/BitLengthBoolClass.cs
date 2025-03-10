@@ -1,4 +1,6 @@
-﻿namespace BinarySerialization.Test.BitLength
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test.BitLength
 {
     public class BitLengthBoolClass
     {

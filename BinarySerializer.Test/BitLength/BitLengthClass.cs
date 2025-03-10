@@ -1,5 +1,7 @@
 ﻿using System;
 
+using BinarySerialization.Attributes;
+
 namespace BinarySerialization.Test.BitLength
 {
     public class BitLengthClass

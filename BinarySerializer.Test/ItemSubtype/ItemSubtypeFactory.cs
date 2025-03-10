@@ -1,5 +1,7 @@
 ﻿using System;
 
+using BinarySerialization.Interfaces;
+
 namespace BinarySerialization.Test.ItemSubtype
 {
     public class ItemSubtypeFactory : ISubtypeFactory

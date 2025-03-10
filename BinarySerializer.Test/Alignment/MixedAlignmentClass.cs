@@ -1,4 +1,7 @@
-﻿namespace BinarySerialization.Test.Alignment
+﻿using BinarySerialization.Attributes;
+using BinarySerialization.Constants;
+
+namespace BinarySerialization.Test.Alignment
 {
     public class MixedAlignmentClass
     {

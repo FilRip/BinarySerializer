@@ -1,4 +1,7 @@
-﻿namespace BinarySerialization.Test.Encoding
+﻿using BinarySerialization.Attributes;
+using BinarySerialization.Constants;
+
+namespace BinarySerialization.Test.Encoding
 {
     public class EncodingClass2
     {

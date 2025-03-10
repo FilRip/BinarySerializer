@@ -1,4 +1,6 @@
-﻿namespace BinarySerialization.Test.Order
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test.Order
 {
     public class OrderClass
     {

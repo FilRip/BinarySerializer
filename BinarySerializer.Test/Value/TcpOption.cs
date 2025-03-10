@@ -1,4 +1,5 @@
-﻿#pragma warning disable CS0618
+﻿using BinarySerialization.Attributes;
+
 namespace BinarySerialization.Test.Value
 {
     public class TcpOption
@@ -7,14 +8,14 @@ namespace BinarySerialization.Test.Value
         public TcpOptionKind Kind { get; set; }
 
         [FieldOrder(1)]
-        [SerializeWhenNot(nameof(Kind), TcpOptionKind.End)]
-        [SerializeWhenNot(nameof(Kind), TcpOptionKind.NoOp)]
+        [SerializeWhen(nameof(Kind), TcpOptionKind.End, Constants.ComparisonOperator.NotEqual)]
+        [SerializeWhen(nameof(Kind), TcpOptionKind.NoOp, Constants.ComparisonOperator.NotEqual)]
         public byte Length { get; set; }
 
         [FieldOrder(2)]
         [FieldLength(nameof(Length))]
-        [SerializeWhenNot(nameof(Kind), TcpOptionKind.End)]
-        [SerializeWhenNot(nameof(Kind), TcpOptionKind.NoOp)]
+        [SerializeWhen(nameof(Kind), TcpOptionKind.End, Constants.ComparisonOperator.NotEqual)]
+        [SerializeWhen(nameof(Kind), TcpOptionKind.NoOp, Constants.ComparisonOperator.NotEqual)]
         public byte[] Option { get; set; }
     }
 }

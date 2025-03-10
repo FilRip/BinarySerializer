@@ -1,4 +1,6 @@
-﻿namespace BinarySerialization.Test.UntilItem
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test.UntilItem
 {
     public class UntilItemClass
     {
@@ -12,6 +14,6 @@
         public string Description { get; set; }
 
         [FieldOrder(3)]
-        public UntilItemEnum Type { get; set; }
+        public EUntilItem Type { get; set; }
     }
 }

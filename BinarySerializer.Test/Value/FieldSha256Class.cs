@@ -1,4 +1,6 @@
-﻿namespace BinarySerialization.Test.Value
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test.Value
 {
     public class FieldSha256Class
     {

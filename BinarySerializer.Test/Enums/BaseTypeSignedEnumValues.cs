@@ -3,6 +3,6 @@
     public enum BaseTypeSignedEnumValues : short
     {
         PositiveValue = 1,
-        NegativeValue = unchecked ((short)0xFFFF)
+        NegativeValue = unchecked((short)0xFFFF)
     }
 }

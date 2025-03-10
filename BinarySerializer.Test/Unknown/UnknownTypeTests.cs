@@ -1,37 +1,42 @@
 ﻿using System.IO;
+
+using BinarySerialization.Exceptions;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BinarySerialization.Test.Unknown
 {
-    [TestClass]
+    [TestClass()]
     public class UnknownTypeTests : TestBase
     {
-        [TestMethod]
+        [TestMethod()]
         public void UnknownTypeSerializationTest()
         {
-            var unknownTypeClass = new UnknownTypeClass {Field = "hello"};
+            var unknownTypeClass = new UnknownTypeClass { Field = "hello" };
 
             var serializer = new BinarySerializer();
 
             var stream = new MemoryStream();
             serializer.Serialize(stream, unknownTypeClass);
+            string result = System.Text.Encoding.ASCII.GetString(stream.ToArray());
+            Assert.AreEqual("hello\0", result);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void SubtypesOnUnknownTypeFieldShouldThrowBindingException()
         {
-            var unknownTypeClass = new InvalidUnknownTypeClass {Field = "hello"};
+            var unknownTypeClass = new InvalidUnknownTypeClass { Field = "hello" };
 
             var serializer = new BinarySerializer();
 
             var stream = new MemoryStream();
-            Assert.ThrowsException<BindingException>(() => serializer.Serialize(stream, unknownTypeClass));
+            Assert.ThrowsExactly<BindingException>(() => serializer.Serialize(stream, unknownTypeClass));
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void BindingAcrossUnknownBoundaryTest()
         {
-            var childClass = new BindingAcrossUnknownBoundaryChildClass {Subfield = "hello"};
+            var childClass = new BindingAcrossUnknownBoundaryChildClass { Subfield = "hello" };
             var unknownTypeClass = new BindingAcrossUnknownBoundaryClass
             {
                 Field = childClass
@@ -44,10 +49,10 @@ namespace BinarySerialization.Test.Unknown
 
             var data = stream.ToArray();
 
-            Assert.AreEqual((byte) childClass.Subfield.Length, data[0]);
+            Assert.AreEqual((byte)childClass.Subfield.Length, data[0]);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void UnknownSubtypeTest()
         {
             var s = "hello";
@@ -63,7 +68,7 @@ namespace BinarySerialization.Test.Unknown
             var actual = Roundtrip(expected);
 
             Assert.IsInstanceOfType(actual.Unknown, typeof(ClassB));
-            var value = (ClassB) actual.Unknown;
+            var value = (ClassB)actual.Unknown;
             Assert.AreEqual(s, value.Value);
         }
     }

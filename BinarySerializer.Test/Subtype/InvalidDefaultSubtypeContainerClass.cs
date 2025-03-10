@@ -1,4 +1,6 @@
-﻿namespace BinarySerialization.Test.Subtype
+﻿using BinarySerialization.Attributes;
+
+namespace BinarySerialization.Test.Subtype
 {
     public class InvalidDefaultSubtypeContainerClass
     {

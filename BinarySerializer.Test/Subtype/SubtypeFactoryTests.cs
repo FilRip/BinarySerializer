@@ -2,10 +2,10 @@
 
 namespace BinarySerialization.Test.Subtype
 {
-    [TestClass]
+    [TestClass()]
     public class SubtypeFactoryTests : TestBase
     {
-        [TestMethod]
+        [TestMethod()]
         public void SubtypeFactoryTest()
         {
             var expected = new SubtypeFactoryClass
@@ -18,7 +18,7 @@ namespace BinarySerialization.Test.Subtype
             Assert.AreEqual(expected.Value.GetType(), actual.Value.GetType());
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void SubtypeMixedTest()
         {
             var expected = new SubtypeMixedClass
@@ -31,7 +31,7 @@ namespace BinarySerialization.Test.Subtype
             Assert.AreEqual(expected.Value.GetType(), actual.Value.GetType());
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void SubtypeMixedTest2()
         {
             var expected = new SubtypeMixedClass
@@ -44,7 +44,7 @@ namespace BinarySerialization.Test.Subtype
             Assert.AreEqual(expected.Value.GetType(), actual.Value.GetType());
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void SubtypeFactoryWithDefaultTest()
         {
             var data = new byte[] { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5 };
@@ -52,7 +52,7 @@ namespace BinarySerialization.Test.Subtype
             Assert.AreEqual(typeof(DefaultSubtypeClass), actual.Value.GetType());
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void SubtypeMixedWithDefaultTest()
         {
             var data = new byte[] { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5 };
@@ -60,7 +60,7 @@ namespace BinarySerialization.Test.Subtype
             Assert.AreEqual(typeof(DefaultSubtypeClass), actual.Value.GetType());
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void InterfaceSubtypeTest()
         {
             var expected = new InterfaceSubtype

@@ -1,12 +1,13 @@
 ﻿using System.IO;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BinarySerialization.Test.Value
 {
-    [TestClass]
+    [TestClass()]
     public class PngTests : TestBase
     {
-        [TestMethod]
+        [TestMethod()]
         public void DeserializePng()
         {
             byte[] data;

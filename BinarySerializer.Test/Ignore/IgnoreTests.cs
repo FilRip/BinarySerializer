@@ -2,13 +2,13 @@
 
 namespace BinarySerialization.Test.Ignore
 {
-    [TestClass]
+    [TestClass()]
     public class IgnoreTests : TestBase
     {
-        [TestMethod]
+        [TestMethod()]
         public void IgnoreObjectTest()
         {
-            var expected = new IgnoreObjectClass {FirstField = 1, IgnoreMe = "hello", LastField = 2};
+            var expected = new IgnoreObjectClass { FirstField = 1, IgnoreMe = "hello", LastField = 2 };
             var actual = Roundtrip(expected, 8);
 
             Assert.AreEqual(expected.FirstField, actual.FirstField);
@@ -16,16 +16,17 @@ namespace BinarySerialization.Test.Ignore
             Assert.AreEqual(expected.LastField, actual.LastField);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void IgnoreBindingTest()
         {
-            var expected = new IgnoreBindingClass {Value = "Hello"};
+            var expected = new IgnoreBindingClass { Value = "Hello" };
             var actual = Roundtrip(expected);
 
             Assert.AreEqual(expected.Value, actual.Value);
+            Assert.AreEqual(4, expected.Length);
         }
 
-        [TestMethod]
+        [TestMethod()]
         public void IgnoreMemberTest()
         {
             var expected = new IgnoreMemberClass { IgnoreMe = "ignore me" };
